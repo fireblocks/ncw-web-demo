@@ -594,10 +594,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.39.0.tgz#58b536bcc843f4cd1e02a7e6171da5c040f4d44b"
   integrity sha512-kf9RB0Fg7NZfap83B3QOqOGg9QmD9yBudqQXzzOtn3i4y7ZUXe5ONeW34Gwi+TxhH4mvj72R1Zc300KUMa9Bng==
 
-"@fireblocks/ncw-js-sdk@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-0.0.8.tgz#936e48a3a42cee83174cfc8b7fabb57850f2e32b"
-  integrity sha512-mHDF7wOVntsRBuCsV1eEoiZmXQzTPreMabJyj/7df4MUGgEbXH2RXbh9LRDL4NRhkTWD8z8VGcABuX2hM6hMkw==
+"@fireblocks/ncw-js-sdk@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-1.0.0.tgz#d39f5008b55f9680bf02fee421a4ea056a2f5603"
+  integrity sha512-1QhqHmYlCyr0BfkAbWenwpdF6qtDIqKeBOsulWAMLNwpB0AY6ctH2STbd08L14yX4Vpv0O0YOXO8iFz3+CYamw==
 
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.8"

@@ -16,7 +16,7 @@
   "license": "UNLICENSED",
   "packageManager": "yarn@3.3.1",
   "dependencies": {
-    "@fireblocks/ncw-js-sdk": "^0.0.8",
+    "@fireblocks/ncw-js-sdk": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
