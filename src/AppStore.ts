@@ -11,6 +11,7 @@ import { ApiService, ITransactionData } from "./services/ApiService";
 import { IAppState } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, setDeviceId } from "./deviceId";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
+import { randomPassPhrase } from "./services/randomPassPhrase";
 
 const rememberBackupPassphrase = (passphrase: string) => {
   localStorage.setItem("DEMO_APP:backup-passphrase", passphrase);
@@ -87,11 +88,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       set((state) => ({ ...state, passphrase }));
     },
     regeneratePassphrase: () => {
-      const { fireblocksNCW } = get();
-      if (!fireblocksNCW) {
-        return;
-      }
-      const passphrase = fireblocksNCW.generateRandomPassphrase();
+      const passphrase = randomPassPhrase();
       rememberBackupPassphrase(passphrase);
       set((state) => ({ ...state, passphrase }));
     },
