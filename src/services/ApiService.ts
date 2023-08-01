@@ -38,11 +38,8 @@ export class ApiService {
     return response.walletId;
   }
 
-  public async sendMessage(deviceId: string, message: string): Promise<any> {
-    const response: any = await this._postCall(`api/devices/${deviceId}/rpc`, {
-      message,
-    });
-    return response?.result;
+  public sendMessage(deviceId: string, message: string): Promise<any> {
+    return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }
 
   public listenToMessages(deviceId: string, physicalDeviceId: string, cb: TMessageHandler): () => void {
