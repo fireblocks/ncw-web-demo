@@ -151,7 +151,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           const txs = updateOrAddTx(get().txs, tx);
           set((state) => ({ ...state, txs }));
         });
-        const keysStatus = fireblocksNCW.getKeysStatus();
+        const keysStatus = await fireblocksNCW.getKeysStatus();
         set((state) => ({ ...state, keysStatus, fireblocksNCW: fireblocksNCW, fireblocksNCWStatus: "sdk_available" }));
       } catch (e) {
         console.error(e);
