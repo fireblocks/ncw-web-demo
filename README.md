@@ -1,6 +1,6 @@
 # Fireblocks NCW Web Demo
 
-An example usage of `@fireblocks/ncw-js-sdk` for managing non-custodial wallets
+An example usage of `@fireblocks/ncw-js-sdk` for managing non-custodial wallet
 
 ## Quick Start
 
