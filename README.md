@@ -6,7 +6,7 @@ An example usage of `@fireblocks/ncw-js-sdk` for managing non-custodial wallets
 
 1. Clone the repository
 2. Install the dependencies with `yarn`
-3. Run `yard dev`
+3. Run `yarn dev`
 
 ## Tech
 
