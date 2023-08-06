@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import {
+  ConsoleLogger,
   FireblocksNCW,
   IEventsHandler,
   IKeyDescriptor,
@@ -136,12 +137,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
 
-        const fireblocksNCW = await FireblocksNCW.initialize(
+        const fireblocksNCW = await FireblocksNCW.initialize({
           deviceId,
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-        );
+          logger: new ConsoleLogger(),
+        });
 
         const physicalDeviceId = fireblocksNCW.getPhysicalDeviceId();
         messagesUnsubscriber = apiService.listenToMessages(deviceId, physicalDeviceId, (msg) =>
