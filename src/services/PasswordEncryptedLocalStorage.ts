@@ -33,7 +33,6 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
     }
 
     const encryptedData = await super.get();
-    console.log(`get encryptedData: ${encryptedData}`);
     if (!encryptedData) {
       return null;
     }
@@ -46,10 +45,7 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
       throw new Error("Storage locked");
     }
 
-    console.log(`set data: ${data}`);
-
     const encryptedData = await encryptAesGCM(data, this.encKey, this.deviceId);
-    console.log(`set encryptedData: ${encryptedData}`);
     await super.set(encryptedData);
   }
 
