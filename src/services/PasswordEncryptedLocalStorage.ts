@@ -27,12 +27,12 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
     this.encKey = null;
   }
 
-  public async get(): Promise<string | null> {
+  public async get(key: string): Promise<string | null> {
     if (!this.encKey) {
       throw new Error("Storage locked");
     }
 
-    const encryptedData = await super.get();
+    const encryptedData = await super.get(key);
     if (!encryptedData) {
       return null;
     }
@@ -40,13 +40,13 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
     return decryptAesGCM(encryptedData, this.encKey, this.deviceId);
   }
 
-  public async set(data: string): Promise<void> {
+  public async set(key: string, data: string): Promise<void> {
     if (!this.encKey) {
       throw new Error("Storage locked");
     }
 
     const encryptedData = await encryptAesGCM(data, this.encKey, this.deviceId);
-    await super.set(encryptedData);
+    await super.set(key, encryptedData);
   }
 
   private async _generateEncryptionKey(): Promise<string> {
