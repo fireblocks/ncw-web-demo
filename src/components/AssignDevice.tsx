@@ -12,15 +12,7 @@ export const AssignDevice: React.FC = () => {
     assignCurrentDevice,
     generateNewDeviceId,
     fireblocksNCW,
-  } = useAppStore((appStore) => ({
-    walletId: appStore.walletId,
-    deviceId: appStore.deviceId,
-    assignDeviceStatus: appStore.assignDeviceStatus,
-    automateInitialization: appStore.automateInitialization,
-    assignCurrentDevice: appStore.assignCurrentDevice,
-    generateNewDeviceId: appStore.generateNewDeviceId,
-    fireblocksNCW: appStore.fireblocksNCW,
-  }));
+  } = useAppStore();
   const [isAreYouSureDialogOpen, setIsAreYouSureDialogOpen] = React.useState(false);
 
   React.useEffect(() => {

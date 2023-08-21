@@ -1,16 +1,15 @@
-import config from "./auth_config_sandbox.json";
-// import config from "./auth_config_dev9.json";
+import { ENV_CONFIG } from "../env_config";
 
 const onRedirectCallback = (appState: any) => {
   history.pushState(null, "", appState && appState.returnTo ? appState.returnTo : window.location.pathname);
 };
 
 export const auth0ProviderConfig = {
-  domain: config.domain,
-  clientId: config.clientId,
+  domain: ENV_CONFIG.AUTH0_DOMAIN,
+  clientId: ENV_CONFIG.AUTH0_CLIENT_ID,
   onRedirectCallback,
   authorizationParams: {
     redirect_uri: window.location.origin,
-    audience: config.audience,
+    audience: ENV_CONFIG.AUTH0_AUDIENCE,
   },
 };

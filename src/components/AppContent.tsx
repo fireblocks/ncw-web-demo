@@ -5,7 +5,7 @@ import { AssignDevice } from "./AssignDevice";
 import { FireblocksNCWInitializer } from "./FireblocksNCWInitializer";
 import { LoginToDemoAppServer } from "./LoginToDemoAppServer";
 import { useAuth0AccessToken } from "../auth/auth0AccessTokenHook";
-import { FireblockCosignerSDKActions } from "./FireblockCosignerSDKActions";
+import { FireblockNCWExampleActions } from "./FireblockNCWExampleActions";
 
 export const AppContent: React.FC = () => {
   const token = useAuth0AccessToken();
@@ -17,14 +17,7 @@ export const AppContent: React.FC = () => {
     fireblocksNCWStatus: fireblocksNCWStatus,
     initAppStore,
     disposeAppStore,
-  } = useAppStore((appStore) => ({
-    assignDeviceStatus: appStore.assignDeviceStatus,
-    loginToDemoAppServerStatus: appStore.loginToDemoAppServerStatus,
-    appStoreInitialized: appStore.appStoreInitialized,
-    fireblocksNCWStatus: appStore.fireblocksNCWStatus,
-    initAppStore: appStore.initAppStore,
-    disposeAppStore: appStore.disposeAppStore,
-  }));
+  } = useAppStore();
 
   React.useEffect(() => {
     if (appStoreInitialized) {
@@ -48,7 +41,7 @@ export const AppContent: React.FC = () => {
           {assignDeviceStatus === "success" && (
             <>
               <FireblocksNCWInitializer />
-              {fireblocksNCWStatus === "sdk_available" && <FireblockCosignerSDKActions />}
+              {fireblocksNCWStatus === "sdk_available" && <FireblockNCWExampleActions />}
             </>
           )}
         </>

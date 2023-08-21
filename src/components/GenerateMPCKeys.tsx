@@ -17,10 +17,7 @@ export const GenerateMPCKeys: React.FC = () => {
   const [isStopInProgress, setIsStopInProgress] = React.useState(false);
   const [generateMPCKeysResult, setGenerateMPCKeysResult] = React.useState<string | null>(null);
   const [algorithms, setAlgorithms] = React.useState<Set<TMPCAlgorithm>>(getDefaultAlgorithems);
-  const { fireblocksNCW, keysStatus } = useAppStore((appStore) => ({
-    fireblocksNCW: appStore.fireblocksNCW,
-    keysStatus: appStore.keysStatus,
-  }));
+  const { fireblocksNCW, keysStatus } = useAppStore();
 
   if (!fireblocksNCW) {
     return null;

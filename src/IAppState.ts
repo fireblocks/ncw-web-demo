@@ -23,6 +23,6 @@ export interface IAppState {
   createTransaction: () => Promise<void>;
   setPassphrase: (passphrase: string) => void;
   regeneratePassphrase: () => void;
-  initFireblocksNCW: (secure: boolean) => Promise<void>;
+  initFireblocksNCW: () => Promise<void>;
   disposeFireblocksNCW: () => void;
 }

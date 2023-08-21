@@ -1,23 +1,10 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
+import { TransactionRow } from "./TransactionRow";
 import { Card, ICardAction } from "./ui/Card";
 
 export const Transactions: React.FC = () => {
-  const { createTransaction, fireblocksNCW, txs } = useAppStore((appStore) => ({
-    createTransaction: appStore.createTransaction,
-    fireblocksNCW: appStore.fireblocksNCW,
-    txs: appStore.txs,
-  }));
-  const [inProgressTxs, setInProgressTxs] = React.useState<string[]>([]);
-
-  const onSignTransactionClicked = async (txId: string) => {
-    if (!fireblocksNCW) {
-      return;
-    }
-
-    setInProgressTxs([...inProgressTxs, txId]);
-    fireblocksNCW.signTransaction(txId);
-  };
+  const { createTransaction, txs } = useAppStore();
 
   const onCreateTransactionClicked = async () => {
     await createTransaction();
@@ -26,10 +13,6 @@ export const Transactions: React.FC = () => {
   const createTxAction: ICardAction = {
     action: onCreateTransactionClicked,
     label: "Create Tx",
-  };
-
-  const getIsInProgress = (txId: string) => {
-    return inProgressTxs.includes(txId);
   };
 
   return (
@@ -44,27 +27,9 @@ export const Transactions: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {txs.map((tx) => {
-              const inProgress = getIsInProgress(tx.id);
-              const label = inProgress ? "Signing..." : "Sign";
-              return (
-                <tr key={tx.id}>
-                  <td>{tx.id}</td>
-                  <td>{tx.status}</td>
-                  <td>
-                    {tx.status === "PENDING_SIGNATURE" ? (
-                      <button
-                        className="btn btn-sm btn-secondary"
-                        disabled={inProgress}
-                        onClick={() => onSignTransactionClicked(tx.id)}
-                      >
-                        {label}
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              );
-            })}
+            {txs.map((tx) => (
+              <TransactionRow key={tx.id} tx={tx} />
+            ))}
           </tbody>
         </table>
       </div>

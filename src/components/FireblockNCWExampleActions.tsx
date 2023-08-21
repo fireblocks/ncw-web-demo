@@ -1,15 +1,17 @@
 import React from "react";
 
-import { GenerateMPCKeys } from "./GenerateMPCKeys";
 import { BackupAndRecover } from "./BackupAndRecover";
+import { GenerateMPCKeys } from "./GenerateMPCKeys";
+import { Takeover } from "./Takeover";
 import { Transactions } from "./Transactions";
 
-export const FireblockCosignerSDKActions: React.FC = () => {
+export const FireblockNCWExampleActions: React.FC = () => {
   return (
     <>
       <GenerateMPCKeys />
-      <BackupAndRecover />
+      <Takeover />
       <Transactions />
+      <BackupAndRecover />
     </>
   );
 };

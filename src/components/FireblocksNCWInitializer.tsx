@@ -9,19 +9,13 @@ export const FireblocksNCWInitializer: React.FC = () => {
     automateInitialization,
     fireblocksNCWStatus,
     initFireblocksNCW,
-    disposeFireblocksNCW: disposeFireblocksNCW,
-  } = useAppStore((appStore) => ({
-    fireblocksNCW: appStore.fireblocksNCW,
-    automateInitialization: appStore.automateInitialization,
-    fireblocksNCWStatus: appStore.fireblocksNCWStatus,
-    initFireblocksNCW: appStore.initFireblocksNCW,
-    disposeFireblocksNCW: appStore.disposeFireblocksNCW,
-  }));
+    disposeFireblocksNCW,
+  } = useAppStore();
 
   // An easy way to auto-initialize
   React.useEffect(() => {
     if (automateInitialization) {
-      initFireblocksNCW(false);
+      initFireblocksNCW();
     }
   }, [automateInitialization]);
 
@@ -41,14 +35,9 @@ export const FireblocksNCWInitializer: React.FC = () => {
     case "sdk_initialization_failed":
       sdkActions = [
         {
-          action: () => initFireblocksNCW(false),
+          action: () => initFireblocksNCW(),
           isDisabled: false,
           label: "Initialize",
-        },
-        {
-          action: () => initFireblocksNCW(true),
-          isDisabled: false,
-          label: "Initialize with Secure storage",
         },
       ];
       break;

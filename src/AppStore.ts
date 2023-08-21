@@ -13,6 +13,7 @@ import { IAppState } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, setDeviceId } from "./deviceId";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { randomPassPhrase } from "./services/randomPassPhrase";
+import { ENV_CONFIG } from "./env_config";
 
 const rememberBackupPassphrase = (passphrase: string) => {
   localStorage.setItem("DEMO_APP:backup-passphrase", passphrase);
@@ -41,7 +42,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    automateInitialization: true,
+    automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     userId: null,
     walletId: null,
     txs: [],
@@ -54,9 +55,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     keysStatus: null,
     passphrase: getBackupPassphrase(),
     initAppStore: (token) => {
-      //   const BASE_URL = `https://dev9-ncw-demo.waterballoons.xyz`;
-      const BASE_URL = `https://ncw-demo-backend.2uaqu5aka49io.eu-central-1.cs.amazonlightsail.com`;
-      apiService = new ApiService(BASE_URL, token);
+      apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, token);
       set((state) => ({ ...state, appStoreInitialized: true }));
     },
     disposeAppStore: () => {
@@ -105,7 +104,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         set((state) => ({ ...state, userId: null, loginToDemoAppServerStatus: "failed" }));
       }
     },
-    initFireblocksNCW: async (usedPasswordStorage: boolean) => {
+    initFireblocksNCW: async () => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
@@ -177,7 +176,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     disposeFireblocksNCW: () => {
       const { fireblocksNCW } = get();
       if (!fireblocksNCW) {
-        return;
+        throw new Error("fireblocksNCW is not initialized");
       }
       if (messagesUnsubscriber) {
         messagesUnsubscriber();
