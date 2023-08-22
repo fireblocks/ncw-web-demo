@@ -60,7 +60,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
           </button>
         ) : null}
         {errorStr ? (
-          <div className="toast">
+          <div className="toast toast-container">
             <div className="alert alert-error">
               <span>{errorStr}</span>
             </div>

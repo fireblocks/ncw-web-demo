@@ -55,8 +55,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
     keysStatus: null,
     passphrase: getBackupPassphrase(),
     initAppStore: (token) => {
-      apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, token);
-      set((state) => ({ ...state, appStoreInitialized: true }));
+      try {
+        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, token);
+        set((state) => ({ ...state, appStoreInitialized: true }));
+      } catch (e) {
+        console.error(`Failed to initialize ApiService: ${e}`);
+        set((state) => ({ ...state, appStoreInitialized: false }));
+      }
     },
     disposeAppStore: () => {
       if (apiService) {
@@ -137,6 +142,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         });
 
         const fireblocksNCW = await FireblocksNCW.initialize({
+          env: ENV_CONFIG.NCW_SDK_ENV,
           deviceId,
           messagesHandler,
           eventsHandler,
@@ -172,6 +178,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const newTxData = await apiService.createTransaction(deviceId);
       const txs = updateOrAddTx(get().txs, newTxData);
       set((state) => ({ ...state, txs }));
+    },
+    takeover: async () => {
+      const { fireblocksNCW } = get();
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      fireblocksNCW.takeover();
     },
     disposeFireblocksNCW: () => {
       const { fireblocksNCW } = get();
