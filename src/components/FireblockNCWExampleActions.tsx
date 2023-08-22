@@ -10,8 +10,8 @@ export const FireblockNCWExampleActions: React.FC = () => {
     <>
       <GenerateMPCKeys />
       <Takeover />
-      <Transactions />
       <BackupAndRecover />
+      <Transactions />
     </>
   );
 };
