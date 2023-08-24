@@ -83,6 +83,29 @@ export const useAppStore = create<IAppState>()((set, get) => {
         set((state) => ({ ...state, walletId: null, assignDeviceStatus: "failed" }));
       }
     },
+    getAccounts: async () => {
+      const { deviceId } = get();
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      try {
+        const accounts = await apiService.getAccounts(deviceId);
+        if (accounts.length) {
+          for (const account of accounts) {
+            console.log('account', account);
+            const assets = await apiService.getAccountAssets(deviceId, account.accountId);
+            console.log('assets', assets);
+            const address = await apiService.getAddress(deviceId, "ETH_TEST3", account.accountId);
+            console.log('address', address);
+          }
+        } else {
+          console.log("No accounts");
+        }
+        return accounts;
+      } catch (e) {
+        console.log(e);
+      }
+    },
     generateNewDeviceId: async () => {
       const deviceId = generateDeviceId();
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));

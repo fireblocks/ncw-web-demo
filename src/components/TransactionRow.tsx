@@ -26,7 +26,8 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
 
     setInProgress(true);
     try {
-      await fireblocksNCW.signTransaction(txId);
+      const result = await fireblocksNCW.signTransaction(txId);
+      console.log(result);
     } catch (err: unknown) {
       setInProgress(false);
       setTimeout(() => {

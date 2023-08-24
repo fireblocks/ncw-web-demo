@@ -10,6 +10,23 @@ export interface ITransactionData {
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
+export interface IAddress {
+  accountId: string;
+  accountName: string;
+  address: string;
+  addressDescription: string;
+  addressIndex: number;
+  addressType: "PERMANENT";
+  asset: string;
+  legacyAddress: string;
+  tag: string;
+}
+
+export interface IAccount {
+  accountId: number;
+  walletId: string;
+}
+
 export class ApiService {
   private readonly _baseUrl: string;
   private readonly _token: string;
@@ -42,6 +59,22 @@ export class ApiService {
     return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }
 
+  public getAccounts(deviceId: string): Promise<IAccount[]> {
+    return this._getCall(`api/devices/${deviceId}/accounts/`);
+  }
+
+  public getAccountAssets(deviceId: string, accountId: number): Promise<any> {
+    return this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets`);
+  }
+
+  public getAddress(deviceId: string, assetId: string, accountId: number): Promise<IAddress> {
+    return this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}/address`);
+  }
+
+  public addAsset(deviceId: string, assetId: string, accountId: number = 0): Promise<any> {
+    return this._postCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}`);
+  }
+
   public listenToMessages(deviceId: string, physicalDeviceId: string, cb: TMessageHandler): () => void {
     let subscriptions = this._deviceMessagesSubscriptions.get(deviceId);
     if (!subscriptions) {
@@ -67,7 +100,9 @@ export class ApiService {
   }
 
   public async createTransaction(deviceId: string): Promise<ITransactionData> {
-    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`);
+    const destAddress = "0x44C1c593dFd022fF76ebB258F8119d7B84A80f4a";
+    const amount = "0.00000123";
+    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`, { destAddress, amount });
     return createTxResponse;
   }
 
@@ -116,10 +151,9 @@ export class ApiService {
     this._pollingTxsActive.set(deviceId, true);
     let startDate = 0;
     while (!this._disposed) {
-      const response = await this._getCall(`api/devices/${deviceId}/transactions?poll=true&startDate=${startDate}`);
-      const txes = await response.json();
-      if (txes && Array.isArray(txes)) {
-        for (const txData of txes) {
+      const txs = await this._getCall(`api/devices/${deviceId}/transactions?poll=true&startDate=${startDate}`);
+      if (txs && Array.isArray(txs)) {
+        for (const txData of txs) {
           const txId = txData.id;
           const lastUpdated = txData.lastUpdated;
           if (txId !== undefined && lastUpdated !== undefined) {
@@ -151,8 +185,7 @@ export class ApiService {
     }
     this._pollingMessagesActive.set(deviceId, true);
     while (!this._disposed) {
-      const response = await this._getCall(`api/devices/${deviceId}/messages?physicalDeviceId=${physicalDeviceId}`);
-      const messages = await response.json();
+      const messages = await this._getCall(`api/devices/${deviceId}/messages?physicalDeviceId=${physicalDeviceId}`);
       if (messages && Array.isArray(messages)) {
         for (const messageData of messages) {
           // notify all subscribers
@@ -218,6 +251,6 @@ export class ApiService {
         authorization: `Bearer ${this._token}`,
       },
     });
-    return response;
+    return await response.json();
   }
 }

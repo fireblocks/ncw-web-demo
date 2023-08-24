@@ -1,5 +1,5 @@
 import { FireblocksNCW, IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
-import { ITransactionData } from "./services/ApiService";
+import { IAccount, ITransactionData } from "./services/ApiService";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 
 export interface IAppState {
@@ -19,6 +19,7 @@ export interface IAppState {
   disposeAppStore: () => void;
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
+  getAccounts: () => Promise<IAccount[]>;
   generateNewDeviceId: () => Promise<void>;
   createTransaction: () => Promise<void>;
   takeover: () => Promise<void>;
