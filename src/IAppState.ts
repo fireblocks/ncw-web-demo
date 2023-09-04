@@ -10,6 +10,7 @@ export interface IAppState {
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
   pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
+  web3Uri: string | null;
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
@@ -33,4 +34,6 @@ export interface IAppState {
   approveWeb3Connection: () => Promise<void>;
   denyWeb3Connection: () => Promise<void>;
   removeWeb3Connection: (sessionId: string) => Promise<void>;
+
+  setWeb3uri: (uri: string|null) => void;
 }
