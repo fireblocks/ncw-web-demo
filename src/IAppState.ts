@@ -1,5 +1,5 @@
 import { FireblocksNCW, IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
-import { CreateWeb3ConnectionResponse, ITransactionData, Web3Session } from "./services/ApiService";
+import { ICreateWeb3ConnectionResponse, ITransactionData, IWeb3Session } from "./services/ApiService";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 
 export interface IAppState {
@@ -8,8 +8,8 @@ export interface IAppState {
   deviceId: string;
   walletId: string | null;
   txs: ITransactionData[];
-  web3Connections: Web3Session[];
-  pendingWeb3Connection: CreateWeb3ConnectionResponse | null;
+  web3Connections: IWeb3Session[];
+  pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;

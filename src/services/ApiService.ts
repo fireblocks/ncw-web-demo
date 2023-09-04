@@ -7,11 +7,11 @@ export interface ITransactionData {
   lastUpdated?: number;
 }
 
-export interface CreateWeb3ConnectionResponse {
+export interface ICreateWeb3ConnectionResponse {
   id: string;
-  sessionMetadata: SessionMetadata;
+  sessionMetadata: ISessionMetadata;
 }
-export interface SessionMetadata {
+export interface ISessionMetadata {
   appUrl: string;
   appIcon?: string;
   appId?: string;
@@ -19,20 +19,15 @@ export interface SessionMetadata {
   appDescription?: string;
 }
 
-export enum Web3ConnectionFeeLevel {
-  HIGH = "HIGH",
-  MEDIUM = "MEDIUM"
-}
-
-export interface Web3Session {
+export interface IWeb3Session {
   id: string;
   vaultAccountId?: number;
   ncwId?: string;
   ncwAccountId?: number;
   chainIds?: string[];
-  feeLevel: Web3ConnectionFeeLevel;
+  feeLevel: "HIGH" | "MEDIUM";
   creationDate: string;
-  sessionMetadata?: SessionMetadata;
+  sessionMetadata?: ISessionMetadata;
 }
 
 export type TMessageHandler = (message: any) => Promise<void>;
@@ -94,12 +89,12 @@ export class ApiService {
     };
   }
 
-  public async getWeb3Connections(deviceId: string): Promise<Web3Session[]> {
+  public async getWeb3Connections(deviceId: string): Promise<IWeb3Session[]> {
     const response = await this._getCall(`api/devices/${deviceId}/web3/connections`);
     return await response.json();
   }
 
-  public async createWeb3Connection(deviceId: string, uri: string): Promise<CreateWeb3ConnectionResponse> {
+  public async createWeb3Connection(deviceId: string, uri: string): Promise<ICreateWeb3ConnectionResponse> {
     const response = await this._postCall(`api/devices/${deviceId}/web3/connections`, { uri });
     return response;
   }

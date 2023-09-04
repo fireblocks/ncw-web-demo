@@ -1,9 +1,9 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Web3Session } from "../services/ApiService";
+import { IWeb3Session } from "../services/ApiService";
 
 interface IProps {
-  session: Web3Session;
+  session: IWeb3Session;
 }
 
 export const Web3ConnectionRow: React.FC<IProps> = ({ session }) => {
