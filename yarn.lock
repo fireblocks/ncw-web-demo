@@ -518,10 +518,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "@fireblocks/ncw-js-sdk@npm:1.1.3::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-sdk%2F-%2Fncw-js-sdk-1.1.3.tgz"
-  checksum: 473aafdb06c5ecc55643350f84151e5cd7edd956b2375b62a1558dbfd89324eb4ddc04414744c0532281e6dfa902b3c26978ff0f6fc3133b52e79a3831f27bbd
+"@fireblocks/ncw-js-infra@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "@fireblocks/ncw-js-infra@npm:1.0.8::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-infra%2F-%2Fncw-js-infra-1.0.8.tgz"
+  dependencies:
+    "@types/emscripten": ^1.39.7
+  checksum: d42d45ce0da4ead5852c17c535ca847dbd77547008c516c469b39fead8279f41b97136e5f973bfce5a755d52344a0cebb2e9b077a73f20fcad0562cb3e7c597f
+  languageName: node
+  linkType: hard
+
+"@fireblocks/ncw-js-sdk@npm:^1.2.0":
+  version: 1.2.1
+  resolution: "@fireblocks/ncw-js-sdk@npm:1.2.1::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-sdk%2F-%2Fncw-js-sdk-1.2.1.tgz"
+  dependencies:
+    "@fireblocks/ncw-js-infra": ^1.0.8
+    "@types/jwt-decode": ^3.1.0
+    "@types/node-forge": ^1.3.4
+    jwt-decode: ^3.1.2
+    node-forge: ^1.3.1
+  checksum: 550bbfbd5f9b45c8f399f6f82acae5b76d2987ee1ea6d88b423f0b673d58e4834091713a8043202b55205b98c4a43044409d2ffcfea614128597cbfe28046694
   languageName: node
   linkType: hard
 
@@ -530,7 +545,7 @@ __metadata:
   resolution: "@fireblocks/ncw-web-demo@workspace:."
   dependencies:
     "@auth0/auth0-react": ^2.1.0
-    "@fireblocks/ncw-js-sdk": ^1.1.3
+    "@fireblocks/ncw-js-sdk": ^1.2.0
     "@types/node-forge": ^1.3.4
     "@types/react": ^18.0.28
     "@types/react-dom": ^18.0.11
@@ -701,10 +716,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/emscripten@npm:^1.39.7":
+  version: 1.39.7
+  resolution: "@types/emscripten@npm:1.39.7"
+  checksum: 9871e4495358cc06cc45b2798022cd097d8ac2eb5b2fae7c276c6c5cadea05507150fad053c73ed346d4cbd844c50a3438604e5d7c3c2a7446b703cacb1ce172
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:^7.0.9":
   version: 7.0.11
   resolution: "@types/json-schema@npm:7.0.11"
   checksum: 527bddfe62db9012fccd7627794bd4c71beb77601861055d87e3ee464f2217c85fca7a4b56ae677478367bbd248dbde13553312b7d4dbc702a2f2bbf60c4018d
+  languageName: node
+  linkType: hard
+
+"@types/jwt-decode@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@types/jwt-decode@npm:3.1.0"
+  dependencies:
+    jwt-decode: "*"
+  checksum: 82ff0b3826e5d9da48be1f11e16fec96e56dd946995edaa100682202b9b7beb30fb04a353cbabd378d3b13a24241b48a0b662a4f181bae7f758147d92368d930
   languageName: node
   linkType: hard
 
@@ -2287,6 +2318,13 @@ __metadata:
   bin:
     json5: lib/cli.js
   checksum: 2a7436a93393830bce797d4626275152e37e877b265e94ca69c99e3d20c2b9dab021279146a39cdb700e71b2dd32a4cebd1514cd57cee102b1af906ce5040349
+  languageName: node
+  linkType: hard
+
+"jwt-decode@npm:*, jwt-decode@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jwt-decode@npm:3.1.2"
+  checksum: 20a4b072d44ce3479f42d0d2c8d3dabeb353081ba4982e40b83a779f2459a70be26441be6c160bfc8c3c6eadf9f6380a036fbb06ac5406b5674e35d8c4205eeb
   languageName: node
   linkType: hard
 

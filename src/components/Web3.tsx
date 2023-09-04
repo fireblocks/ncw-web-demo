@@ -4,7 +4,7 @@ import { Card, ICardAction } from "./ui/Card";
 import { Web3ConnectionRow } from "./Web3ConnectionRow";
 
 export const Web3: React.FC = () => {
-  const { getWeb3Connections, web3Connections, createWeb3Connection, web3Uri, setWeb3uri } = useAppStore();
+  const { getWeb3Connections, web3Connections, createWeb3Connection, web3Uri, setWeb3uri, pendingWeb3Connection, approveWeb3Connection, denyWeb3Connection } = useAppStore();
 
   const onRefreshClicked = async () => {
     await getWeb3Connections();
@@ -22,6 +22,17 @@ export const Web3: React.FC = () => {
     }
   }
 
+  const onApproveConnection = async () => {
+    if (pendingWeb3Connection) {
+      await approveWeb3Connection();
+    }
+  }
+  const onDenyConnection = async () => {
+    if (pendingWeb3Connection) {
+      await denyWeb3Connection();
+    }
+  }
+
   return (
     <Card title="Web3" actions={[refeshAction]}>
       <div className="grid grid-cols-[150px_auto_50px] gap-2">
@@ -33,11 +44,23 @@ export const Web3: React.FC = () => {
           className="input input-bordered"
           onChange={(e) => setWeb3uri(e.currentTarget.value)}
         />
-        <button className="btn btn-connect-dapp" onClick={() => onConnectDapp()} />
+        <button className="btn btn-connect-dapp" onClick={() => onConnectDapp()}>
+          Connect
+        </button>        
       </div>
-
       <div className="overflow-x-auto">
+      
+      { pendingWeb3Connection && (
+        <div>
+          <label className="label">
+            <span className="label-text">Dapp: { pendingWeb3Connection.sessionMetadata.appName }</span>
+          </label>
+          <button className="btn btn-approve-web3" onClick={() => onApproveConnection() }> Approve</button>
+          <button className="btn btn-deby-web3" onClick={() => onDenyConnection() }> Deny</button>
+        </div>
+      )}
 
+      <div className="overflow-x-auto"></div>
         <table className="table">
           <thead>
             <tr>
