@@ -10,7 +10,17 @@ export const Web3ConnectionRow: React.FC<IProps> = ({ session }) => {
   const { removeWeb3Connection } = useAppStore();
   const isMountedRef = React.useRef<boolean>(false);
   const [inProgress, setInProgress] = React.useState<boolean>(false);
-  const [errorStr, setErrorStr] = React.useState<string | null>(null);
+
+  const removeClicked = async () => {
+    setInProgress(true);
+    try {
+      await removeWeb3Connection(session.id);
+    } finally {
+      if (isMountedRef.current) {
+        setInProgress(false);
+      }
+    }
+  };
 
   React.useEffect(() => {
     isMountedRef.current = true;
@@ -19,21 +29,21 @@ export const Web3ConnectionRow: React.FC<IProps> = ({ session }) => {
     };
   }, []);
 
+  if (!session.sessionMetadata) {
+    return null;
+  }
 
+  const { appName, appDescription, appUrl, appIcon } = session.sessionMetadata;
   return (
     <tr key={session.id}>
-      <td>{session.sessionMetadata?.appName}</td>
-      <td>{session.sessionMetadata?.appDescription}</td>
-      <td>{session.sessionMetadata?.appUrl}</td>
-      <td>{session.sessionMetadata?.appIcon}</td>
+      <td>{appName}</td>
+      <td>{appDescription}</td>
+      <td>{appUrl}</td>
+      <td>{appIcon}</td>
       <td>
-          <button
-            className="btn btn-sm btn-secondary"
-            disabled={inProgress}
-            onClick={() => removeWeb3Connection(session.id)}
-          >
-            Remove
-          </button>
+        <button className="btn btn-sm btn-secondary" disabled={inProgress} onClick={removeClicked}>
+          Remove
+        </button>
       </td>
     </tr>
   );
