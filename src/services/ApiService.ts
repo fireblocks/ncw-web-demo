@@ -7,6 +7,34 @@ export interface ITransactionData {
   lastUpdated?: number;
 }
 
+export interface CreateWeb3ConnectionResponse {
+  id: string;
+  sessionMetadata: SessionMetadata;
+}
+export interface SessionMetadata {
+  appUrl: string;
+  appIcon?: string;
+  appId?: string;
+  appName?: string;
+  appDescription?: string;
+}
+
+export enum Web3ConnectionFeeLevel {
+  HIGH = "HIGH",
+  MEDIUM = "MEDIUM"
+}
+
+export interface Web3Session {
+  id: string;
+  vaultAccountId?: number;
+  ncwId?: string;
+  ncwAccountId?: number;
+  chainIds?: string[];
+  feeLevel: Web3ConnectionFeeLevel;
+  creationDate: string;
+  sessionMetadata?: SessionMetadata;
+}
+
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
@@ -64,6 +92,31 @@ export class ApiService {
         }
       }
     };
+  }
+
+  public async getWeb3Connections(deviceId: string): Promise<Web3Session[]> {
+    const response = await this._getCall(`api/devices/${deviceId}/web3/connections`);
+    return await response.json();
+  }
+
+  public async createWeb3Connection(deviceId: string, uri: string): Promise<CreateWeb3ConnectionResponse> {
+    const response = await this._postCall(`api/devices/${deviceId}/web3/connections`, { uri });
+    return response;
+  }
+
+  public async approveWeb3Connection(deviceId: string, sessionId: string): Promise<void> {
+    const response = await this._postCall(`api/devices/${deviceId}/web3/connections/${sessionId}/approve`);
+    return response;
+  }
+
+  public async denyWeb3Connection(deviceId: string, sessionId: string): Promise<void> {
+    const response = await this._postCall(`api/devices/${deviceId}/web3/connections/${sessionId}/deny`);
+    return response;
+  }
+
+  public async removeWeb3Connection(deviceId: string, sessionId: string) {
+    const response = await this._deleteCall(`api/devices/${deviceId}/web3/connections/${sessionId}`);
+    return response;
   }
 
   public async createTransaction(deviceId: string): Promise<ITransactionData> {
@@ -211,7 +264,7 @@ export class ApiService {
     });
   }
 
-  private async _getCall(path: string): Promise<any> {
+  private async _getCall(path: string): Promise<Response> {
     const response = await fetch(`${this._baseUrl}/${path}`, {
       method: "GET",
       headers: {
