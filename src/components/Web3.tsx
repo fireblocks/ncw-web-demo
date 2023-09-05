@@ -24,7 +24,7 @@ export const Web3: React.FC = () => {
     label: "Refresh",
   };
 
-  const onConnectDapp = async () => {
+  const onCreateConnection = async () => {
     if (web3Uri) {
       await createWeb3Connection(web3Uri);
       setWeb3uri(null);
@@ -34,6 +34,7 @@ export const Web3: React.FC = () => {
   const onApproveConnection = async () => {
     if (pendingWeb3Connection) {
       await approveWeb3Connection();
+      await getWeb3Connections();
     }
   };
 
@@ -45,7 +46,7 @@ export const Web3: React.FC = () => {
 
   const hasConnections = web3Connections.length > 0;
   return (
-    <Card title="Web3" actions={hasConnections ? [refeshAction] : []}>
+    <Card title="Web3" actions={[refeshAction]}>
       <div className="grid grid-cols-[150px_auto_100px] gap-2">
         <label className="label">
           <span className="label-text">Uri:</span>
@@ -53,7 +54,7 @@ export const Web3: React.FC = () => {
         <input type="text" className="input input-bordered" onChange={(e) => setWeb3uri(e.currentTarget.value)} />
         <button
           className="btn btn-secondary"
-          onClick={onConnectDapp}
+          onClick={onCreateConnection}
           disabled={!web3Uri || web3Uri.trim().length === 0}
         >
           Connect
@@ -63,7 +64,7 @@ export const Web3: React.FC = () => {
         {pendingWeb3Connection && (
           <div>
             <label className="label">
-              <span className="label-text">Dapp: {pendingWeb3Connection.sessionMetadata.appName}</span>
+              <span className="label-text">Allow connection to: <b>{pendingWeb3Connection.sessionMetadata.appName} ({pendingWeb3Connection.sessionMetadata.appUrl})</b>?</span>
             </label>
             <button className="btn btn-approve-web3" onClick={onApproveConnection}>
               Approve
