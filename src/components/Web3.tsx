@@ -51,7 +51,7 @@ export const Web3: React.FC = () => {
         <label className="label">
           <span className="label-text">Uri:</span>
         </label>
-        <input type="text" className="input input-bordered" onChange={(e) => setWeb3uri(e.currentTarget.value)} />
+        <input type="text" className="input input-bordered" value={web3Uri ?? ""} onChange={(e) => setWeb3uri(e.currentTarget.value)} />
         <button
           className="btn btn-secondary"
           onClick={onCreateConnection}
