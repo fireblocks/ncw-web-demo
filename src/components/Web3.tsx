@@ -62,14 +62,14 @@ export const Web3: React.FC = () => {
       </div>
       <div className="overflow-x-auto">
         {pendingWeb3Connection && (
-          <div>
+          <div className="grid grid-cols-[auto_100px_100px] gap-2">
             <label className="label">
               <span className="label-text">Allow connection to: <b>{pendingWeb3Connection.sessionMetadata.appName} ({pendingWeb3Connection.sessionMetadata.appUrl})</b>?</span>
             </label>
-            <button className="btn btn-approve-web3" onClick={onApproveConnection}>
+            <button className="btn btn-approve-web3 btn-primary" onClick={onApproveConnection}>
               Approve
             </button>
-            <button className="btn btn-deby-web3" onClick={onDenyConnection}>
+            <button className="btn btn-deby-web3 btn-secondary" onClick={onDenyConnection}>
               Deny
             </button>
           </div>
