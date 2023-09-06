@@ -1,4 +1,4 @@
-export type TTransactionStatus = "PENDING_SIGNATURE" | "SUBMITTED" | "FAILED" | "COMPLETED" | "CANCELLED";
+export type TTransactionStatus = "PENDING_SIGNATURE" | "SUBMITTED" | "FAILED" | "COMPLETED" | "CANCELLED" | "CONFIRMING" | "QUEUED";
 
 export interface ITransferPeer {
   id: string;
