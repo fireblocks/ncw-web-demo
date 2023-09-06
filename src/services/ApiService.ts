@@ -87,6 +87,29 @@ export interface IWeb3Session {
   sessionMetadata?: ISessionMetadata;
 }
 
+export interface ICreateWeb3ConnectionResponse {
+  id: string;
+  sessionMetadata: ISessionMetadata;
+}
+export interface ISessionMetadata {
+  appUrl: string;
+  appIcon?: string;
+  appId?: string;
+  appName?: string;
+  appDescription?: string;
+}
+
+export interface IWeb3Session {
+  id: string;
+  vaultAccountId?: number;
+  ncwId?: string;
+  ncwAccountId?: number;
+  chainIds?: string[];
+  feeLevel: "HIGH" | "MEDIUM";
+  creationDate: string;
+  sessionMetadata?: ISessionMetadata;
+}
+
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
