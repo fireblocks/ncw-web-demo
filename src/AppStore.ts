@@ -8,7 +8,7 @@ import {
   TEvent,
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
-import { ApiService, ITransactionData } from "./services/ApiService";
+import { ApiService, IAssetAddress, IAssetBalance, ITransactionData, IWalletAsset } from "./services/ApiService";
 import { IAppState } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, setDeviceId } from "./deviceId";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
@@ -57,6 +57,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
     fireblocksNCWStatus: "sdk_not_ready",
     keysStatus: null,
     passphrase: getBackupPassphrase(),
+    addAssetPrompt: null,
+    accounts: [],
     initAppStore: (token) => {
       try {
         apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, token);
@@ -265,5 +267,53 @@ export const useAppStore = create<IAppState>()((set, get) => {
       fireblocksNCW.dispose();
       set((state) => ({ ...state, fireblocksNCW: null, fireblocksNCWStatus: "sdk_not_ready" }));
     },
+
+    addAsset: async (accountId: number, assetId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      await apiService.addAsset(deviceId, accountId, assetId);
+      set((state) => ({ ...state, addAssetPrompt: null }));
+    },
+
+    setAddAssetPrompt: (asset: string|null) => {
+      set((state) => ({ ...state, addAssetPrompt: asset }));
+    },
+  
+    refreshAccounts: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId, accounts: prevAccounts } = get();
+      const allAccounts = await apiService.getAccounts(deviceId);
+      const accounts: Array<{
+        asset: IWalletAsset,
+        balance?: IAssetBalance,
+        address?: IAssetAddress,
+      }>[] = [];
+
+      for (const account of allAccounts) {
+        const allAssets = await apiService.getAssets(deviceId, account.accountId);
+        const assets = [];
+        allAssets.map(asset => {
+          const prevAsset = (prevAccounts[account.accountId])?.find(a => a.asset.id === asset.id);
+          const address = prevAsset?.address ?? apiService!.getAddress(deviceId, account.accountId, asset.id);
+          const balance = apiService!.getBalance(deviceId, account.accountId, asset.id);
+          return { asset, balance, address };
+        });
+
+        for (const asset of allAssets) {
+          const prevAsset = (prevAccounts[account.accountId])?.find(a => a.asset.id === asset.id);
+          const address = prevAsset?.address ?? await apiService.getAddress(deviceId, account.accountId, asset.id);
+          const balance = await apiService.getBalance(deviceId, account.accountId, asset.id);
+          assets.push({ asset, balance, address });
+        }
+
+        accounts.push(assets);
+      }
+
+      set((state) => ({ ...state, accounts }));
+    }
   };
 });
