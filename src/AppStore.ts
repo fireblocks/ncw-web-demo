@@ -38,7 +38,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     }
     const result = [...existingTxs];
     result[index] = newTx;
-    return result;
+    return result.sort((t1, t2) => (t2.lastUpdated ?? 0) - (t1.lastUpdated ?? 0));
   };
 
   return {
