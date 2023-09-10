@@ -24,6 +24,7 @@ export interface IAppState {
   assignCurrentDevice: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
   createTransaction: () => Promise<void>;
+  cancelTransaction: (txId: string) => Promise<void>;
   takeover: () => Promise<void>;
   setPassphrase: (passphrase: string) => void;
   regeneratePassphrase: () => void;
