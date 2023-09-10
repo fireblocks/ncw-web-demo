@@ -296,17 +296,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
       for (const account of allAccounts) {
         const allAssets = await apiService.getAssets(deviceId, account.accountId);
         const assets = [];
-        allAssets.map(asset => {
-          const prevAsset = (prevAccounts[account.accountId])?.find(a => a.asset.id === asset.id);
-          const address = prevAsset?.address ?? apiService!.getAddress(deviceId, account.accountId, asset.id);
-          const balance = apiService!.getBalance(deviceId, account.accountId, asset.id);
-          return { asset, balance, address };
-        });
 
         for (const asset of allAssets) {
           const prevAsset = (prevAccounts[account.accountId])?.find(a => a.asset.id === asset.id);
           const address = prevAsset?.address ?? await apiService.getAddress(deviceId, account.accountId, asset.id);
-          const balance = await apiService.getBalance(deviceId, account.accountId, asset.id);
+          const balance = prevAsset?.balance;
           assets.push({ asset, balance, address });
         }
 
@@ -314,6 +308,33 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
 
       set((state) => ({ ...state, accounts }));
-    }
+    },
+
+    refreshBalance: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId, accounts: prevAccounts } = get();
+      const accounts: Array<{
+        asset: IWalletAsset,
+        balance?: IAssetBalance,
+        address?: IAssetAddress,
+      }>[] = [];
+      
+      for (const [id, account] of prevAccounts.entries()) {
+        const prevAssets = account.map(a => a.asset);
+        const assets = [];
+
+        for (const asset of prevAssets) {
+          const prevAsset = (prevAccounts[id])?.find(a => a.asset.id === asset.id);
+          const address = prevAsset?.address;
+          const balance = await apiService.getBalance(deviceId, id, asset.id);
+          assets.push({ asset, balance, address });
+        }
+
+        accounts.push(assets);
+      }
+      set((state) => ({ ...state, accounts }));
+    },
   };
 });

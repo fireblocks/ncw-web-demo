@@ -51,7 +51,7 @@ export const Accounts: React.FC = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {accounts[index].map((asset) => (
+                        {account.map((asset) => (
                             <AssetRow key={asset.asset.id} asset={asset.asset} balance={asset.balance} address={asset.address} />
                         ))}
                         </tbody>
