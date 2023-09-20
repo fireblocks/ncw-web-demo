@@ -4,7 +4,7 @@
   "description": "The Fireblocks NCW Web Demo in JavaScript",
   "keywords": [],
   "author": "Gil Amran",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "packageManager": "yarn@3.3.1",
   "scripts": {
     "dev": "vite",
