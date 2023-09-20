@@ -190,6 +190,24 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const txs = updateOrAddTx(get().txs, newTxData);
       set((state) => ({ ...state, txs }));
     },
+    cancelTransaction: async (txId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      await apiService.cancelTransaction(deviceId, txId);
+      set((state) => {
+        const index = state.txs.findIndex(t => t.id === txId);
+        if (index === -1) {
+          return state;
+        }
+        return { ...state, txs: [
+          ...state.txs.slice(0,index),
+          { ...state.txs[index], status: "CANCELLING" },
+          ...state.txs.slice(index+1)
+        ] }
+      });
+    },
     setWeb3uri: (uri: string|null) => {
       set((state) => ({ ...state, web3Uri: uri }))
     },

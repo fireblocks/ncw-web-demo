@@ -1,4 +1,4 @@
-export type TTransactionStatus = "PENDING_SIGNATURE" | "SUBMITTED" | "FAILED" | "COMPLETED" | "CANCELLED" | "CONFIRMING" | "QUEUED";
+export type TTransactionStatus = "PENDING_SIGNATURE" | "SUBMITTED" | "FAILED" | "COMPLETED" | "CANCELLED" | "CONFIRMING" | "QUEUED" | "CANCELLING";
 
 export interface ITransferPeer {
   id: string;
@@ -227,6 +227,11 @@ export class ApiService {
   public async createTransaction(deviceId: string): Promise<ITransactionData> {
     const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`);
     return createTxResponse;
+  }
+
+  public async cancelTransaction(deviceId: string, txId: string): Promise<void> {
+    const response = await this._postCall(`api/devices/${deviceId}/transactions/${txId}/cancel`);
+    return response;
   }
 
   public async addAsset(deviceId: string, accountId: number, assetId: string): Promise<IWalletAsset> {
