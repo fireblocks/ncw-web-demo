@@ -20,6 +20,7 @@ export interface IAppState {
   passphrase: string | null;
   initAppStore: (token: string) => void;
   disposeAppStore: () => void;
+  setDeviceId: (deviceId: string) => void;
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
@@ -36,5 +37,5 @@ export interface IAppState {
   denyWeb3Connection: () => Promise<void>;
   removeWeb3Connection: (sessionId: string) => Promise<void>;
 
-  setWeb3uri: (uri: string|null) => void;
+  setWeb3uri: (uri: string | null) => void;
 }
