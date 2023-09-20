@@ -22,8 +22,12 @@ export const Transactions: React.FC = () => {
           <thead>
             <tr>
               <th>TxId</th>
+              <th>Last updated</th>
+              <th>Asset</th>
+              <th>Operation</th>
               <th>Status</th>
-              <th></th>
+              <th>Direction</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>

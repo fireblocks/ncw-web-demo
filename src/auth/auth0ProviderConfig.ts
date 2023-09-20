@@ -9,7 +9,7 @@ export const auth0ProviderConfig = {
   clientId: ENV_CONFIG.AUTH0_CLIENT_ID,
   onRedirectCallback,
   authorizationParams: {
-    redirect_uri: window.location.origin,
+    redirect_uri: new URL('/ncw-web-demo/', window.location.origin).toString(),
     audience: ENV_CONFIG.AUTH0_AUDIENCE,
   },
 };

@@ -38,13 +38,16 @@ export const useAppStore = create<IAppState>()((set, get) => {
     }
     const result = [...existingTxs];
     result[index] = newTx;
-    return result;
+    return result.sort((t1, t2) => (t2.lastUpdated ?? 0) - (t1.lastUpdated ?? 0));
   };
 
   return {
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     userId: null,
     walletId: null,
+    pendingWeb3Connection: null,
+    web3Uri: null,
+    web3Connections: [],
     txs: [],
     appStoreInitialized: false,
     fireblocksNCW: null,
@@ -184,6 +187,76 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const newTxData = await apiService.createTransaction(deviceId);
       const txs = updateOrAddTx(get().txs, newTxData);
       set((state) => ({ ...state, txs }));
+    },
+    cancelTransaction: async (txId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      await apiService.cancelTransaction(deviceId, txId);
+      set((state) => {
+        const index = state.txs.findIndex(t => t.id === txId);
+        if (index === -1) {
+          return state;
+        }
+        return { ...state, txs: [
+          ...state.txs.slice(0,index),
+          { ...state.txs[index], status: "CANCELLING" },
+          ...state.txs.slice(index+1)
+        ] }
+      });
+    },
+    setWeb3uri: (uri: string|null) => {
+      set((state) => ({ ...state, web3Uri: uri }))
+    },
+    getWeb3Connections: async() => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+            
+      const { deviceId } = get();
+      const connections = await apiService.getWeb3Connections(deviceId);
+      set((state) => ({ ...state, web3Connections: connections } ));
+    },
+    createWeb3Connection: async (uri: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+            
+      const { deviceId } = get();
+      const response = await apiService.createWeb3Connection(deviceId, uri);
+      set((state) => ({...state, pendingWeb3Connection: response }));
+    },
+    approveWeb3Connection: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId, pendingWeb3Connection } = get();
+      if (!pendingWeb3Connection) {
+        throw new Error("no pending connection");
+      }
+      await apiService.approveWeb3Connection(deviceId, pendingWeb3Connection.id);
+      set((state) => ({...state, pendingWeb3Connection: null }));
+    },
+    denyWeb3Connection: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId, pendingWeb3Connection } = get();
+      if (!pendingWeb3Connection) {
+        throw new Error("no pending connection");
+      }
+      await apiService.denyWeb3Connection(deviceId, pendingWeb3Connection.id);
+      set((state) => ({...state, pendingWeb3Connection: null }));
+    },
+    removeWeb3Connection: async (sessionId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      await apiService.removeWeb3Connection(deviceId, sessionId);
+
+      set((state) => ({...state, web3Connections: state.web3Connections.filter(s => s.id !== sessionId) }));
     },
     takeover: async () => {
       const { fireblocksNCW } = get();
