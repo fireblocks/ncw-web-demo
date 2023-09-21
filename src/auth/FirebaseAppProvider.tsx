@@ -11,8 +11,6 @@ const firebaseConfig = {
   appId: "1:127498444203:web:31ff24e7a4c6bfa92e46ee",
 };
 
-// Initialize Firebase
-
 export const FirebaseAppProviderContext = createContext<FirebaseApp | null>(null);
 
 interface IProps {

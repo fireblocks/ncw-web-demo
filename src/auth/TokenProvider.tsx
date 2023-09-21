@@ -15,7 +15,6 @@ export const TokenProvider: React.FC<IProps> = ({ children }) => {
   const [user] = useAuthState(auth);
   const [isGettingAccessToken, setIsGettingAccessToken] = React.useState(false);
   const [token, setToken] = React.useState<string | null>(null);
-
   
   React.useEffect(() => {
     let isMounted = true;
