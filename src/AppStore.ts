@@ -57,9 +57,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
     fireblocksNCWStatus: "sdk_not_ready",
     keysStatus: null,
     passphrase: getBackupPassphrase(),
-    initAppStore: (token) => {
+    initAppStore: (tokenGetter: () => Promise<string>) => {
       try {
-        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, token);
+        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, tokenGetter);
         set((state) => ({ ...state, appStoreInitialized: true }));
       } catch (e) {
         console.error(`Failed to initialize ApiService: ${e}`);

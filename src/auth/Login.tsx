@@ -2,7 +2,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Card, ICardAction } from "../components/ui/Card";
 import { ReactFCC } from "../types";
-import { TokenProvider } from "./TokenProvider";
+import { TokenGetterProvider } from "./TokenGetterProvider";
 import { useFirebaseApp } from "./firebaseAppHook";
 
 export const Login: ReactFCC = ({ children }) => {
@@ -11,14 +11,14 @@ export const Login: ReactFCC = ({ children }) => {
   const [user, loading] = useAuthState(auth);
 
   if (user) {
-    return <TokenProvider>{children}</TokenProvider>;
+    return <TokenGetterProvider>{children}</TokenGetterProvider>;
   }
 
   const cardAction: ICardAction = {
     action: () => signInWithPopup(auth, new GoogleAuthProvider()),
     isDisabled: loading,
     isInProgress: loading,
-    label: "Login",
+    label: "Login With Google",
   };
   return (
     <div className="mt-16">

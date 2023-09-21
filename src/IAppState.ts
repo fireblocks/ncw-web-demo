@@ -18,7 +18,7 @@ export interface IAppState {
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
-  initAppStore: (token: string) => void;
+  initAppStore: (tokenGetter: () => Promise<string>) => void;
   disposeAppStore: () => void;
   setDeviceId: (deviceId: string) => void;
   loginToDemoAppServer: () => void;
