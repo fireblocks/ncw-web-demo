@@ -4,11 +4,11 @@ import { useAppStore } from "../AppStore";
 import { AssignDevice } from "./AssignDevice";
 import { FireblocksNCWInitializer } from "./FireblocksNCWInitializer";
 import { LoginToDemoAppServer } from "./LoginToDemoAppServer";
-import { useAuth0AccessToken } from "../auth/auth0AccessTokenHook";
+import { useAccessToken } from "../auth/accessTokenHook";
 import { FireblockNCWExampleActions } from "./FireblockNCWExampleActions";
 
 export const AppContent: React.FC = () => {
-  const token = useAuth0AccessToken();
+  const token = useAccessToken();
 
   const {
     loginToDemoAppServerStatus,
