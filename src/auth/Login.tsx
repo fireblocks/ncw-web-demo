@@ -1,4 +1,4 @@
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
+import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "@firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Card, ICardAction } from "../components/ui/Card";
 import { ReactFCC } from "../types";
@@ -14,15 +14,23 @@ export const Login: ReactFCC = ({ children }) => {
     return <TokenGetterProvider>{children}</TokenGetterProvider>;
   }
 
-  const cardAction: ICardAction = {
+  const googleCardAction: ICardAction = {
     action: () => signInWithPopup(auth, new GoogleAuthProvider()),
     isDisabled: loading,
     isInProgress: loading,
-    label: "Login With Google",
+    label: "Sign In With Google",
   };
+
+  const appleCardAction: ICardAction = {
+    action: () => signInWithPopup(auth, new OAuthProvider('apple.com')),
+    isDisabled: loading,
+    isInProgress: loading,
+    label: "Sign In With Apple",
+  };
+
   return (
     <div className="mt-16">
-      <Card title="Authentication" actions={[cardAction]}>
+      <Card title="Authentication" actions={[googleCardAction, appleCardAction]}>
         {loading ? <p>Please wait...</p> : <p>You must first login to be able to access the demo application</p>}
       </Card>
     </div>
