@@ -1,4 +1,4 @@
-import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "@firebase/auth";
+import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Card, ICardAction } from "../components/ui/Card";
 import { ReactFCC } from "../types";
