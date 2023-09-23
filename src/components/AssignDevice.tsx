@@ -3,10 +3,13 @@ import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
 import { AreYouSureDialog } from "./ui/AreYouSureDialog";
 
+const uuidRegex = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', 'i');
+
 export const AssignDevice: React.FC = () => {
   const {
     walletId,
     deviceId,
+    setDeviceId,
     assignDeviceStatus,
     automateInitialization,
     assignCurrentDevice,
@@ -37,6 +40,8 @@ export const AssignDevice: React.FC = () => {
     generateNewDeviceId();
   };
 
+  const isValidDeviceId = uuidRegex.test(deviceId);
+
   const generateNewDeviceIdAction: ICardAction = {
     action: onGenerateNewDeviceIdClicked,
     isDisabled: assignDeviceStatus === "started" || !walletId,
@@ -45,7 +50,7 @@ export const AssignDevice: React.FC = () => {
 
   const assignDeviceAction: ICardAction = {
     action: assignCurrentDevice,
-    isDisabled: assignDeviceStatus === "started",
+    isDisabled: assignDeviceStatus !== "not_started" || !isValidDeviceId,
     isInProgress: assignDeviceStatus === "started",
     label: "Assign Device",
   };
@@ -57,7 +62,13 @@ export const AssignDevice: React.FC = () => {
           <label className="label">
             <span className="label-text">Device ID:</span>
           </label>
-          <input type="text" disabled value={deviceId} className="input input-bordered" />
+          <input
+            type="text"
+            disabled={!!walletId}
+            value={deviceId}
+            className="input input-bordered"
+            onChange={(e) => setDeviceId(e.target.value)}
+          />
         </div>
         {walletId && (
           <div className="mockup-code">

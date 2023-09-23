@@ -106,7 +106,7 @@ export const GenerateMPCKeys: React.FC = () => {
   const stopAction: ICardAction = {
     label: "Stop MPC Device Setup",
     action: doStopMPCDeviceSetup,
-    isDisabled: isStopInProgress,
+    isDisabled: isStopInProgress || !isGenerateInProgress,
     isInProgress: isStopInProgress,
   };
 

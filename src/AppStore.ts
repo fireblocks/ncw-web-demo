@@ -10,7 +10,7 @@ import {
 } from "@fireblocks/ncw-js-sdk";
 import { ApiService, IAssetAddress, IAssetBalance, ITransactionData, IWalletAsset } from "./services/ApiService";
 import { IAppState } from "./IAppState";
-import { generateDeviceId, getOrCreateDeviceId, setDeviceId } from "./deviceId";
+import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { randomPassPhrase } from "./services/randomPassPhrase";
 import { ENV_CONFIG } from "./env_config";
@@ -59,9 +59,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
     passphrase: getBackupPassphrase(),
     addAssetPrompt: null,
     accounts: [],
-    initAppStore: (token) => {
+    initAppStore: (tokenGetter: () => Promise<string>) => {
       try {
-        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, token);
+        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, tokenGetter);
         set((state) => ({ ...state, appStoreInitialized: true }));
       } catch (e) {
         console.error(`Failed to initialize ApiService: ${e}`);
@@ -91,7 +91,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
     generateNewDeviceId: async () => {
       const deviceId = generateDeviceId();
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
-      setDeviceId(deviceId);
+      storeDeviceId(deviceId);
+    },
+    setDeviceId: (deviceId: string) => {
+      storeDeviceId(deviceId);
+      set((state) => ({ ...state, deviceId }));
     },
     setPassphrase: (passphrase: string) => {
       rememberBackupPassphrase(passphrase);
@@ -197,37 +201,40 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const { deviceId } = get();
       await apiService.cancelTransaction(deviceId, txId);
       set((state) => {
-        const index = state.txs.findIndex(t => t.id === txId);
+        const index = state.txs.findIndex((t) => t.id === txId);
         if (index === -1) {
           return state;
         }
-        return { ...state, txs: [
-          ...state.txs.slice(0,index),
-          { ...state.txs[index], status: "CANCELLING" },
-          ...state.txs.slice(index+1)
-        ] }
+        return {
+          ...state,
+          txs: [
+            ...state.txs.slice(0, index),
+            { ...state.txs[index], status: "CANCELLING" },
+            ...state.txs.slice(index + 1),
+          ],
+        };
       });
     },
-    setWeb3uri: (uri: string|null) => {
-      set((state) => ({ ...state, web3Uri: uri }))
+    setWeb3uri: (uri: string | null) => {
+      set((state) => ({ ...state, web3Uri: uri }));
     },
-    getWeb3Connections: async() => {
+    getWeb3Connections: async () => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
-            
+
       const { deviceId } = get();
       const connections = await apiService.getWeb3Connections(deviceId);
-      set((state) => ({ ...state, web3Connections: connections } ));
+      set((state) => ({ ...state, web3Connections: connections }));
     },
     createWeb3Connection: async (uri: string) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
-            
+
       const { deviceId } = get();
       const response = await apiService.createWeb3Connection(deviceId, uri);
-      set((state) => ({...state, pendingWeb3Connection: response }));
+      set((state) => ({ ...state, pendingWeb3Connection: response }));
     },
     approveWeb3Connection: async () => {
       if (!apiService) {
@@ -238,7 +245,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("no pending connection");
       }
       await apiService.approveWeb3Connection(deviceId, pendingWeb3Connection.id);
-      set((state) => ({...state, pendingWeb3Connection: null }));
+      set((state) => ({ ...state, pendingWeb3Connection: null }));
     },
     denyWeb3Connection: async () => {
       if (!apiService) {
@@ -249,7 +256,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("no pending connection");
       }
       await apiService.denyWeb3Connection(deviceId, pendingWeb3Connection.id);
-      set((state) => ({...state, pendingWeb3Connection: null }));
+      set((state) => ({ ...state, pendingWeb3Connection: null }));
     },
     removeWeb3Connection: async (sessionId: string) => {
       if (!apiService) {
@@ -258,7 +265,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const { deviceId } = get();
       await apiService.removeWeb3Connection(deviceId, sessionId);
 
-      set((state) => ({...state, web3Connections: state.web3Connections.filter(s => s.id !== sessionId) }));
+      set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
     },
     takeover: async () => {
       const { fireblocksNCW } = get();

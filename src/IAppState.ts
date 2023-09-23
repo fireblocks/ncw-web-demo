@@ -19,15 +19,14 @@ export interface IAppState {
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
-
   accounts: Array<{
      asset: IWalletAsset,
      balance?: IAssetBalance,
      address?: IAssetAddress,
   }[]>;
-
-  initAppStore: (token: string) => void;
+  initAppStore: (tokenGetter: () => Promise<string>) => void;
   disposeAppStore: () => void;
+  setDeviceId: (deviceId: string) => void;
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
@@ -47,5 +46,5 @@ export interface IAppState {
   refreshBalance: () => Promise<void>;
   addAsset: (accountId: number, assetId: string) => Promise<void>;
   setAddAssetPrompt: (assetId: string|null) => void;
-  setWeb3uri: (uri: string|null) => void;
+  setWeb3uri: (uri: string | null) => void;
 }
