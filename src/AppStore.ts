@@ -104,6 +104,28 @@ export const useAppStore = create<IAppState>()((set, get) => {
       rememberBackupPassphrase(passphrase);
       set((state) => ({ ...state, passphrase }));
     },
+    backupKeys: async () => {
+      const { fireblocksNCW, passphrase } = get();
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      if (!passphrase) {
+        throw new Error("passphrase is not set");
+      }
+      await fireblocksNCW.backupKeys(passphrase);
+    },
+    recoverKeys: async () => {
+      const { fireblocksNCW, passphrase } = get();
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      if (!passphrase) {
+        throw new Error("passphrase is not set");
+      }
+      await fireblocksNCW.recoverKeys(passphrase);
+      const keysStatus = await fireblocksNCW.getKeysStatus();
+      set((state) => ({ ...state, keysStatus }));
+    },
     loginToDemoAppServer: async () => {
       set((state) => ({ ...state, userId: null, loginToDemoAppServerStatus: "started" }));
       if (!apiService) {
@@ -306,8 +328,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const asset = await apiService.getAsset(deviceId, accountId, assetId);
       set((state) => ({
         ...state,
-        accounts: state.accounts.map((assets, index) => index === accountId ? 
-          {...assets, ...{ [assetId]: { asset, address} }} : assets)
+        accounts: state.accounts.map((assets, index) =>
+          index === accountId ? { ...assets, ...{ [assetId]: { asset, address } } } : assets,
+        ),
       }));
     },
 
@@ -320,17 +343,16 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({
         ...state,
-        accounts: Array.from({ length: allAccounts.length }, (_v, i) => ({ ...state.accounts[i] }))
+        accounts: Array.from({ length: allAccounts.length }, (_v, i) => ({ ...state.accounts[i] })),
       }));
 
       // refresh all
       const { refreshAssets, refreshAddress, refreshBalance } = get();
       await Promise.all(get().accounts.map((_v, id) => refreshAssets(id)));
-      await Promise.all(
-        [
-          ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refreshAddress(id, assetId)))),
-          ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refreshBalance(id, assetId))))
-        ]);
+      await Promise.all([
+        ...get().accounts.flatMap((v, id) => Object.keys(v).map((assetId) => refreshAddress(id, assetId))),
+        ...get().accounts.flatMap((v, id) => Object.keys(v).map((assetId) => refreshBalance(id, assetId))),
+      ]);
     },
 
     refreshAssets: async (accountId: number) => {
@@ -339,10 +361,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       const { deviceId } = get();
       const assets = await apiService.getAssets(deviceId, accountId);
-      const reduced = assets.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => { acc[asset.id] = { asset }; return acc; }, {});
+      const reduced = assets.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => {
+        acc[asset.id] = { asset };
+        return acc;
+      }, {});
 
       set((state) => ({
-        ...state, accounts: state.accounts.map((v, i) => (i === accountId ? { ...reduced, ...v } : v))
+        ...state,
+        accounts: state.accounts.map((v, i) => (i === accountId ? { ...reduced, ...v } : v)),
       }));
     },
 
@@ -354,7 +380,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const balance = await apiService.getBalance(deviceId, accountId, assetId);
 
       set((state) => ({
-        ...state, accounts: state.accounts.map((v, i) => (i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], balance } } } : v))
+        ...state,
+        accounts: state.accounts.map((v, i) =>
+          i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], balance } } } : v,
+        ),
       }));
     },
 
@@ -366,7 +395,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const address = await apiService.getAddress(deviceId, accountId, assetId);
 
       set((state) => ({
-        ...state, accounts: state.accounts.map((v, i) => (i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], address } } } : v))
+        ...state,
+        accounts: state.accounts.map((v, i) =>
+          i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], address } } } : v,
+        ),
       }));
     },
   };

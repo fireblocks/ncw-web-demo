@@ -9,7 +9,8 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
-  const { fireblocksNCW, keysStatus, passphrase, regeneratePassphrase, setPassphrase } = useAppStore();
+  const { fireblocksNCW, keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys } =
+    useAppStore();
 
   if (!fireblocksNCW) {
     return null;
@@ -21,10 +22,7 @@ export const BackupAndRecover: React.FC = () => {
     setBackupCompleted(false);
     setRecoverCompleted(false);
     try {
-      if (!passphrase) {
-        throw new Error("cannot backup without pass phrase");
-      }
-      await fireblocksNCW.backupKeys(passphrase);
+      await backupKeys();
       setBackupCompleted(true);
       setIsBackupInProgress(false);
     } catch (err: unknown) {
@@ -44,10 +42,7 @@ export const BackupAndRecover: React.FC = () => {
     setRecoverCompleted(false);
     setBackupCompleted(false);
     try {
-      if (!passphrase) {
-        throw new Error("cannot backup without pass phrase");
-      }
-      await fireblocksNCW.recoverKeys(passphrase);
+      await recoverKeys();
       setRecoverCompleted(true);
       setIsRecoverInProgress(false);
     } catch (err: unknown) {
