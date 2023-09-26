@@ -52,7 +52,6 @@ export interface IAppState {
   denyWeb3Connection: () => Promise<void>;
   removeWeb3Connection: (sessionId: string) => Promise<void>;
   refreshAccounts: () => Promise<void>;
-  refreshAccount: (accountId: number) => Promise<void>;
   refreshBalance: (accountId: number, assetId: string) => Promise<void>;
   refreshAssets: (accountId: number) => Promise<void>;
   refreshAddress: (accountId: number, assetId: string) => Promise<void>;
