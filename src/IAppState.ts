@@ -1,6 +1,20 @@
 import { FireblocksNCW, IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
-import { IAssetAddress, IAssetBalance, ICreateWeb3ConnectionResponse, ITransactionData, IWalletAsset, IWeb3Session } from "./services/ApiService";
+import {
+  IAssetAddress,
+  IAssetBalance,
+  ICreateWeb3ConnectionResponse,
+  ITransactionData,
+  IWalletAsset,
+  IWeb3Session,
+} from "./services/ApiService";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
+
+export interface IAssetInfo {
+  asset: IWalletAsset;
+  balance?: IAssetBalance;
+  address?: IAssetAddress;
+}
+type TAccount = Record<string, IAssetInfo>;
 
 export interface IAppState {
   automateInitialization: boolean;
@@ -11,7 +25,6 @@ export interface IAppState {
   web3Connections: IWeb3Session[];
   pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
   web3Uri: string | null;
-  addAssetPrompt: string | null;
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
@@ -19,12 +32,7 @@ export interface IAppState {
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
-  accounts: Array<{ 
-    [assetId: string]: {
-      asset: IWalletAsset,
-      balance?: IAssetBalance,
-      address?: IAssetAddress,
-    }}>;
+  accounts: TAccount[];
   initAppStore: (tokenGetter: () => Promise<string>) => void;
   disposeAppStore: () => void;
   setDeviceId: (deviceId: string) => void;
@@ -47,8 +55,7 @@ export interface IAppState {
   refreshAccount: (accountId: number) => Promise<void>;
   refreshBalance: (accountId: number, assetId: string) => Promise<void>;
   refreshAssets: (accountId: number) => Promise<void>;
-  refresAddress: (accountId: number, assetId: string) => Promise<void>;
+  refreshAddress: (accountId: number, assetId: string) => Promise<void>;
   addAsset: (accountId: number, assetId: string) => Promise<void>;
-  setAddAssetPrompt: (assetId: string|null) => void;
   setWeb3uri: (uri: string | null) => void;
 }

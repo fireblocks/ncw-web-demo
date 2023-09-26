@@ -57,7 +57,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
     fireblocksNCWStatus: "sdk_not_ready",
     keysStatus: null,
     passphrase: getBackupPassphrase(),
-    addAssetPrompt: null,
     accounts: [],
     initAppStore: (tokenGetter: () => Promise<string>) => {
       try {
@@ -302,14 +301,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const asset = await apiService.getAsset(deviceId, accountId, assetId);
       set((state) => ({
         ...state,
-        addAssetPrompt: null,
         accounts: state.accounts.map((assets, index) => index === accountId ? 
           {...assets, ...{ [assetId]: { asset, address} }} : assets)
       }));
-    },
-
-    setAddAssetPrompt: (asset: string | null) => {
-      set((state) => ({ ...state, addAssetPrompt: asset }));
     },
 
     refreshAccounts: async () => {
@@ -325,11 +319,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }));
 
       // refresh all
-      const { refreshAssets, refresAddress, refreshBalance } = get();
+      const { refreshAssets, refreshAddress, refreshBalance } = get();
       await Promise.all(get().accounts.map((_v, id) => refreshAssets(id)));
       await Promise.all(
         [
-          ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refresAddress(id, assetId)))),
+          ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refreshAddress(id, assetId)))),
           ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refreshBalance(id, assetId))))
         ]);
     },
@@ -359,7 +353,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }));
     },
 
-    refresAddress: async (accountId: number, assetId: string) => {
+    refreshAddress: async (accountId: number, assetId: string) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
