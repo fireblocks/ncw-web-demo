@@ -1,6 +1,20 @@
 import { FireblocksNCW, IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
-import { ICreateWeb3ConnectionResponse, ITransactionData, IWeb3Session } from "./services/ApiService";
+import {
+  IAssetAddress,
+  IAssetBalance,
+  ICreateWeb3ConnectionResponse,
+  ITransactionData,
+  IWalletAsset,
+  IWeb3Session,
+} from "./services/ApiService";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
+
+export interface IAssetInfo {
+  asset: IWalletAsset;
+  balance?: IAssetBalance;
+  address?: IAssetAddress;
+}
+type TAccount = Record<string, IAssetInfo>;
 
 export interface IAppState {
   automateInitialization: boolean;
@@ -10,7 +24,6 @@ export interface IAppState {
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
   pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
-  web3Uri: string | null;
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
@@ -18,6 +31,7 @@ export interface IAppState {
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
+  accounts: TAccount[];
   initAppStore: (tokenGetter: () => Promise<string>) => void;
   disposeAppStore: () => void;
   clearSDKStorage: () => Promise<void>;
@@ -37,6 +51,10 @@ export interface IAppState {
   approveWeb3Connection: () => Promise<void>;
   denyWeb3Connection: () => Promise<void>;
   removeWeb3Connection: (sessionId: string) => Promise<void>;
-
-  setWeb3uri: (uri: string | null) => void;
+  refreshAccounts: () => Promise<void>;
+  refreshAccount: (accountId: number) => Promise<void>;
+  refreshBalance: (accountId: number, assetId: string) => Promise<void>;
+  refreshAssets: (accountId: number) => Promise<void>;
+  refreshAddress: (accountId: number, assetId: string) => Promise<void>;
+  addAsset: (accountId: number, assetId: string) => Promise<void>;
 }

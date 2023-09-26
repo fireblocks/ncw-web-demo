@@ -87,6 +87,59 @@ export interface IWeb3Session {
   sessionMetadata?: ISessionMetadata;
 }
 
+export interface IWalletAsset {
+  id: string;
+  symbol: string;
+  name: string;
+  decimals: number;
+  networkProtocol: string;
+  testnet: boolean;
+  hasFee: boolean;
+  type: string;
+  baseAsset: string;
+  ethNetwork?: number;
+  ethContractAddress?: string;
+  issuerAddress?: string;
+  blockchainSymbol?: string;
+  deprecated?: boolean;
+  coinType: number;
+  blockchain: string;
+  blockchainDisplayName?: string;
+  blockchainId?: string;
+}
+
+export interface IAssetAddress {
+  accountName: string;
+  accountId: string;
+  asset: string;
+  address: string;
+  addressType: string;
+  addressDescription?: string;
+  tag?: string;
+  addressIndex?: number;
+  legacyAddress?: string;
+}
+
+export interface IAssetBalance {
+  id: string;
+  total: string;
+  /**
+   * @deprecated Replaced by "total"
+   */
+  balance?: string;
+  lockedAmount?: string;
+  available?: string;
+  pending?: string;
+  selfStakedCPU?: string;
+  selfStakedNetwork?: string;
+  pendingRefundCPU?: string;
+  pendingRefundNetwork?: string;
+  totalStakedCPU?: string;
+  totalStakedNetwork?: string;
+  blockHeight?: string;
+  blockHash?: string;
+}
+
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
@@ -177,6 +230,36 @@ export class ApiService {
   public async cancelTransaction(deviceId: string, txId: string): Promise<void> {
     const response = await this._postCall(`api/devices/${deviceId}/transactions/${txId}/cancel`);
     return response;
+  }
+
+  public async addAsset(deviceId: string, accountId: number, assetId: string): Promise<IAssetAddress> {
+    const response = await this._postCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}`);
+    return await response;
+  }
+
+  public async getAsset(deviceId: string, accountId: number, assetId: string): Promise<IWalletAsset> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}`);
+    return await response.json();
+  }
+
+  public async getAccounts(deviceId: string): Promise<{ walletId: string; accountId: number; }[]> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/`);
+    return await response.json();
+  }
+
+  public async getAssets(deviceId: string, accountId: number): Promise<IWalletAsset[]> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets`);
+    return await response.json();
+  }
+
+  public async getAddress(deviceId: string, accountId: number, assetId: string): Promise<IAssetAddress> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}/address`);
+    return await response.json();
+  }
+
+  public async getBalance(deviceId: string, accountId: number, assetId: string): Promise<IAssetBalance> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}/balance`);
+    return await response.json();
   }
 
   public listenToTxs(deviceId: string, cb: TTxHandler): () => void {

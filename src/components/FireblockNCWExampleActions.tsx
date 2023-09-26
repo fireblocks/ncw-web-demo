@@ -1,8 +1,9 @@
 import React from "react";
 
-import { BackupAndRecover } from "./BackupAndRecover";
 import { GenerateMPCKeys } from "./GenerateMPCKeys";
 import { Takeover } from "./Takeover";
+import { BackupAndRecover } from "./BackupAndRecover";
+import { Assets } from "./Assets";
 import { Transactions } from "./Transactions";
 import { Web3 } from "./Web3";
 import { useAppStore } from "../AppStore";
@@ -19,6 +20,7 @@ export const FireblockNCWExampleActions: React.FC = () => {
       <BackupAndRecover />
       {hasAKey && (
         <>
+          <Assets />
           <Transactions />
           <Web3 />
           <Takeover />

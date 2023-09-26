@@ -8,12 +8,11 @@ export const Web3: React.FC = () => {
     getWeb3Connections,
     web3Connections,
     createWeb3Connection,
-    web3Uri,
-    setWeb3uri,
     pendingWeb3Connection,
     approveWeb3Connection,
     denyWeb3Connection,
   } = useAppStore();
+  const [web3UriPrompt, setWeb3UriPrompt] = React.useState<string | null>(null);
 
   const onRefreshClicked = async () => {
     await getWeb3Connections();
@@ -25,9 +24,9 @@ export const Web3: React.FC = () => {
   };
 
   const onCreateConnection = async () => {
-    if (web3Uri) {
-      await createWeb3Connection(web3Uri);
-      setWeb3uri(null);
+    if (web3UriPrompt) {
+      await createWeb3Connection(web3UriPrompt);
+      setWeb3UriPrompt(null);
     }
   };
 
@@ -51,11 +50,16 @@ export const Web3: React.FC = () => {
         <label className="label">
           <span className="label-text">Uri:</span>
         </label>
-        <input type="text" className="input input-bordered" value={web3Uri ?? ""} onChange={(e) => setWeb3uri(e.currentTarget.value)} />
+        <input
+          type="text"
+          className="input input-bordered"
+          value={web3UriPrompt ?? ""}
+          onChange={(e) => setWeb3UriPrompt(e.currentTarget.value)}
+        />
         <button
           className="btn btn-secondary"
           onClick={onCreateConnection}
-          disabled={!web3Uri || web3Uri.trim().length === 0}
+          disabled={!web3UriPrompt || web3UriPrompt.trim().length === 0}
         >
           Connect
         </button>
@@ -64,7 +68,13 @@ export const Web3: React.FC = () => {
         {pendingWeb3Connection && (
           <div className="grid grid-cols-[auto_100px_100px] gap-2">
             <label className="label">
-              <span className="label-text">Allow connection to: <b>{pendingWeb3Connection.sessionMetadata.appName} ({pendingWeb3Connection.sessionMetadata.appUrl})</b>?</span>
+              <span className="label-text">
+                Allow connection to:{" "}
+                <b>
+                  {pendingWeb3Connection.sessionMetadata.appName} ({pendingWeb3Connection.sessionMetadata.appUrl})
+                </b>
+                ?
+              </span>
             </label>
             <button className="btn btn-approve-web3 btn-primary" onClick={onApproveConnection}>
               Approve
