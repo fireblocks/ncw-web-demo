@@ -275,7 +275,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     disposeFireblocksNCW: () => {
       const { fireblocksNCW } = get();
       if (!fireblocksNCW) {
-        throw new Error("fireblocksNCW is not initialized");
+        return;
       }
       if (messagesUnsubscriber) {
         messagesUnsubscriber();
