@@ -183,6 +183,15 @@ export const useAppStore = create<IAppState>()((set, get) => {
         }));
       }
     },
+    clearSDKStorage: async () => {
+      const { fireblocksNCW } = get();
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      await fireblocksNCW.clearAllStorage();
+      const keysStatus = await fireblocksNCW.getKeysStatus();
+      set((state) => ({ ...state, keysStatus }));
+    },
     createTransaction: async () => {
       if (!apiService) {
         throw new Error("apiService is not initialized");

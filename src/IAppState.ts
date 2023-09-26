@@ -20,6 +20,7 @@ export interface IAppState {
   passphrase: string | null;
   initAppStore: (tokenGetter: () => Promise<string>) => void;
   disposeAppStore: () => void;
+  clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
