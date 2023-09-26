@@ -46,7 +46,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
     userId: null,
     walletId: null,
     pendingWeb3Connection: null,
-    web3Uri: null,
     web3Connections: [],
     txs: [],
     appStoreInitialized: false,
@@ -213,9 +212,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
           ],
         };
       });
-    },
-    setWeb3uri: (uri: string | null) => {
-      set((state) => ({ ...state, web3Uri: uri }));
     },
     getWeb3Connections: async () => {
       if (!apiService) {

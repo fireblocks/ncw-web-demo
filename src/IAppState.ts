@@ -24,7 +24,6 @@ export interface IAppState {
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
   pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
-  web3Uri: string | null;
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
@@ -57,5 +56,4 @@ export interface IAppState {
   refreshAssets: (accountId: number) => Promise<void>;
   refreshAddress: (accountId: number, assetId: string) => Promise<void>;
   addAsset: (accountId: number, assetId: string) => Promise<void>;
-  setWeb3uri: (uri: string | null) => void;
 }
