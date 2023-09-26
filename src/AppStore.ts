@@ -298,68 +298,77 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
-      await apiService.addAsset(deviceId, accountId, assetId);
-      set((state) => ({ ...state, addAssetPrompt: null }));
+      const address = await apiService.addAsset(deviceId, accountId, assetId);
+      const asset = await apiService.getAsset(deviceId, accountId, assetId);
+      set((state) => ({
+        ...state,
+        addAssetPrompt: null,
+        accounts: state.accounts.map((assets, index) => index === accountId ? 
+          {...assets, ...{ [assetId]: { asset, address} }} : assets)
+      }));
     },
 
-    setAddAssetPrompt: (asset: string|null) => {
+    setAddAssetPrompt: (asset: string | null) => {
       set((state) => ({ ...state, addAssetPrompt: asset }));
     },
-  
+
     refreshAccounts: async () => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
-      const { deviceId, accounts: prevAccounts } = get();
+      const { deviceId } = get();
       const allAccounts = await apiService.getAccounts(deviceId);
-      const accounts: Array<{
-        asset: IWalletAsset,
-        balance?: IAssetBalance,
-        address?: IAssetAddress,
-      }>[] = [];
 
-      for (const account of allAccounts) {
-        const allAssets = await apiService.getAssets(deviceId, account.accountId);
-        const assets = [];
+      set((state) => ({
+        ...state,
+        accounts: Array.from({ length: allAccounts.length }, (_v, i) => ({ ...state.accounts[i] }))
+      }));
 
-        for (const asset of allAssets) {
-          const prevAsset = (prevAccounts[account.accountId])?.find(a => a.asset.id === asset.id);
-          const address = prevAsset?.address ?? await apiService.getAddress(deviceId, account.accountId, asset.id);
-          const balance = prevAsset?.balance;
-          assets.push({ asset, balance, address });
-        }
-
-        accounts.push(assets);
-      }
-
-      set((state) => ({ ...state, accounts }));
+      // refresh all
+      const { refreshAssets, refresAddress, refreshBalance } = get();
+      await Promise.all(get().accounts.map((_v, id) => refreshAssets(id)));
+      await Promise.all(
+        [
+          ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refresAddress(id, assetId)))),
+          ...(get().accounts.flatMap((v, id) => Object.keys(v).map(assetId => refreshBalance(id, assetId))))
+        ]);
     },
 
-    refreshBalance: async () => {
+    refreshAssets: async (accountId: number) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
-      const { deviceId, accounts: prevAccounts } = get();
-      const accounts: Array<{
-        asset: IWalletAsset,
-        balance?: IAssetBalance,
-        address?: IAssetAddress,
-      }>[] = [];
-      
-      for (const [id, account] of prevAccounts.entries()) {
-        const prevAssets = account.map(a => a.asset);
-        const assets = [];
+      const { deviceId } = get();
+      const assets = await apiService.getAssets(deviceId, accountId);
+      const reduced = assets.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => { acc[asset.id] = { asset }; return acc; }, {});
 
-        for (const asset of prevAssets) {
-          const prevAsset = (prevAccounts[id])?.find(a => a.asset.id === asset.id);
-          const address = prevAsset?.address;
-          const balance = await apiService.getBalance(deviceId, id, asset.id);
-          assets.push({ asset, balance, address });
-        }
+      set((state) => ({
+        ...state, accounts: state.accounts.map((v, i) => (i === accountId ? { ...reduced, ...v } : v))
+      }));
+    },
 
-        accounts.push(assets);
+    refreshBalance: async (accountId: number, assetId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
       }
-      set((state) => ({ ...state, accounts }));
+      const { deviceId } = get();
+      const balance = await apiService.getBalance(deviceId, accountId, assetId);
+
+      set((state) => ({
+        ...state, accounts: state.accounts.map((v, i) => (i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], balance } } } : v))
+      }));
+    },
+
+    refresAddress: async (accountId: number, assetId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      const address = await apiService.getAddress(deviceId, accountId, assetId);
+
+      set((state) => ({
+        ...state, accounts: state.accounts.map((v, i) => (i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], address } } } : v))
+      }));
     },
   };
 });

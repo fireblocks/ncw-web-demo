@@ -232,9 +232,14 @@ export class ApiService {
     return response;
   }
 
-  public async addAsset(deviceId: string, accountId: number, assetId: string): Promise<IWalletAsset> {
+  public async addAsset(deviceId: string, accountId: number, assetId: string): Promise<IAssetAddress> {
     const response = await this._postCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}`);
     return await response;
+  }
+
+  public async getAsset(deviceId: string, accountId: number, assetId: string): Promise<IWalletAsset> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets/${assetId}`);
+    return await response.json();
   }
 
   public async getAccounts(deviceId: string): Promise<{ walletId: string; accountId: number; }[]> {

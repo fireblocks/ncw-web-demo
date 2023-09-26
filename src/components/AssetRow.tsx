@@ -1,6 +1,6 @@
 import React from "react";
-import { useAppStore } from "../AppStore";
 import { IAssetAddress, IAssetBalance, IWalletAsset } from "../services/ApiService";
+import { Copyable } from "./ui/Copyable";
 
 interface IProps {
   asset: IWalletAsset;
@@ -28,7 +28,7 @@ export const AssetRow: React.FC<IProps> = ({ asset, balance, address }) => {
       <td>{id}</td>
       <td>{name}</td>
       <td>{type}</td>
-      <td>{address && address.address}</td>
+      <td>{address && <Copyable value={address.address}/>}</td>
       <td>{balance && balance.total}</td>
     </tr>
   );

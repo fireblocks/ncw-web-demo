@@ -1,10 +1,9 @@
-import React, { MouseEventHandler } from "react";
+import React from "react";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
-import { Web3ConnectionRow } from "./Web3ConnectionRow";
 import { AssetRow } from "./AssetRow";
 
-export const Accounts: React.FC = () => {
+export const Assets: React.FC = () => {
   const {
     accounts,
     refreshAccounts,
@@ -34,7 +33,7 @@ export const Accounts: React.FC = () => {
   const hasAccounts = accounts.length > 0;
 
   return (
-    <Card title="Accounts" actions={[refeshAction]}>
+    <Card title="Assets" actions={[refeshAction]}>
       <div className="overflow-x-auto">
         {hasAccounts && (
             accounts.map((account, index) => (
@@ -51,8 +50,8 @@ export const Accounts: React.FC = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {account.map((asset) => (
-                            <AssetRow key={asset.asset.id} asset={asset.asset} balance={asset.balance} address={asset.address} />
+                        {Object.entries(account).map(([assetId, asset]) => (
+                            <AssetRow key={assetId} asset={asset.asset} balance={asset.balance} address={asset.address} />
                         ))}
                         </tbody>
                     </table>
