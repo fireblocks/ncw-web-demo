@@ -999,16 +999,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "@fireblocks/ncw-js-sdk@npm:4.0.2::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-sdk%2F-%2Fncw-js-sdk-4.0.2.tgz"
+"@fireblocks/ncw-js-sdk@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "@fireblocks/ncw-js-sdk@npm:4.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-sdk%2F-%2Fncw-js-sdk-4.0.3.tgz"
   dependencies:
     "@fireblocks/ncw-js-infra": ^1.0.8
     "@types/jwt-decode": ^3.1.0
     "@types/node-forge": ^1.3.4
     jwt-decode: ^3.1.2
     node-forge: ^1.3.1
-  checksum: 88254409202bccbd498fd9d7028cdb0d07be6b14ede01c34701734483aaa66ecfdd250580582707224ad5bef04cf1961cce683395120d41622ca18d71668cafc
+  checksum: 7f17bf34320b089d8925eb165197a0b6df9f55b135176daff705e1a9777073f89cddff607ecf1cc766a5a2518509806735080e1ea31a46ed1ab61ec078af3377
   languageName: node
   linkType: hard
 
@@ -1016,7 +1016,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fireblocks/ncw-web-demo@workspace:."
   dependencies:
-    "@fireblocks/ncw-js-sdk": ^4.0.2
+    "@fireblocks/ncw-js-sdk": ^4.0.3
     "@types/node-forge": ^1.3.4
     "@types/react": ^18.0.28
     "@types/react-dom": ^18.0.11
