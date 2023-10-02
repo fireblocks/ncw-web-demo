@@ -3,7 +3,9 @@ import {
   ConsoleLogger,
   FireblocksNCW,
   IEventsHandler,
+  IKeyBackupEvent,
   IKeyDescriptor,
+  IKeyRecoveryEvent,
   IMessagesHandler,
   TEvent,
   TMPCAlgorithm,
@@ -165,6 +167,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
               case "transaction_signature_changed":
                 console.log(`Transaction signature status: ${event.transactionSignature.transactionSignatureStatus}`);
+                break;
+
+              case "keys_backup":
+                console.log(`Key backup status: ${JSON.stringify((event as IKeyBackupEvent).keysBackup)}`);
+                break;
+
+              case "keys_recovery":
+                console.log(`Key recover status: ${JSON.stringify((event as IKeyRecoveryEvent).keyDescriptor)}`);
                 break;
             }
           },
