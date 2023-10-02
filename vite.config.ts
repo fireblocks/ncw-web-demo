@@ -1,8 +1,11 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/ncw-web-demo/',
+  base: "/ncw-web-demo/",
   plugins: [react()],
-})
+  optimizeDeps: {
+    exclude: ["@fireblocks/ncw-js-sdk"],
+  },
+});
