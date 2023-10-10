@@ -26,7 +26,6 @@ export const Transactions: React.FC = () => {
               <th>Asset</th>
               <th>Operation</th>
               <th>Status</th>
-              <th>Direction</th>
               <th>Actions</th>
             </tr>
           </thead>
