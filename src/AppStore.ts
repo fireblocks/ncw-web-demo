@@ -1,4 +1,3 @@
-import { create } from "zustand";
 import {
   ConsoleLogger,
   FireblocksNCW,
@@ -10,12 +9,13 @@ import {
   TEvent,
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
-import { ApiService, IAssetAddress, IAssetBalance, ITransactionData, IWalletAsset } from "./services/ApiService";
+import { create } from "zustand";
 import { IAppState } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
+import { ENV_CONFIG } from "./env_config";
+import { ApiService, ITransactionData, IWalletAsset } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { randomPassPhrase } from "./services/randomPassPhrase";
-import { ENV_CONFIG } from "./env_config";
 
 const rememberBackupPassphrase = (passphrase: string) => {
   localStorage.setItem("DEMO_APP:backup-passphrase", passphrase);
@@ -30,7 +30,6 @@ export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_a
 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
-  let messagesUnsubscriber: (() => void) | null = null;
   let txsUnsubscriber: (() => void) | null = null;
 
   const updateOrAddTx = (existingTxs: ITransactionData[], newTx: ITransactionData): ITransactionData[] => {
@@ -183,6 +182,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         const { deviceId } = get();
         const secureStorageProvider = new PasswordEncryptedLocalStorage(deviceId, () => {
           const password = prompt("Enter password", "");
+          if (password === null) {
+            return Promise.reject(new Error("Rejected by user"));
+          }
           return Promise.resolve(password || "");
         });
 
@@ -195,10 +197,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
           logger: new ConsoleLogger(),
         });
 
-        const physicalDeviceId = fireblocksNCW.getPhysicalDeviceId();
-        messagesUnsubscriber = apiService.listenToMessages(deviceId, physicalDeviceId, (msg) =>
-          fireblocksNCW.handleIncomingMessage(msg),
-        );
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
           const txs = updateOrAddTx(get().txs, tx);
           set((state) => ({ ...state, txs }));
@@ -314,10 +312,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const { fireblocksNCW } = get();
       if (!fireblocksNCW) {
         return;
-      }
-      if (messagesUnsubscriber) {
-        messagesUnsubscriber();
-        messagesUnsubscriber = null;
       }
 
       if (txsUnsubscriber) {

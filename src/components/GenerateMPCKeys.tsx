@@ -4,19 +4,13 @@ import { TMPCAlgorithm, TKeyStatus } from "@fireblocks/ncw-js-sdk";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
 
-const getDefaultAlgorithems = (): Set<TMPCAlgorithm> => {
-  const algorithms = new Set<TMPCAlgorithm>();
-  algorithms.add("MPC_CMP_ECDSA_SECP256K1");
-  //   algorithms.add("MPC_EDDSA_ED25519");
-  return algorithms;
-};
+const ALGORITHMS = new Set<TMPCAlgorithm>(["MPC_CMP_ECDSA_SECP256K1"]);
 
 export const GenerateMPCKeys: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isGenerateInProgress, setIsGenerateInProgress] = React.useState(false);
   const [isStopInProgress, setIsStopInProgress] = React.useState(false);
   const [generateMPCKeysResult, setGenerateMPCKeysResult] = React.useState<string | null>(null);
-  const [algorithms, setAlgorithms] = React.useState<Set<TMPCAlgorithm>>(getDefaultAlgorithems);
   const { fireblocksNCW, keysStatus } = useAppStore();
 
   if (!fireblocksNCW) {
@@ -28,8 +22,8 @@ export const GenerateMPCKeys: React.FC = () => {
     setErr(null);
     setIsGenerateInProgress(true);
     try {
-      await fireblocksNCW.generateMPCKeys(algorithms);
-      setGenerateMPCKeysResult(generateMPCKeysResult);
+      await fireblocksNCW.generateMPCKeys(ALGORITHMS);
+      setGenerateMPCKeysResult("Success");
       setIsGenerateInProgress(false);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -63,22 +57,7 @@ export const GenerateMPCKeys: React.FC = () => {
     }
   };
 
-  const algoSECP256K1Selected = algorithms.has("MPC_CMP_ECDSA_SECP256K1");
-  const algoED25519Selected = algorithms.has("MPC_EDDSA_ED25519");
-  const algoSelected = algoSECP256K1Selected || algoED25519Selected;
-
-  const toggleAlgo = (algo: TMPCAlgorithm) => {
-    if (algorithms.has(algo)) {
-      algorithms.delete(algo);
-      setAlgorithms(new Set(algorithms));
-    } else {
-      algorithms.add(algo);
-      setAlgorithms(new Set(algorithms));
-    }
-  };
-
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
-  const ed25519Status = keysStatus?.MPC_EDDSA_ED25519?.keyStatus ?? null;
   const statusToProgress = (status: TKeyStatus | null) => {
     switch (status) {
       case "INITIATED":
@@ -95,11 +74,12 @@ export const GenerateMPCKeys: React.FC = () => {
         return 0;
     }
   };
+  const secP256K1Ready = secP256K1Status === "READY";
 
   const generateAction: ICardAction = {
     label: "Generate MPC Keys",
     action: doGenerateMPCKeys,
-    isDisabled: isGenerateInProgress || !algoSelected,
+    isDisabled: isGenerateInProgress || secP256K1Ready,
     isInProgress: isGenerateInProgress,
   };
 
@@ -110,7 +90,6 @@ export const GenerateMPCKeys: React.FC = () => {
     isInProgress: isStopInProgress,
   };
 
-  const showEDDSA = false;
   return (
     <Card title="Generate MPC Keys" actions={[generateAction, stopAction]}>
       <div className="overflow-x-auto">
@@ -129,17 +108,7 @@ export const GenerateMPCKeys: React.FC = () => {
           <tbody>
             <tr>
               <th>
-                <div className="grid grid-cols-[150px_150px] gap-2">
-                  <label className="cursor-pointer label">
-                    <span className="label-text">ECDSA SECP256K1</span>
-                  </label>
-                  {/* <input
-                    type="checkbox"
-                    className="toggle toggle-info self-center"
-                    checked={algoSECP256K1Selected}
-                    onChange={() => toggleAlgo("MPC_CMP_ECDSA_SECP256K1")}
-                  /> */}
-                </div>
+                <span className="label-text">ECDSA SECP256K1</span>
               </th>
               <td colSpan={5}>
                 <progress
@@ -149,31 +118,6 @@ export const GenerateMPCKeys: React.FC = () => {
                 ></progress>
               </td>
             </tr>
-            {showEDDSA && (
-              <tr>
-                <th>
-                  <div className="grid grid-cols-[150px_150px] gap-2">
-                    <label className="cursor-pointer label">
-                      <span className="label-text">EDDSA ED25519</span>
-                    </label>
-                    <input
-                      type="checkbox"
-                      className="toggle toggle-info self-center"
-                      disabled
-                      checked={algoED25519Selected}
-                      onChange={() => toggleAlgo("MPC_EDDSA_ED25519")}
-                    />
-                  </div>
-                </th>
-                <td colSpan={5}>
-                  <progress
-                    className="progress progress-primary"
-                    value={statusToProgress(ed25519Status)}
-                    max="100"
-                  ></progress>
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
