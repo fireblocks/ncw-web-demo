@@ -39,11 +39,11 @@ const rebalanceIcon = (
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    stroke-width={1.5}
+    strokeWidth={1.5}
     stroke="currentColor"
     className="w-6 h-6"
   >
-    <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3" />
   </svg>
 );
 const pendingIcon = (
@@ -172,54 +172,56 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
   const isOutgoing = (tx: ITransactionDetails) => tx.source.walletId === walletId;
 
   return (
-    <>
-      <tr key={tx.id}>
-        <td>{tx.id}</td>
-        <td>{formatTimeAgo(new Date(tx.createdAt!))}</td>
-        <td>{tx.details?.assetId}</td>
-        <td>
+    <tr key={tx.id}>
+      <td>
+        <>
+          {tx.id}
+          {errorStr ? (
+            <div className="toast toast-container">
+              <div className="alert alert-error">
+                <span>{errorStr}</span>
+              </div>
+            </div>
+          ) : null}
+        </>
+      </td>
+      <td>{formatTimeAgo(new Date(tx.createdAt!))}</td>
+      <td>{tx.details?.assetId}</td>
+      <td>
+        <div className="flex gap-1">
+          <span>{walletId && getDirection(walletId, tx.details)}</span>
+          <span>{tx.details?.operation}</span>
+        </div>
+      </td>
+      <td>
+        <div className={statusColor(tx.status)}>{tx.status}</div>
+      </td>
+      <td>
+        {isSdkCompletedSigning ? (
+          <div>Signed</div>
+        ) : (
           <div className="flex gap-1">
-            <span>{walletId && getDirection(walletId, tx.details)}</span>
-            <span>{tx.details?.operation}</span>
+            {tx.status === "PENDING_SIGNATURE" ? (
+              <button
+                className="btn btn-sm btn-primary"
+                disabled={inProgress}
+                onClick={() => onSignTransactionClicked(tx.id)}
+              >
+                {label}
+              </button>
+            ) : null}
+            {tx.details && !isFinal(tx.status) && (
+              <button
+                className="btn btn-sm btn-secondary"
+                disabled={inProgress || tx.status === "CANCELLING"}
+                onClick={() => onCancelTransactionClicked(tx.id)}
+              >
+                Cancel
+              </button>
+            )}
           </div>
-        </td>
-        <td>
-          <div className={statusColor(tx.status)}>{tx.status}</div>
-        </td>
-        <td>
-          {isSdkCompletedSigning ? (
-            <div>Signed</div>
-          ) : (
-            <div className="flex gap-1">
-              {tx.status === "PENDING_SIGNATURE" ? (
-                <button
-                  className="btn btn-sm btn-primary"
-                  disabled={inProgress}
-                  onClick={() => onSignTransactionClicked(tx.id)}
-                >
-                  {label}
-                </button>
-              ) : null}
-              {tx.details && !isFinal(tx.status) && (
-                <button
-                  className="btn btn-sm btn-secondary"
-                  disabled={inProgress || tx.status === "CANCELLING"}
-                  onClick={() => onCancelTransactionClicked(tx.id)}
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          )}
-        </td>
-        {errorStr ? (
-          <div className="toast toast-container">
-            <div className="alert alert-error">
-              <span>{errorStr}</span>
-            </div>
-          </div>
-        ) : null}
-      </tr>
-    </>
+        )}
+      </td>
+    </tr>
   );
 };
