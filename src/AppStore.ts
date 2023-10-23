@@ -58,6 +58,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     keysStatus: null,
     passphrase: getBackupPassphrase(),
     accounts: [],
+    supportedAssets: {},
     initAppStore: (tokenGetter: () => Promise<string>) => {
       try {
         apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, tokenGetter);
@@ -373,6 +374,26 @@ export const useAppStore = create<IAppState>()((set, get) => {
       set((state) => ({
         ...state,
         accounts: state.accounts.map((v, i) => (i === accountId ? { ...reduced, ...v } : v)),
+      }));
+    },
+
+    refreshSupportedAssets: async (accountId: number) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      const assets = await apiService.getSupportedAssets(deviceId, accountId);
+      const reduced = assets.reduce<Record<string, IWalletAsset>>((acc, asset) => {
+        acc[asset.id] = asset
+        return acc;
+      }, {});
+
+      set((state) => ({
+        ...state,
+        supportedAssets: {
+          ...state.supportedAssets,
+          [accountId]: reduced
+        }
       }));
     },
 

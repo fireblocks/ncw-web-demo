@@ -15,6 +15,7 @@ export interface IAssetInfo {
   address?: IAssetAddress;
 }
 type TAccount = Record<string, IAssetInfo>;
+type TSupportedAssets = Record<string, IWalletAsset>;
 
 export interface IAppState {
   automateInitialization: boolean;
@@ -32,6 +33,7 @@ export interface IAppState {
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
   accounts: TAccount[];
+  supportedAssets: Record<number, TSupportedAssets>;
   initAppStore: (tokenGetter: () => Promise<string>) => void;
   disposeAppStore: () => void;
   clearSDKStorage: () => Promise<void>;
@@ -56,6 +58,7 @@ export interface IAppState {
   refreshAccounts: () => Promise<void>;
   refreshBalance: (accountId: number, assetId: string) => Promise<void>;
   refreshAssets: (accountId: number) => Promise<void>;
+  refreshSupportedAssets: (accountId: number) => Promise<void>;
   refreshAddress: (accountId: number, assetId: string) => Promise<void>;
   addAsset: (accountId: number, assetId: string) => Promise<void>;
 }
