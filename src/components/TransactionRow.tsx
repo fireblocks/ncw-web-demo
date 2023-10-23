@@ -39,11 +39,11 @@ const rebalanceIcon = (
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    stroke-width={1.5}
+    strokeWidth={1.5}
     stroke="currentColor"
     className="w-5 h-5"
   >
-    <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3" />
   </svg>
 );
 const pendingIcon = (
@@ -172,54 +172,56 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
   const isOutgoing = (tx: ITransactionDetails) => tx.source.walletId === walletId;
 
   return (
-    <>
-      <tr key={tx.id}>
-        <td className="px-1 text-ellipsis overflow-hidden whitespace-nowrap">{tx.id}</td>
-        <td className="px-1">{formatTimeAgo(new Date(tx.createdAt!))}</td>
-        <td className="px-1">{tx.details?.assetId}</td>
-        <td className="px-1">
-          <div className="flex gap-1 items-center">
-            <span>{walletId && getDirection(walletId, tx.details)}</span>
-            <span>{tx.details?.operation}</span>
-          </div>
-        </td>
-        <td className="px-1">
-          <div className={statusColor(tx.status)}>{tx.status}</div>
-        </td>
-        <td className="px-1">
-          {isSdkCompletedSigning ? (
-            <div>Signed</div>
-          ) : (
-            <div className="flex gap-1">
-              {tx.status === "PENDING_SIGNATURE" ? (
-                <button
-                  className="btn btn-sm btn-primary"
-                  disabled={inProgress}
-                  onClick={() => onSignTransactionClicked(tx.id)}
-                >
-                  {label}
-                </button>
-              ) : null}
-              {tx.details && !isFinal(tx.status) && (
-                <button
-                  className="btn btn-sm btn-secondary"
-                  disabled={inProgress || tx.status === "CANCELLING"}
-                  onClick={() => onCancelTransactionClicked(tx.id)}
-                >
-                  Cancel
-                </button>
-              )}
+    <tr key={tx.id}>
+      <td className="px-1 text-ellipsis overflow-hidden whitespace-nowrap">
+        <>
+          {errorStr ? (
+            <div className="toast toast-container">
+              <div className="alert alert-error">
+                <span>{errorStr}</span>
+              </div>
             </div>
-          )}
-        </td>
-        {errorStr ? (
-          <div className="toast toast-container">
-            <div className="alert alert-error">
-              <span>{errorStr}</span>
-            </div>
+          ) : null}
+          <span>{tx.id}</span>
+        </>
+      </td>
+      <td className="px-1">{formatTimeAgo(new Date(tx.createdAt!))}</td>
+      <td className="px-1">{tx.details?.assetId}</td>
+      <td className="px-1">
+        <div className="flex gap-1 items-center">
+          <span>{walletId && getDirection(walletId, tx.details)}</span>
+          <span>{tx.details?.operation}</span>
+        </div>
+      </td>
+      <td className="px-1">
+        <div className={statusColor(tx.status)}>{tx.status}</div>
+      </td>
+      <td className="px-1">
+        {isSdkCompletedSigning ? (
+          <div>Signed</div>
+        ) : (
+          <div className="flex gap-1">
+            {tx.status === "PENDING_SIGNATURE" ? (
+              <button
+                className="btn btn-sm btn-primary"
+                disabled={inProgress}
+                onClick={() => onSignTransactionClicked(tx.id)}
+              >
+                {label}
+              </button>
+            ) : null}
+            {tx.details && !isFinal(tx.status) && (
+              <button
+                className="btn btn-sm btn-secondary"
+                disabled={inProgress || tx.status === "CANCELLING"}
+                onClick={() => onCancelTransactionClicked(tx.id)}
+              >
+                Cancel
+              </button>
+            )}
           </div>
-        ) : null}
-      </tr>
-    </>
+        )}
+      </td>
+    </tr>
   );
 };
