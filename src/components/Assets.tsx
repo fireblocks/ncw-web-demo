@@ -2,7 +2,7 @@ import React from "react";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
 import { AssetRow } from "./AssetRow";
-import Autocomplete from "./ui/Autocomplete";
+import { Autocomplete } from "./ui/Autocomplete";
 
 export const Assets: React.FC = () => {
   const { accounts, refreshAccounts, addAsset, refreshSupportedAssets, supportedAssets } = useAppStore();
@@ -40,13 +40,11 @@ export const Assets: React.FC = () => {
     isDisabled: isRefreshing,
   };
 
-  React.useEffect(() => {});
-
   const hasAccounts = accounts.length > 0;
 
   return (
     <Card title="Assets" actions={[refeshAction]}>
-      <div >
+      <div>
         {hasAccounts &&
           accounts.map((account, index) => (
             <div key={`account${index}`}>
@@ -81,13 +79,6 @@ export const Assets: React.FC = () => {
                       : []
                   }
                 />
-                {/* <input
-                  type="text"
-                  className="input input-bordered"
-                  value={assetIdPrompt ?? ""}
-                  disabled={isAddingAsset}
-                  onChange={(e) => setAssetIdPrompt(e.currentTarget.value)}
-                /> */}
                 <button
                   className="btn btn-secondary"
                   onClick={onAddAssetClicked}

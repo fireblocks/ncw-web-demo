@@ -5,7 +5,7 @@ type TItem = {
   id: string;
   name: string;
   iconUrl?: string;
-}
+};
 
 type Props = {
   items: TItem[];
@@ -15,9 +15,8 @@ type Props = {
   placeholder?: string;
 };
 
-
 //we are using dropdown, input and menu component from daisyui
-const Autocomplete = (props: Props) => {
+export const Autocomplete = memo((props: Props) => {
   const { items, value, onChange, disabled, placeholder } = props;
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -26,7 +25,7 @@ const Autocomplete = (props: Props) => {
 
   return (
     <div
-      // use classnames here to easily toggle dropdown open 
+      // use classnames here to easily toggle dropdown open
       className={classNames({
         "dropdown w-full": true,
         "dropdown-open": open,
@@ -48,26 +47,28 @@ const Autocomplete = (props: Props) => {
           // use ref to calculate the width of parent
           style={{ width: ref.current?.clientWidth }}
         >
-          
-          {items.filter(item => (regex.test(item.name) || regex.test(item.id))).map((item, index) => {
-            return (
-              <li
-                key={index}
-                tabIndex={index + 1}
-                onClick={() => {
-                  onChange(item.id);
-                  setOpen(false);
-                }}
-                className="border-b border-b-base-content/10 w-full"
-              >
-                <button><img width={32} height={32} src={item.iconUrl}></img>{item.name} ({item.id})</button>
-              </li>
-            );
-          })}
+          {items
+            .filter((item) => regex.test(item.name) || regex.test(item.id))
+            .map((item, index) => {
+              return (
+                <li
+                  key={index}
+                  tabIndex={index + 1}
+                  onClick={() => {
+                    onChange(item.id);
+                    setOpen(false);
+                  }}
+                  className="border-b border-b-base-content/10 w-full"
+                >
+                  <button>
+                    <img width={32} height={32} src={item.iconUrl}></img>
+                    {item.name} ({item.id})
+                  </button>
+                </li>
+              );
+            })}
         </ul>
       </div>
     </div>
   );
-};
-
-export default memo(Autocomplete);
+});
