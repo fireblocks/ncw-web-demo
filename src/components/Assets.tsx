@@ -40,22 +40,20 @@ export const Assets: React.FC = () => {
     isDisabled: isRefreshing,
   };
 
-  React.useEffect(() => {
-  })
+  React.useEffect(() => {});
 
   const hasAccounts = accounts.length > 0;
 
   return (
     <Card title="Assets" actions={[refeshAction]}>
-      <div className="overflow-x-auto">
+      <div >
         {hasAccounts &&
           accounts.map((account, index) => (
             <div key={`account${index}`}>
               <label>Account #{index}</label>
-              <table className="table">
+              <table className="table table-fixed">
                 <thead>
                   <tr>
-                    <th>Icon</th>
                     <th>Asset</th>
                     <th>Name</th>
                     <th>Type</th>
@@ -77,7 +75,11 @@ export const Assets: React.FC = () => {
                 <Autocomplete
                   value={assetIdPrompt ?? ""}
                   onChange={setAssetIdPrompt}
-                  items={supportedAssets[index] ? Object.values(supportedAssets[index]).map(({ id, name, iconUrl }) => ({ id, name, iconUrl })) : []}
+                  items={
+                    supportedAssets[index]
+                      ? Object.values(supportedAssets[index]).map(({ id, name, iconUrl }) => ({ id, name, iconUrl }))
+                      : []
+                  }
                 />
                 {/* <input
                   type="text"

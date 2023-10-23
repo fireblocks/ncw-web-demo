@@ -18,7 +18,7 @@ export const Transactions: React.FC = () => {
   return (
     <Card title="Transactions" actions={[createTxAction]}>
       <div className="overflow-x-auto">
-        <table className="table">
+        <table className="table table-fixed">
           <thead>
             <tr>
               <th>TxId</th>
