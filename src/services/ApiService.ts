@@ -106,6 +106,8 @@ export interface IWalletAsset {
   blockchain: string;
   blockchainDisplayName?: string;
   blockchainId?: string;
+  iconUrl?: string;
+  rate?: number;
 }
 
 export interface IAssetAddress {
@@ -223,6 +225,11 @@ export class ApiService {
 
   public async getAssets(deviceId: string, accountId: number): Promise<IWalletAsset[]> {
     const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets`);
+    return await response.json();
+  }
+
+  public async getSupportedAssets(deviceId: string, accountId: number): Promise<IWalletAsset[]> {
+    const response = await this._getCall(`api/devices/${deviceId}/accounts/${accountId}/assets/supported_assets`);
     return await response.json();
   }
 

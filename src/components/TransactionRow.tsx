@@ -17,7 +17,7 @@ const outgoingIcon = (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className="w-5 h-5"
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
   </svg>
@@ -29,7 +29,7 @@ const incomingIcon = (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className="w-5 h-5"
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" />
   </svg>
@@ -41,7 +41,7 @@ const rebalanceIcon = (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className="w-5 h-5"
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3" />
   </svg>
@@ -53,7 +53,7 @@ const pendingIcon = (
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className="w-5 h-5"
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
@@ -173,9 +173,8 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
 
   return (
     <tr key={tx.id}>
-      <td>
+      <td className="px-1 text-ellipsis overflow-hidden whitespace-nowrap">
         <>
-          {tx.id}
           {errorStr ? (
             <div className="toast toast-container">
               <div className="alert alert-error">
@@ -183,20 +182,21 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
               </div>
             </div>
           ) : null}
+          <span>{tx.id}</span>
         </>
       </td>
-      <td>{formatTimeAgo(new Date(tx.createdAt!))}</td>
-      <td>{tx.details?.assetId}</td>
-      <td>
-        <div className="flex gap-1">
+      <td className="px-1">{formatTimeAgo(new Date(tx.createdAt!))}</td>
+      <td className="px-1">{tx.details?.assetId}</td>
+      <td className="px-1">
+        <div className="flex gap-1 items-center">
           <span>{walletId && getDirection(walletId, tx.details)}</span>
           <span>{tx.details?.operation}</span>
         </div>
       </td>
-      <td>
+      <td className="px-1">
         <div className={statusColor(tx.status)}>{tx.status}</div>
       </td>
-      <td>
+      <td className="px-1">
         {isSdkCompletedSigning ? (
           <div>Signed</div>
         ) : (
