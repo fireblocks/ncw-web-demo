@@ -1,28 +1,22 @@
 import React from "react";
 
-import { TMPCAlgorithm, TKeyStatus } from "@fireblocks/ncw-js-sdk";
+import { TKeyStatus } from "@fireblocks/ncw-js-sdk";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
-
-const ALGORITHMS = new Set<TMPCAlgorithm>(["MPC_CMP_ECDSA_SECP256K1"]);
 
 export const GenerateMPCKeys: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isGenerateInProgress, setIsGenerateInProgress] = React.useState(false);
   const [isStopInProgress, setIsStopInProgress] = React.useState(false);
   const [generateMPCKeysResult, setGenerateMPCKeysResult] = React.useState<string | null>(null);
-  const { fireblocksNCW, keysStatus } = useAppStore();
-
-  if (!fireblocksNCW) {
-    return null;
-  }
+  const { keysStatus, generateMPCKeys, stopMpcDeviceSetup } = useAppStore();
 
   const doGenerateMPCKeys = async () => {
     setGenerateMPCKeysResult(null);
     setErr(null);
     setIsGenerateInProgress(true);
     try {
-      await fireblocksNCW.generateMPCKeys(ALGORITHMS);
+      await generateMPCKeys();
       setGenerateMPCKeysResult("Success");
       setIsGenerateInProgress(false);
     } catch (err: unknown) {
@@ -44,7 +38,7 @@ export const GenerateMPCKeys: React.FC = () => {
     setErr(null);
     setIsStopInProgress(true);
     try {
-      await fireblocksNCW.stopMpcDeviceSetup();
+      await stopMpcDeviceSetup();
       setIsStopInProgress(false);
     } catch (err: unknown) {
       if (err instanceof Error) {

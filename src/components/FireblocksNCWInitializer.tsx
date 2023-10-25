@@ -6,7 +6,6 @@ import { AreYouSureDialog } from "./ui/AreYouSureDialog";
 
 export const FireblocksNCWInitializer: React.FC = () => {
   const {
-    fireblocksNCW,
     automateInitialization,
     fireblocksNCWStatus,
     initFireblocksNCW,
@@ -37,13 +36,12 @@ export const FireblocksNCWInitializer: React.FC = () => {
   }, [automateInitialization]);
 
   // Force dispose on unmount
-  React.useEffect(() => {
-    if (fireblocksNCW) {
-      return () => {
-        disposeFireblocksNCW();
-      };
-    }
-  }, [fireblocksNCW]);
+  React.useEffect(
+    () => () => {
+      disposeFireblocksNCW();
+    },
+    [],
+  );
 
   let sdkActions: ICardAction[];
 

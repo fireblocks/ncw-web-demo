@@ -1,4 +1,5 @@
-import { FireblocksNCW, IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
+import { IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
+import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 import {
   IAssetAddress,
   IAssetBalance,
@@ -7,7 +8,6 @@ import {
   IWalletAsset,
   IWeb3Session,
 } from "./services/ApiService";
-import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
@@ -28,7 +28,6 @@ export interface IAppState {
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
-  fireblocksNCW: FireblocksNCW | null;
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
@@ -41,6 +40,8 @@ export interface IAppState {
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
+  generateMPCKeys: () => Promise<void>;
+  stopMpcDeviceSetup: () => Promise<void>;
   createTransaction: () => Promise<void>;
   cancelTransaction: (txId: string) => Promise<void>;
   signTransaction: (txId: string) => Promise<void>;

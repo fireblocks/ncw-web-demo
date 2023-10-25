@@ -32,6 +32,7 @@ export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_a
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
+  let fireblocksNCW: FireblocksNCW | null = null;
 
   const updateOrAddTx = (existingTxs: ITransactionData[], newTx: ITransactionData): ITransactionData[] => {
     const index = existingTxs.findIndex((tx) => tx.id === newTx.id);
@@ -51,7 +52,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
     web3Connections: [],
     txs: [],
     appStoreInitialized: false,
-    fireblocksNCW: null,
     deviceId: getOrCreateDeviceId(),
     loginToDemoAppServerStatus: "not_started",
     assignDeviceStatus: "not_started",
@@ -108,7 +108,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       set((state) => ({ ...state, passphrase }));
     },
     backupKeys: async () => {
-      const { fireblocksNCW, passphrase } = get();
+      const { passphrase } = get();
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
@@ -118,7 +118,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       await fireblocksNCW.backupKeys(passphrase);
     },
     recoverKeys: async () => {
-      const { fireblocksNCW, passphrase } = get();
+      const { passphrase } = get();
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
@@ -145,7 +145,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
-      set((state) => ({ ...state, fireblocksNCW: null, fireblocksNCWStatus: "initializing_sdk" }));
+      fireblocksNCW = null;
+      set((state) => ({ ...state, fireblocksNCWStatus: "initializing_sdk" }));
       try {
         const messagesHandler: IMessagesHandler = {
           handleOutgoingMessage: (message: string) => {
@@ -190,7 +191,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
 
-        const fireblocksNCW = await FireblocksNCW.initialize({
+        fireblocksNCW = await FireblocksNCW.initialize({
           env: ENV_CONFIG.NCW_SDK_ENV,
           deviceId,
           messagesHandler,
@@ -204,19 +205,18 @@ export const useAppStore = create<IAppState>()((set, get) => {
           set((state) => ({ ...state, txs }));
         });
         const keysStatus = await fireblocksNCW.getKeysStatus();
-        set((state) => ({ ...state, keysStatus, fireblocksNCW: fireblocksNCW, fireblocksNCWStatus: "sdk_available" }));
+        set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available" }));
       } catch (e) {
         console.error(e);
+        fireblocksNCW = null;
         set((state) => ({
           ...state,
           keysStatus: null,
-          fireblocksNCW: null,
           fireblocksNCWStatus: "sdk_initialization_failed",
         }));
       }
     },
     clearSDKStorage: async () => {
-      const { fireblocksNCW } = get();
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
@@ -258,7 +258,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
-      const { fireblocksNCW, signTransaction } = get();
+      const { signTransaction } = get();
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
@@ -327,15 +327,26 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
     },
+    generateMPCKeys: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      const ALGORITHMS = new Set<TMPCAlgorithm>(["MPC_CMP_ECDSA_SECP256K1"]);
+      await fireblocksNCW.generateMPCKeys(ALGORITHMS);
+    },
+    stopMpcDeviceSetup: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      await fireblocksNCW.stopMpcDeviceSetup();
+    },
     takeover: async () => {
-      const { fireblocksNCW } = get();
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
       fireblocksNCW.takeover();
     },
     disposeFireblocksNCW: () => {
-      const { fireblocksNCW } = get();
       if (!fireblocksNCW) {
         return;
       }
@@ -346,7 +357,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
 
       fireblocksNCW.dispose();
-      set((state) => ({ ...state, fireblocksNCW: null, fireblocksNCWStatus: "sdk_not_ready" }));
+      fireblocksNCW = null;
+      set((state) => ({ ...state, fireblocksNCWStatus: "sdk_not_ready" }));
     },
 
     addAsset: async (accountId: number, assetId: string) => {

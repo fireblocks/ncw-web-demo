@@ -9,12 +9,8 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
-  const { fireblocksNCW, keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys } =
+  const { keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys } =
     useAppStore();
-
-  if (!fireblocksNCW) {
-    return null;
-  }
 
   const doBackupKeys = async () => {
     setErr(null);
