@@ -1,6 +1,7 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
 import { ITransactionData, ITransactionDetails, TTransactionStatus } from "../services/ApiService";
+import { Copyable } from "./ui/Copyable";
 
 interface IProps {
   tx: ITransactionData;
@@ -178,7 +179,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
               </div>
             </div>
           ) : null}
-          <span>{tx.id}</span>
+          <Copyable value={tx.id} />
         </>
       </td>
       <td className="px-1">{formatTimeAgo(new Date(tx.createdAt!))}</td>

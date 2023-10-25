@@ -22,12 +22,44 @@ const clipboardIcon = (
 );
 
 export const Copyable: React.FC<{ value: string }> = ({ value }) => {
+  const [showCopied, setShowCopied] = React.useState<boolean>(false);
+  const isMountedRef = React.useRef<boolean>(false);
+  const timeoutIdRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
+      }
+    };
+  }, []);
+
+  const doCopy = async () => {
+    await writeToClipboard(value);
+    setShowCopied(true);
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current);
+    }
+    timeoutIdRef.current = setTimeout(() => {
+      if (isMountedRef.current) {
+        setShowCopied(false);
+      }
+    }, 2000);
+  };
+
   return (
     <span className="flex gap-1 items-center">
+      {showCopied ? (
+        <div className="toast toast-container">
+          <div className="alert alert-info">
+            <span>Copied to clipboard!</span>
+          </div>
+        </div>
+      ) : null}
+      <button onClick={doCopy}>{clipboardIcon}</button>
       <label className="text-ellipsis overflow-hidden whitespace-nowrap">{value}</label>
-      <button onClick={() => writeToClipboard(value)}>
-        {clipboardIcon}
-      </button>
     </span>
   );
 };
