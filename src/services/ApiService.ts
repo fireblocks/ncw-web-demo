@@ -286,27 +286,34 @@ export class ApiService {
     this._pollingTxsActive.set(deviceId, true);
     let startDate = 0;
     while (!this._disposed) {
-      const response = await this._getCall(`api/devices/${deviceId}/transactions?poll=true&startDate=${startDate}&details=true`);
-      const txes = await response.json();
-      if (txes && Array.isArray(txes)) {
-        for (const txData of txes) {
-          const txId = txData.id;
-          const lastUpdated = txData.lastUpdated;
-          if (txId !== undefined && lastUpdated !== undefined) {
-            // remember the last tx date
-            startDate = Math.max(startDate, lastUpdated);
-            // notify all subscribers
-            const subscribers = this._deviceTxsSubscriptions.get(deviceId);
-            if (subscribers) {
-              for (const cb of subscribers) {
-                if (this._disposed || !this._pollingTxsActive.get(deviceId)) {
-                  break;
+      try {
+        const response = await this._getCall(`api/devices/${deviceId}/transactions?poll=true&startDate=${startDate}&details=true`);
+        const txes = await response.json();
+        if (txes && Array.isArray(txes)) {
+          for (const txData of txes) {
+            const txId = txData.id;
+            const lastUpdated = txData.lastUpdated;
+            if (txId !== undefined && lastUpdated !== undefined) {
+              // remember the last tx date
+              startDate = Math.max(startDate, lastUpdated);
+              // notify all subscribers
+              const subscribers = this._deviceTxsSubscriptions.get(deviceId);
+              if (subscribers) {
+                for (const cb of subscribers) {
+                  if (this._disposed || !this._pollingTxsActive.get(deviceId)) {
+                    break;
+                  }
+                  cb(txData);
                 }
-                cb(txData);
               }
             }
           }
         }
+      }
+      catch (e) {
+        console.error("failed to get txs", e);
+        // delay 5 sec
+        await new Promise(res => setTimeout(res, 5_000));
       }
     }
   }
