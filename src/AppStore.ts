@@ -91,7 +91,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     },
     generateNewDeviceId: async () => {
       const deviceId = generateDeviceId();
-      set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
+      set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started", passphrase: null }));
       storeDeviceId(deviceId);
     },
     setDeviceId: (deviceId: string) => {
