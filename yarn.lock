@@ -732,19 +732,19 @@
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.10.3.tgz#c894a21e8c911830e36bbbba55903ccfbc7a7e25"
   integrity sha512-+ZplYUN3HOpgCfgInqgdDAbkGGVzES1cs32JJpeqoh87SkRobGXElJx+1GZSaDqzFL+bYiX18qEcBK76mYs8uA==
 
-"@fireblocks/ncw-js-infra@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-infra/-/ncw-js-infra-1.0.9.tgz#2d3924d6e5a45f17147dfb8d05dc30ed05adc7a6"
-  integrity sha512-XPcUc4ImNP+WJNL5xZlWQee10n033Tqna9vzE8FHeHrwHIdBaJG+chZBLKh+aTRUw8HUuDKkcnFhwKpaIutzOQ==
+"@fireblocks/ncw-js-infra@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-infra/-/ncw-js-infra-1.0.10.tgz#67660940c377048a37ed3c5e5c3313100ba9eaef"
+  integrity sha512-9ZEBGc8/dDVrb6QkRo1u9CitR4dq5boM05tUwokxTun4lfkiCQrkANq26dJUvyIiquCxTwaOpkG4NEmYg2DVVg==
   dependencies:
     "@types/emscripten" "^1.39.7"
 
-"@fireblocks/ncw-js-sdk@^8.2.0":
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-8.2.0.tgz#2087f402bdb5dfc7e2f9393bbf175b9691adac4f"
-  integrity sha512-RMbijL2jHoVwkoIPYdPjLRkt5HmZq8QncQRXc9ofx0gTTvKdRh5tyrZ4fvY5SAKWrs2YJyc3fShgi2eWR6iY6w==
+"@fireblocks/ncw-js-sdk@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-8.2.1.tgz#17dfe49beb1456c8529855924b54eb57739c5676"
+  integrity sha512-0V3dfw4bJf64uPy8HtVBgd6l68h824msqc/5tqyR0VR2TGfmkbgTqOKEfL5o3PtUHB1jsOsgdwhCwmvkbhRdvA==
   dependencies:
-    "@fireblocks/ncw-js-infra" "^1.0.9"
+    "@fireblocks/ncw-js-infra" "^1.0.10"
     "@types/jwt-decode" "^3.1.0"
     "@types/node-forge" "^1.3.4"
     jwt-decode "^3.1.2"
