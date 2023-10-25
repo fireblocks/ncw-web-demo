@@ -124,7 +124,7 @@ function getDirection(walletId: string, details?: ITransactionDetails) {
 }
 
 export const TransactionRow: React.FC<IProps> = ({ tx }) => {
-  const { fireblocksNCW, walletId, cancelTransaction } = useAppStore();
+  const { fireblocksNCW, walletId, cancelTransaction, signTransaction } = useAppStore();
   const isMountedRef = React.useRef<boolean>(false);
   const [inProgress, setInProgress] = React.useState<boolean>(false);
   const [isSdkCompletedSigning, setSdkCompletedSigning] = React.useState<boolean>(false);
@@ -145,7 +145,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
     setInProgress(true);
     try {
       setSdkCompletedSigning(false);
-      await fireblocksNCW.signTransaction(txId);
+      await signTransaction(txId);
       setSdkCompletedSigning(true);
       setInProgress(false);
     } catch (err: unknown) {

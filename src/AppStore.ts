@@ -6,6 +6,7 @@ import {
   IKeyDescriptor,
   IKeyRecoveryEvent,
   IMessagesHandler,
+  SigningInProgressError,
   TEvent,
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
@@ -253,6 +254,30 @@ export const useAppStore = create<IAppState>()((set, get) => {
         };
       });
     },
+    signTransaction: async (txId: string) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { fireblocksNCW, signTransaction } = get();
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+
+      try {
+        await fireblocksNCW.signTransaction(txId);
+      } catch (err: unknown) {
+        if (err instanceof SigningInProgressError) {
+          if (err.txId === txId) {
+            throw err;
+          } else {
+            await fireblocksNCW.stopInProgressSignTransaction();
+            signTransaction(txId); // recall signTransaction
+          }
+        } else {
+          throw err;
+        }
+      }
+    },
     getWeb3Connections: async () => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
@@ -384,7 +409,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const { deviceId } = get();
       const assets = await apiService.getSupportedAssets(deviceId, accountId);
       const reduced = assets.reduce<Record<string, IWalletAsset>>((acc, asset) => {
-        acc[asset.id] = asset
+        acc[asset.id] = asset;
         return acc;
       }, {});
 
@@ -392,8 +417,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
         ...state,
         supportedAssets: {
           ...state.supportedAssets,
-          [accountId]: reduced
-        }
+          [accountId]: reduced,
+        },
       }));
     },
 

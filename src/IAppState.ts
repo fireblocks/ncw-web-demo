@@ -43,6 +43,7 @@ export interface IAppState {
   generateNewDeviceId: () => Promise<void>;
   createTransaction: () => Promise<void>;
   cancelTransaction: (txId: string) => Promise<void>;
+  signTransaction: (txId: string) => Promise<void>;
   takeover: () => Promise<void>;
   setPassphrase: (passphrase: string) => void;
   recoverKeys: () => Promise<void>;
