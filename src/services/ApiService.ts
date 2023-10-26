@@ -1,4 +1,12 @@
-export type TTransactionStatus = "PENDING_SIGNATURE" | "SUBMITTED" | "FAILED" | "COMPLETED" | "CANCELLED" | "CONFIRMING" | "QUEUED" | "CANCELLING";
+export type TTransactionStatus =
+  | "PENDING_SIGNATURE"
+  | "SUBMITTED"
+  | "FAILED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "CONFIRMING"
+  | "QUEUED"
+  | "CANCELLING";
 
 export interface ITransferPeer {
   id: string;
@@ -145,13 +153,18 @@ export interface IAssetBalance {
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
 export class ApiService {
   private readonly _baseUrl: string;
   private _deviceTxsSubscriptions: Map<string, TTxHandler[]> = new Map();
   private _disposed: boolean = false;
   private _pollingTxsActive: Map<string, boolean> = new Map();
 
-  constructor(baseUrl: string, private tokenGetter: () => Promise<string>) {
+  constructor(
+    baseUrl: string,
+    private tokenGetter: () => Promise<string>,
+  ) {
     this._baseUrl = baseUrl;
     if (this._baseUrl.endsWith("/")) {
       this._baseUrl = this._baseUrl.slice(0, -1);
@@ -218,7 +231,7 @@ export class ApiService {
     return await response.json();
   }
 
-  public async getAccounts(deviceId: string): Promise<{ walletId: string; accountId: number; }[]> {
+  public async getAccounts(deviceId: string): Promise<{ walletId: string; accountId: number }[]> {
     const response = await this._getCall(`api/devices/${deviceId}/accounts/`);
     return await response.json();
   }
@@ -287,7 +300,14 @@ export class ApiService {
     let startDate = 0;
     while (!this._disposed) {
       try {
-        const response = await this._getCall(`api/devices/${deviceId}/transactions?poll=true&startDate=${startDate}&details=true`);
+        const response = await this._getCall(
+          `api/devices/${deviceId}/transactions?poll=true&startDate=${startDate}&details=true`,
+        );
+        if (!response.ok) {
+          await sleep(5_000);
+          continue;
+        }
+
         const txes = await response.json();
         if (txes && Array.isArray(txes)) {
           for (const txData of txes) {
@@ -309,11 +329,9 @@ export class ApiService {
             }
           }
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.error("failed to get txs", e);
-        // delay 5 sec
-        await new Promise(res => setTimeout(res, 5_000));
+        await sleep(5_000);
       }
     }
   }
