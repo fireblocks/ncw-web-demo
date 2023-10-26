@@ -7,6 +7,7 @@ import {
   IKeyRecoveryEvent,
   IMessagesHandler,
   SigningInProgressError,
+  TEnv,
   TEvent,
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
@@ -192,7 +193,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         });
 
         fireblocksNCW = await FireblocksNCW.initialize({
-          env: ENV_CONFIG.NCW_SDK_ENV,
+          env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
           deviceId,
           messagesHandler,
           eventsHandler,
