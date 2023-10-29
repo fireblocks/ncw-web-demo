@@ -345,7 +345,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      fireblocksNCW.takeover();
+      return fireblocksNCW.takeover();
+    },
+    exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      return fireblocksNCW.exportFullKeys(chainCode, cloudKeyShares);
     },
     disposeFireblocksNCW: () => {
       if (!fireblocksNCW) {

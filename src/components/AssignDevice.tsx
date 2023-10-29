@@ -1,7 +1,6 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
-import { AreYouSureDialog } from "./ui/AreYouSureDialog";
 
 const uuidRegex = new RegExp("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", "i");
 

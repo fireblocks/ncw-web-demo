@@ -1,4 +1,4 @@
-import { IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
+import { IKeyDescriptor, TMPCAlgorithm, IFullKey } from "@fireblocks/ncw-js-sdk";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 import {
   IAssetAddress,
@@ -45,7 +45,8 @@ export interface IAppState {
   createTransaction: () => Promise<void>;
   cancelTransaction: (txId: string) => Promise<void>;
   signTransaction: (txId: string) => Promise<void>;
-  takeover: () => Promise<void>;
+  takeover: () => Promise<IFullKey[]>;
+  exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => Promise<IFullKey[]>;
   setPassphrase: (passphrase: string) => void;
   recoverKeys: () => Promise<void>;
   backupKeys: () => Promise<void>;
