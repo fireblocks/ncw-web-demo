@@ -4,12 +4,14 @@ import { Card, ICardAction } from "./ui/Card";
 import { IFullKey } from "@fireblocks/ncw-js-sdk";
 import { Copyable } from "./ui/Copyable";
 import { ExportFullKeysDialog } from "./ui/ExportFullKeysDialog";
+import { DeriveAssetKeysDialog } from "./ui/DeriveAssetKeysDialog";
 
 export const Takeover: React.FC = () => {
   const { takeover, exportFullKeys } = useAppStore();
   const [isTakeoverInProgress, setIsTakeoverInProgress] = React.useState(false);
   const [isExportInProgress, setIsExportInProgress] = React.useState(false);
   const [isExportFullKeysDialogOpen, setIsExportFullKeysDialogOpen] = React.useState(false);
+  const [isDeriveAssetKeysDialogOpen, setIsDeriveAssetKeysDialogOpen] = React.useState(false);
   const [exportedFullKeys, setExportedFullKeys] = React.useState<IFullKey[] | null>(null);
 
   const onTakeoverClicked = async () => {
@@ -37,6 +39,10 @@ export const Takeover: React.FC = () => {
     setIsExportFullKeysDialogOpen(true);
   };
 
+  const onDeriveAssetKeysClicked = () => {
+    setIsDeriveAssetKeysDialogOpen(true);
+  };
+
   const takeoverAction: ICardAction = {
     action: onTakeoverClicked,
     label: "Takeover",
@@ -51,12 +57,23 @@ export const Takeover: React.FC = () => {
     isInProgress: isExportInProgress,
   };
 
+  const deriveAssetKeysAction: ICardAction = {
+    action: onDeriveAssetKeysClicked,
+    label: "Derive Asset Keys",
+    isDisabled: isTakeoverInProgress || isExportInProgress,
+    isInProgress: isExportInProgress,
+  };
+
   const closeExportFullKeysDialog = () => {
     setIsExportFullKeysDialogOpen(false);
   };
 
+  const closeDeriveAssetKeysDialog = () => {
+    setIsDeriveAssetKeysDialogOpen(false);
+  };
+
   return (
-    <Card title="Takeover" actions={[takeoverAction, exportFullKeysAction]}>
+    <Card title="Takeover" actions={[takeoverAction, exportFullKeysAction, deriveAssetKeysAction]}>
       {exportedFullKeys && (
         <div>
           {exportedFullKeys.map((key) => {
@@ -77,6 +94,7 @@ export const Takeover: React.FC = () => {
         onClose={closeExportFullKeysDialog}
         onExport={doExportFullKeys}
       />
+      <DeriveAssetKeysDialog isOpen={isDeriveAssetKeysDialogOpen} onClose={closeDeriveAssetKeysDialog} />
     </Card>
   );
 };

@@ -47,6 +47,13 @@ export interface IAppState {
   signTransaction: (txId: string) => Promise<void>;
   takeover: () => Promise<IFullKey[]>;
   exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => Promise<IFullKey[]>;
+  deriveAssetKey: (
+    extendedPrivateKey: string,
+    coinType: number,
+    account: number,
+    change: number,
+    index: number,
+  ) => string;
   setPassphrase: (passphrase: string) => void;
   recoverKeys: () => Promise<void>;
   backupKeys: () => Promise<void>;

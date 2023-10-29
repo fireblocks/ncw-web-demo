@@ -22,6 +22,14 @@ export const ExportFullKeysDialog: React.FC<IProps> = ({ isOpen, onClose, onExpo
     onExport(chainCode, cloudKeyShares);
   };
 
+  const closeDialog = () => {
+    setChainCode("");
+    setKeyId("");
+    setPlayerShare("");
+
+    onClose();
+  };
+
   return (
     <div className={modalClassName}>
       <div className="modal-box">
@@ -56,12 +64,16 @@ export const ExportFullKeysDialog: React.FC<IProps> = ({ isOpen, onClose, onExpo
           />
         </div>
         <div className="modal-action">
-          <label className="btn btn-primary" onClick={doExport}>
+          <button
+            className="btn btn-primary"
+            onClick={doExport}
+            disabled={chainCode.length === 0 || keyId.length === 0 || playerShare.length === 0}
+          >
             Export
-          </label>
-          <label className="btn" onClick={onClose}>
+          </button>
+          <button className="btn" onClick={closeDialog}>
             Close
-          </label>
+          </button>
         </div>
       </div>
     </div>

@@ -14,13 +14,13 @@ export const NavBar: React.FC = () => {
     userElement = (
       <div className="flex-none gap-2">
         <div className="dropdown dropdown-end">
-          <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+          <button tabIndex={0} className="btn btn-ghost btn-circle avatar">
             <div className="avatar placeholder">
               <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
                 <span className="text-xs">{initials}</span>
               </div>
             </div>
-          </label>
+          </button>
           <ul tabIndex={0} className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
             <li>
               <a onClick={() => auth.signOut()}>Logout</a>
