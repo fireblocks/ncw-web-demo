@@ -22,7 +22,7 @@ export const AssignDevice: React.FC = () => {
     }
   }, [automateInitialization, walletId]);
 
-  const isValidDeviceId = uuidRegex.test(deviceId);
+  const isValidDeviceId = deviceId && uuidRegex.test(deviceId);
 
   const generateNewDeviceIdAction: ICardAction = {
     action: generateNewDeviceId,
@@ -46,7 +46,7 @@ export const AssignDevice: React.FC = () => {
         <input
           type="text"
           disabled={!!walletId}
-          value={deviceId}
+          value={deviceId ?? ""}
           className="input input-bordered"
           onChange={(e) => setDeviceId(e.target.value)}
         />
