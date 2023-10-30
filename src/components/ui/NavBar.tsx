@@ -1,16 +1,12 @@
-import { getAuth } from "firebase/auth";
 import React from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useFirebaseApp } from "../../auth/firebaseAppHook";
+import { useAppStore } from "../../AppStore";
 
 export const NavBar: React.FC = () => {
-  const firebaseApp = useFirebaseApp();
-  const auth = getAuth(firebaseApp);
-  const [user] = useAuthState(auth);
+  const { loggedUser, logout } = useAppStore();
 
   let userElement: JSX.Element | null = null;
-  if (user) {
-    const initials = user.displayName?.split(" ").map((n) => n[0]).join("") ?? "";
+  if (loggedUser) {
+    const initials = loggedUser.displayName?.split(" ").map((n) => n[0]).join("") ?? "";
     userElement = (
       <div className="flex-none gap-2">
         <div className="dropdown dropdown-end">
@@ -23,7 +19,7 @@ export const NavBar: React.FC = () => {
           </label>
           <ul tabIndex={0} className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
             <li>
-              <a onClick={() => auth.signOut()}>Logout</a>
+              <a onClick={logout}>Logout</a>
             </li>
           </ul>
         </div>

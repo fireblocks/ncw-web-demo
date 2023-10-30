@@ -1,3 +1,5 @@
+import { IAuthManager } from "../auth/IAuthManager";
+
 export type TTransactionStatus =
   | "PENDING_SIGNATURE"
   | "SUBMITTED"
@@ -163,7 +165,7 @@ export class ApiService {
 
   constructor(
     baseUrl: string,
-    private tokenGetter: () => Promise<string>,
+    private readonly authManager: IAuthManager,
   ) {
     this._baseUrl = baseUrl;
     if (this._baseUrl.endsWith("/")) {
@@ -340,7 +342,7 @@ export class ApiService {
     if (path.startsWith("/")) {
       path = path.slice(1);
     }
-    const token = await this.tokenGetter();
+    const token = await this.authManager.getAccessToken();
     const response = await fetch(`${this._baseUrl}/${path}`, {
       method: "POST",
       headers: {
@@ -358,7 +360,7 @@ export class ApiService {
   }
 
   private async _deleteCall(path: string): Promise<void> {
-    const token = await this.tokenGetter();
+    const token = await this.authManager.getAccessToken();
     await fetch(`${this._baseUrl}/${path}`, {
       method: "DELETE",
       headers: {
@@ -368,7 +370,7 @@ export class ApiService {
   }
 
   private async _getCall(path: string): Promise<Response> {
-    const token = await this.tokenGetter();
+    const token = await this.authManager.getAccessToken();
     const response = await fetch(`${this._baseUrl}/${path}`, {
       method: "GET",
       headers: {
