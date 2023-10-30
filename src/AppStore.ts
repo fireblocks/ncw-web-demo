@@ -432,7 +432,25 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      fireblocksNCW.takeover();
+      return fireblocksNCW.takeover();
+    },
+    exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      return fireblocksNCW.exportFullKeys(chainCode, cloudKeyShares);
+    },
+    deriveAssetKey: (
+      extendedPrivateKey: string,
+      coinType: number,
+      account: number,
+      change: number,
+      index: number,
+    ) => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      return fireblocksNCW.deriveAssetKey(extendedPrivateKey, coinType, account, change, index);
     },
     disposeFireblocksNCW: () => {
       if (!fireblocksNCW) {

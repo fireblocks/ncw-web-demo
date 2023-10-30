@@ -22,12 +22,12 @@ export const AreYouSureDialog: React.FC<IProps> = ({ title, children, onYes, onN
         <h3 className="font-bold text-lg">{title}</h3>
         {children}
         <div className="modal-action">
-          <label className="btn" onClick={onNo}>
-            No
-          </label>
-          <label className="btn btn-primary" onClick={onYes}>
+          <button className="btn btn-primary" onClick={onYes}>
             Yes
-          </label>
+          </button>
+          <button className="btn" onClick={onNo}>
+            No
+          </button>
         </div>
       </div>
     </div>

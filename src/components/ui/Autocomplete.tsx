@@ -1,14 +1,14 @@
 import classNames from "classnames";
 import { memo, useRef, useState } from "react";
 
-type TItem = {
+export interface IAutoCompleteItem {
   id: string;
   name: string;
   iconUrl?: string;
-};
+}
 
 type Props = {
-  items: TItem[];
+  items: IAutoCompleteItem[];
   value: string;
   onChange(val: string): void;
   disabled?: boolean;
