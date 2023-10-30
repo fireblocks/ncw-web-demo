@@ -4,17 +4,14 @@ import { useAppStore } from "../AppStore";
 import { AssignDevice } from "./AssignDevice";
 import { FireblocksNCWInitializer } from "./FireblocksNCWInitializer";
 import { LoginToDemoAppServer } from "./LoginToDemoAppServer";
-import { useAccessTokenGetter } from "../auth/accessTokenGetterHook";
 import { FireblockNCWExampleActions } from "./FireblockNCWExampleActions";
 
 export const AppContent: React.FC = () => {
-  const tokenGetter = useAccessTokenGetter();
-
   const {
     loginToDemoAppServerStatus,
     assignDeviceStatus,
     appStoreInitialized,
-    fireblocksNCWStatus: fireblocksNCWStatus,
+    fireblocksNCWStatus,
     initAppStore,
     disposeAppStore,
   } = useAppStore();
@@ -24,11 +21,12 @@ export const AppContent: React.FC = () => {
       return () => {
         disposeAppStore();
       };
+    } else {
+      initAppStore();
     }
   }, [disposeAppStore, appStoreInitialized]);
 
   if (!appStoreInitialized) {
-    initAppStore(tokenGetter);
     return null;
   }
 
