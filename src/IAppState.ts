@@ -8,6 +8,7 @@ import {
   IWalletAsset,
   IWeb3Session,
 } from "./services/ApiService";
+import { IUser } from "./auth/IAuthManager";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
@@ -19,8 +20,9 @@ type TSupportedAssets = Record<string, IWalletAsset>;
 
 export interface IAppState {
   automateInitialization: boolean;
+  loggedUser: IUser | null;
   userId: string | null;
-  deviceId: string;
+  deviceId: string | null;
   walletId: string | null;
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
@@ -33,8 +35,10 @@ export interface IAppState {
   passphrase: string | null;
   accounts: TAccount[];
   supportedAssets: Record<number, TSupportedAssets>;
-  initAppStore: (tokenGetter: () => Promise<string>) => void;
+  initAppStore: () => void;
   disposeAppStore: () => void;
+  login(provider: 'GOOGLE' | 'APPLE'): Promise<void>;
+  logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;
   loginToDemoAppServer: () => void;
