@@ -1,9 +1,11 @@
-import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, OAuthCredential, OAuthProvider, PopupRedirectResolver, signInWithPopup } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Card, ICardAction } from "../components/ui/Card";
 import { ReactFCC } from "../types";
 import { TokenGetterProvider } from "./TokenGetterProvider";
 import { useFirebaseApp } from "./firebaseAppHook";
+import { GoogleDriveProvider } from "./providers";
+import { useState } from "react";
 
 export const Login: ReactFCC = ({ children }) => {
   const firebaseApp = useFirebaseApp();
@@ -14,15 +16,23 @@ export const Login: ReactFCC = ({ children }) => {
     return <TokenGetterProvider>{children}</TokenGetterProvider>;
   }
 
+  const goolgeLogin  = async () => {
+    const result = await signInWithPopup(auth, GoogleDriveProvider);
+  }
+
+  const appleLogin  = async () => {
+    const result = await signInWithPopup(auth, new OAuthProvider('apple.com'));
+  }
+
   const googleCardAction: ICardAction = {
-    action: () => signInWithPopup(auth, new GoogleAuthProvider()),
+    action: goolgeLogin,
     isDisabled: loading,
     isInProgress: loading,
     label: "Sign In With Google",
   };
 
   const appleCardAction: ICardAction = {
-    action: () => signInWithPopup(auth, new OAuthProvider('apple.com')),
+    action: appleLogin,
     isDisabled: loading,
     isInProgress: loading,
     label: "Sign In With Apple",

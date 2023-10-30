@@ -47,8 +47,8 @@ export interface IAppState {
   signTransaction: (txId: string) => Promise<void>;
   takeover: () => Promise<void>;
   setPassphrase: (passphrase: string) => void;
-  recoverKeys: () => Promise<void>;
-  backupKeys: () => Promise<void>;
+  recoverKeys: (passhrase: string) => Promise<void>;
+  backupKeys: (passhrase: string) => Promise<void>;
   regeneratePassphrase: () => void;
   initFireblocksNCW: () => Promise<void>;
   disposeFireblocksNCW: () => void;

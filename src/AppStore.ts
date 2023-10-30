@@ -7,7 +7,6 @@ import {
   IKeyRecoveryEvent,
   IMessagesHandler,
   SigningInProgressError,
-  TEnv,
   TEvent,
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
@@ -108,8 +107,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       rememberBackupPassphrase(passphrase);
       set((state) => ({ ...state, passphrase }));
     },
-    backupKeys: async () => {
-      const { passphrase } = get();
+    backupKeys: async (passphrase: string) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
@@ -118,8 +116,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       await fireblocksNCW.backupKeys(passphrase);
     },
-    recoverKeys: async () => {
-      const { passphrase } = get();
+    recoverKeys: async (passphrase: string) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
@@ -193,7 +190,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         });
 
         fireblocksNCW = await FireblocksNCW.initialize({
-          env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
+          env: ENV_CONFIG.NCW_SDK_ENV,
           deviceId,
           messagesHandler,
           eventsHandler,

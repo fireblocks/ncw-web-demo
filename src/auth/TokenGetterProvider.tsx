@@ -1,9 +1,14 @@
-import { getAuth } from "firebase/auth";
+import { OAuthCredential, getAuth } from "firebase/auth";
 import React, { createContext } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useFirebaseApp } from "./firebaseAppHook";
 
+export interface IContext {
+  idToken?: string|null;
+}
+
 export const TokenGetterContext = createContext<(() => Promise<string>) | null>(null);
+export const CredentialGetterContext = createContext<(() => Promise<OAuthCredential>) | null>(null);
 
 interface IProps {
   children?: React.ReactNode;

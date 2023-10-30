@@ -1017,6 +1017,9 @@ __metadata:
   resolution: "@fireblocks/ncw-web-demo@workspace:."
   dependencies:
     "@fireblocks/ncw-js-sdk": ^9.0.3
+    "@types/gapi": ^0.0.46
+    "@types/gapi.auth2": ^0.0.59
+    "@types/gapi.client.drive-v3": ^0.0.3
     "@types/node-forge": ^1.3.4
     "@types/react": ^18.0.28
     "@types/react-dom": ^18.0.11
@@ -1031,6 +1034,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     eslint-plugin-react-refresh: ^0.3.4
     firebase: ^10.4.0
+    memfs: ^4.6.0
     node-forge: ^1.3.1
     postcss: ^8.4.23
     prettier: ^3.0.0
@@ -1039,6 +1043,7 @@ __metadata:
     react-firebase-hooks: ^5.1.1
     react-router-dom: ^6.11.1
     tailwindcss: ^3.3.2
+    tsl-apple-cloudkit: ^0.2.31
     typescript: ^5.0.3
     vite: ^4.3.0
     zustand: ^4.3.8
@@ -1147,6 +1152,26 @@ __metadata:
     "@jridgewell/resolve-uri": ^3.1.0
     "@jridgewell/sourcemap-codec": ^1.4.14
   checksum: cd1a7353135f385909468ff0cf20bdd37e59f2ee49a13a966dedf921943e222082c583ade2b579ff6cd0d8faafcb5461f253e1bf2a9f48fec439211fdbe788f5
+  languageName: node
+  linkType: hard
+
+"@maxim_mazurok/gapi.client.discovery-v1@npm:latest":
+  version: 0.1.20200806
+  resolution: "@maxim_mazurok/gapi.client.discovery-v1@npm:0.1.20200806"
+  dependencies:
+    "@types/gapi.client": "*"
+    "@types/gapi.client.discovery-v1": "*"
+  checksum: 18b93607889ca62301b149841115eee9720d4fdaa4329d6e865b73ceb77c3cfea4d23808b2a861d583a96ccac4a3b9affb9d04b08fa329a6956d4272175f1696
+  languageName: node
+  linkType: hard
+
+"@maxim_mazurok/gapi.client.drive-v3@npm:latest":
+  version: 0.0.20231024
+  resolution: "@maxim_mazurok/gapi.client.drive-v3@npm:0.0.20231024"
+  dependencies:
+    "@types/gapi.client": "*"
+    "@types/gapi.client.discovery-v1": "*"
+  checksum: 4823cb2ba2e8c14c36c76e19265b9acefd6b671849df48ba6fed39312749b3659b05a647e115dee54cbfc5935aa45985a6892d94b09e925c6907aca410f20d07
   languageName: node
   linkType: hard
 
@@ -1331,6 +1356,47 @@ __metadata:
   version: 1.39.9
   resolution: "@types/emscripten@npm:1.39.9"
   checksum: 93e18aa6b6d71397d3697c1bfaf16fca1dd2f85f915485d344bfde20b127be86d1eafa16d18a093765945cae5eb394a2c86270ee4fee0be78ccaf4d17ffb69cf
+  languageName: node
+  linkType: hard
+
+"@types/gapi.auth2@npm:^0.0.59":
+  version: 0.0.59
+  resolution: "@types/gapi.auth2@npm:0.0.59"
+  dependencies:
+    "@types/gapi": "*"
+  checksum: 73f57f073696ecb06d34e780b206d4efbc9449353ef4af1136efaae33e2d5f886cbd97e061b51fe1198cade5b19aa97761f27ac053ed1fb15eb13669631b76d8
+  languageName: node
+  linkType: hard
+
+"@types/gapi.client.discovery-v1@npm:*":
+  version: 0.0.3
+  resolution: "@types/gapi.client.discovery-v1@npm:0.0.3"
+  dependencies:
+    "@maxim_mazurok/gapi.client.discovery-v1": latest
+  checksum: 93adf86d77bd42ca7e50c2d64333bbd5072a236c862cc59224b4806877ba7be3ff72a253c94187ab7b5b3dc48f91659e0346adc7374edf31271119451f6cfdac
+  languageName: node
+  linkType: hard
+
+"@types/gapi.client.drive-v3@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "@types/gapi.client.drive-v3@npm:0.0.3"
+  dependencies:
+    "@maxim_mazurok/gapi.client.drive-v3": latest
+  checksum: 960f421326adbf3a4e4ca8c71f6591b41af1662e13cd1685a5e1c9bcedc88f0f0a1e2eda8d1922926246f8cd72b36c8e760c59bd0a62166c1a0b7e4a111697f8
+  languageName: node
+  linkType: hard
+
+"@types/gapi.client@npm:*":
+  version: 1.0.7
+  resolution: "@types/gapi.client@npm:1.0.7"
+  checksum: 56cbb07debd23d35242d946d1ebab293363640631ffcd452f0cfe5f63108293fab0dbac1e1e6e8d931da0e7c454d45de1ff05baf5f1d5500e46e5fb6869fbe82
+  languageName: node
+  linkType: hard
+
+"@types/gapi@npm:*, @types/gapi@npm:^0.0.46":
+  version: 0.0.46
+  resolution: "@types/gapi@npm:0.0.46"
+  checksum: fcb8db40ad552788ffc7f4f61307feedb2d7c52c6d18dd6557ae2afe8535f968bdfd6a795744222a22780e46695483af5510169a6d198083c17dddfac07a8111
   languageName: node
   linkType: hard
 
@@ -2722,6 +2788,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hyperdyperid@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "hyperdyperid@npm:1.2.0"
+  checksum: 210029d1c86926f09109f6317d143f8b056fc38e8dd11b0c3e3205fc6c6ff8429fb55b4b9c2bce065462719ed9d34366eced387aaa0035d93eb76b306a8547ef
+  languageName: node
+  linkType: hard
+
 "iconv-lite@npm:^0.6.2":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
@@ -2932,6 +3005,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"json-joy@npm:^9.2.0":
+  version: 9.7.0
+  resolution: "json-joy@npm:9.7.0"
+  dependencies:
+    arg: ^5.0.2
+    hyperdyperid: ^1.2.0
+  peerDependencies:
+    quill-delta: ^5
+    rxjs: 7
+    tslib: 2
+  bin:
+    jj: bin/jj.js
+    json-pack: bin/json-pack.js
+    json-pack-test: bin/json-pack-test.js
+    json-patch: bin/json-patch.js
+    json-patch-test: bin/json-patch-test.js
+    json-pointer: bin/json-pointer.js
+    json-pointer-test: bin/json-pointer-test.js
+    json-unpack: bin/json-unpack.js
+  checksum: cd2e618e5a2643fa4acc8130e2a072f436f4675151a29976b2893c001c269e13421c0ddd10c5ce09ad3a1b55108c71074606ef94c357a921fe05e4203cfce097
+  languageName: node
+  linkType: hard
+
 "json-schema-traverse@npm:^0.4.1":
   version: 0.4.1
   resolution: "json-schema-traverse@npm:0.4.1"
@@ -3077,6 +3173,18 @@ __metadata:
     promise-retry: ^2.0.1
     ssri: ^10.0.0
   checksum: 7c7a6d381ce919dd83af398b66459a10e2fe8f4504f340d1d090d3fa3d1b0c93750220e1d898114c64467223504bd258612ba83efbc16f31b075cd56de24b4af
+  languageName: node
+  linkType: hard
+
+"memfs@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "memfs@npm:4.6.0"
+  dependencies:
+    json-joy: ^9.2.0
+    thingies: ^1.11.1
+  peerDependencies:
+    tslib: 2
+  checksum: b32a35bee9f96dc011605f3bb39e74e6d2a5de51c952a77bb38a0dfabd3381c40ae382d27f385aa290edee8081597fb1a3b41a07bb3f775fd55312dc30ac1d9d
   languageName: node
   linkType: hard
 
@@ -4070,6 +4178,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"thingies@npm:^1.11.1":
+  version: 1.12.0
+  resolution: "thingies@npm:1.12.0"
+  peerDependencies:
+    tslib: ^2
+  checksum: 04b75d264e1880676fb9f400b2c0e069abdd00de1fa006d9daee527ad6d899828169fd46bb17e7cabf2802b7dbd64053106e29e7a7aa271659f5b41b3a11657f
+  languageName: node
+  linkType: hard
+
 "to-fast-properties@npm:^2.0.0":
   version: 2.0.0
   resolution: "to-fast-properties@npm:2.0.0"
@@ -4097,6 +4214,15 @@ __metadata:
   version: 0.1.13
   resolution: "ts-interface-checker@npm:0.1.13"
   checksum: 20c29189c2dd6067a8775e07823ddf8d59a33e2ffc47a1bd59a5cb28bb0121a2969a816d5e77eda2ed85b18171aa5d1c4005a6b88ae8499ec7cc49f78571cb5e
+  languageName: node
+  linkType: hard
+
+"tsl-apple-cloudkit@npm:^0.2.31":
+  version: 0.2.31
+  resolution: "tsl-apple-cloudkit@npm:0.2.31"
+  peerDependencies:
+    typescript: ">=3.0.0"
+  checksum: 6f8d3e8c15564fe01fc3a9d1ccfe034cb98bdebafec8e37f55b8812708423b7c1d5c4f64e4ec091f27ef084a7b9f5dfd7e60cc622ead5d399a61bff6daaf49f4
   languageName: node
   linkType: hard
 
