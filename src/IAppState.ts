@@ -19,6 +19,7 @@ type TAccount = Record<string, IAssetInfo>;
 type TSupportedAssets = Record<string, IWalletAsset>;
 
 export interface IAppState {
+  fireblocksNCWSdkVersion: string;
   automateInitialization: boolean;
   loggedUser: IUser | null;
   userId: string | null;
@@ -37,7 +38,7 @@ export interface IAppState {
   supportedAssets: Record<number, TSupportedAssets>;
   initAppStore: () => void;
   disposeAppStore: () => void;
-  login(provider: 'GOOGLE' | 'APPLE'): Promise<void>;
+  login(provider: "GOOGLE" | "APPLE"): Promise<void>;
   logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;

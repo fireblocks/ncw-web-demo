@@ -52,6 +52,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
+    fireblocksNCWSdkVersion: FireblocksNCW.version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     loggedUser: authManager.loggedUser,
     userId: null,
@@ -440,13 +441,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       return fireblocksNCW.exportFullKeys(chainCode, cloudKeyShares);
     },
-    deriveAssetKey: (
-      extendedPrivateKey: string,
-      coinType: number,
-      account: number,
-      change: number,
-      index: number,
-    ) => {
+    deriveAssetKey: (extendedPrivateKey: string, coinType: number, account: number, change: number, index: number) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
