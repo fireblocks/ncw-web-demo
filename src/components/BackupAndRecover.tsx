@@ -1,6 +1,6 @@
 /// <reference types="../../node_modules/tsl-apple-cloudkit/lib/index.d.ts" />
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
@@ -9,11 +9,6 @@ import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { DISCOVERY_DOC, getUserGoogleDriveProvider } from "../auth/providers";
 import type * as CloudKit from 'tsl-apple-cloudkit';
 import { randomPassPhrase } from "../services/randomPassPhrase";
-
-window.addEventListener('message', function (e) {
-  // console.log('mmm', e.data.ckWebAuthToken);
-  // console.log('incoming message', e);
-})
 
 export const BackupAndRecover: React.FC = () => {
   const firebaseApp = useFirebaseApp();
@@ -24,50 +19,131 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
+  const [cloudkit, setCloudkit] = React.useState<CloudKit.CloudKit | null>(null);
+  const [appleSignedIn, setAppleSignedIn] = React.useState<boolean|null>(null);
   const { keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys, deviceId } =
     useAppStore();
 
-  const loadApple = async () => {
-    // @ts-ignore
-    const ck = CloudKit.configure({
-      services: {
-        logger: console
-      },
-      containers: [{
-        containerIdentifier: 'iCloud.com.fireblocks.ncw.demo',
-        apiTokenAuth: {
-          apiToken: "572a0b5cfcb8992031640d1a14fd0ac3bb7c774cc929a0e23cb00af415da51cd",
-          persist: true,
-          signInButton: { id: 'sign-in-button', theme: 'black' },
-          signOutButton: { id: 'sign-out-button', theme: 'black' }
-        },
-        environment: 'development',
-      }]
-    });
+  useEffect(() => {
+    const loadApple = () => {
+      const ck = window.CloudKit.configure({
+        containers: [{
+          containerIdentifier: 'iCloud.com.fireblocks.ncw.demo',
+          apiTokenAuth: {
+            apiToken: "572a0b5cfcb8992031640d1a14fd0ac3bb7c774cc929a0e23cb00af415da51cd",
+            persist: true,
+            signInButton: { id: 'sign-in-button', theme: 'black' },
+            signOutButton: { id: 'sign-out-button', theme: 'black' }
+          },
+          environment: 'development',
+        }]
+      });
+  
+      setCloudkit(ck);
+    };
 
-    // TODO: try to use firebase auth credential flow instead if possible
-    const appleId = await ck.getDefaultContainer().setUpAuth();
-    console.log("appleId", appleId);
-    if (!appleId) {
-      console.log("waiting...");
-      try {
-        await ck.getDefaultContainer().whenUserSignsIn();
-        console.log("user signed in!");
-      } catch (e) {
-        console.error("whenUserSignsIn", e);
+    loadApple();
+  }, []);
+
+  useEffect(() => {
+    const setupAuth = async (ck: CloudKit.CloudKit) => {
+      const appleId = await ck.getDefaultContainer().setUpAuth();
+      if (appleId) {
+        setAppleSignedIn(true);
+      } else {
+        setAppleSignedIn(false);
       }
     }
 
-    // test query
-    const r = await ck.getDefaultContainer().privateCloudDatabase.performQuery({ recordType: "String" });
-    console.log("query", r);
+    if (cloudkit) {
+      setupAuth(cloudkit);
+    }
+  }, [cloudkit])
+
+  useEffect(() => {
+    const onUserChange = async (ck: CloudKit.CloudKit) => {
+      if (appleSignedIn) {
+        await ck.getDefaultContainer().whenUserSignsOut();
+        setAppleSignedIn(false);
+      } else {
+        await ck.getDefaultContainer().whenUserSignsIn();
+        setAppleSignedIn(true);
+      }
+    }
+
+    if (cloudkit) {
+      onUserChange(cloudkit);
+    }
+  }, [appleSignedIn])
+
+  const backupApple = async () => {
+    const fileContent = randomPassPhrase();
+    const db = cloudkit!.getDefaultContainer().privateCloudDatabase;
+    const recordName =`backup_t_${deviceId}`;
+    const recordType = "Backup";
+    
+    const results = await db.fetchRecords([{
+      recordName,
+      recordType
+    }]);
+
+    let recordChangeTag;
+    if (results.records.length === 1) {
+      recordChangeTag = results.records[0].recordChangeTag;
+      // update
+      await db.saveRecords([{
+        recordName: `backup_t_${deviceId}`,
+        recordType: "Backup",
+        recordChangeTag,
+        fields: {
+          "phrase": {
+            type: "STRING",
+            value: fileContent,
+          }
+        }
+      }]);
+    } else {
+      await db.saveRecords([{
+        recordName: `backup_t_${deviceId}`,
+        recordType: "Backup",
+        fields: {
+          "phrase": {
+            type: "STRING",
+            value: fileContent,
+          }
+        }
+      }]);
+    }
+    return fileContent;
+  };
+
+  const recoverApple = async () => {
+    const db = cloudkit!.getDefaultContainer().privateCloudDatabase;
+    const recordName =`backup_t_${deviceId}`;
+    const recordType = "Backup";
+    
+    const results = await db.fetchRecords([{
+      recordName,
+      recordType
+    }]);
+
+    if (results.records.length === 1) {
+      if (Array.isArray(results.records[0].fields)) {
+        throw new Error("Unexpected schema");
+      }
+      if (results.records[0].fields["phrase"].type !== "STRING") {
+        throw new Error("Unexpected schema");
+      }
+      return results.records[0].fields["phrase"].value as string;
+    }
+
+    throw new Error("not found");
   }
 
   const recoverGdrive = async () => {
     const provider = getUserGoogleDriveProvider(auth.currentUser!.email!);
     const result = await signInWithPopup(auth, provider);
 
-    console.log(result);
     // TODO: persist credential from original firebase login
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential?.accessToken;
@@ -179,8 +255,8 @@ export const BackupAndRecover: React.FC = () => {
             console.log("create:", create.result);
             console.log("uploading...");
 
-            const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=media`, {
-              method: "POST",
+            const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${create.result.id}?uploadType=media`, {
+              method: "PATCH",
               headers: {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": metadata.mimeType!,
@@ -197,18 +273,6 @@ export const BackupAndRecover: React.FC = () => {
           rej(e);
         }
       });
-
-      // var saveAppData = function (fileId, appData) {
-      //   return gapi.client.request({
-      //     path: '/upload/drive/v3/files/' + fileId,
-      //     method: 'PATCH',
-      //     params: {
-      //       uploadType: 'media'
-      //     },
-      //     body: JSON.stringify(appData)
-      //   });
-      // };
-
     })
   }
 
@@ -273,17 +337,23 @@ export const BackupAndRecover: React.FC = () => {
     isInProgress: isRecoverInProgress,
   };
 
-  const backupAction: ICardAction = {
-    label: "Backup keys",
-    action: () => doBackupKeys(async () => (passphrase!)),
-    isDisabled: isBackupInProgress || passphrase === null || passphrase.trim() === "" || hasReadyAlgo === false,
+  const appleBackupAction: ICardAction = {
+    label: "Backup Apple",
+    action: () => doBackupKeys(backupApple),
+    isDisabled: !appleSignedIn || isBackupInProgress || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };
 
-  const appleAction: ICardAction = {
-    label: "Backup Apple",
-    // action: doBackupKeys,
-    action: loadApple,
+  const appleRecoverAction: ICardAction = {
+    label: "Apple Recover",
+    action: () => doRecoverKeys(recoverApple),
+    isDisabled: !appleSignedIn || isRecoverInProgress || isBackupInProgress,
+    isInProgress: isRecoverInProgress,
+  };
+
+  const backupAction: ICardAction = {
+    label: "Backup keys",
+    action: () => doBackupKeys(async () => (passphrase!)),
     isDisabled: isBackupInProgress || passphrase === null || passphrase.trim() === "" || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };
@@ -296,7 +366,7 @@ export const BackupAndRecover: React.FC = () => {
   };
 
   return (
-    <Card title="Backup/Recover" actions={[backupAction, recoverAction, googleBackupAction, googleReoverAction, appleAction]}>
+    <Card title="Backup/Recover" actions={[backupAction, recoverAction, googleBackupAction, googleReoverAction, appleBackupAction, appleRecoverAction]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
       <div className="grid grid-cols-[150px_auto_50px] gap-2">
