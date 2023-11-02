@@ -2,6 +2,7 @@ import React from "react";
 import { useAppStore } from "../AppStore";
 import { ITransactionData, ITransactionDetails, TTransactionStatus } from "../services/ApiService";
 import { Copyable } from "./ui/Copyable";
+import { ErrorToast } from "./ui/ErrorToast";
 
 interface IProps {
   tx: ITransactionData;
@@ -141,18 +142,13 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
   const onSignTransactionClicked = async (txId: string) => {
     setInProgress(true);
     try {
+      setErrorStr(null);
       setSdkCompletedSigning(false);
       await signTransaction(txId);
       setSdkCompletedSigning(true);
       setInProgress(false);
     } catch (err: unknown) {
       setInProgress(false);
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          setErrorStr(null);
-        }
-      }, 10000);
-
       if (err instanceof Error) {
         setErrorStr(err.message);
       } else {
@@ -172,13 +168,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
     <tr key={tx.id}>
       <td className="px-1 text-ellipsis overflow-hidden whitespace-nowrap">
         <>
-          {errorStr ? (
-            <div className="toast toast-container">
-              <div className="alert alert-error">
-                <span>{errorStr}</span>
-              </div>
-            </div>
-          ) : null}
+          <ErrorToast errorStr={errorStr} />
           <Copyable value={tx.id} />
         </>
       </td>

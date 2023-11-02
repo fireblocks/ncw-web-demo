@@ -1,10 +1,11 @@
+import { IFullKey } from "@fireblocks/ncw-js-sdk";
 import React from "react";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
-import { IFullKey } from "@fireblocks/ncw-js-sdk";
 import { Copyable } from "./ui/Copyable";
-import { ExportFullKeysDialog } from "./ui/ExportFullKeysDialog";
 import { DeriveAssetKeysDialog } from "./ui/DeriveAssetKeysDialog";
+import { ErrorToast } from "./ui/ErrorToast";
+import { ExportFullKeysDialog } from "./ui/ExportFullKeysDialog";
 
 export const Takeover: React.FC = () => {
   const { takeover, exportFullKeys } = useAppStore();
@@ -13,12 +14,20 @@ export const Takeover: React.FC = () => {
   const [isExportFullKeysDialogOpen, setIsExportFullKeysDialogOpen] = React.useState(false);
   const [isDeriveAssetKeysDialogOpen, setIsDeriveAssetKeysDialogOpen] = React.useState(false);
   const [exportedFullKeys, setExportedFullKeys] = React.useState<IFullKey[] | null>(null);
+  const [errorStr, setErrorStr] = React.useState<string | null>(null);
 
   const onTakeoverClicked = async () => {
     try {
+      setErrorStr(null);
       setIsTakeoverInProgress(true);
       const result = await takeover();
       setExportedFullKeys(result);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorStr(err.message);
+      } else {
+        setErrorStr("Unknown error");
+      }
     } finally {
       setIsTakeoverInProgress(false);
     }
@@ -26,10 +35,17 @@ export const Takeover: React.FC = () => {
 
   const doExportFullKeys = async (chainCode: string, cloudKeyShares: Map<string, string[]>) => {
     try {
+      setErrorStr(null);
       setIsExportFullKeysDialogOpen(false);
       setIsExportInProgress(true);
       const result = await exportFullKeys(chainCode, cloudKeyShares);
       setExportedFullKeys(result);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorStr(err.message);
+      } else {
+        setErrorStr("Unknown error");
+      }
     } finally {
       setIsExportInProgress(false);
     }
@@ -41,6 +57,10 @@ export const Takeover: React.FC = () => {
 
   const onDeriveAssetKeysClicked = () => {
     setIsDeriveAssetKeysDialogOpen(true);
+  };
+
+  const onClearDataClicked = () => {
+    setExportedFullKeys(null);
   };
 
   const takeoverAction: ICardAction = {
@@ -64,6 +84,12 @@ export const Takeover: React.FC = () => {
     isInProgress: isExportInProgress,
   };
 
+  const clearDataAction: ICardAction = {
+    action: onClearDataClicked,
+    label: "Clear",
+    isDisabled: isTakeoverInProgress || isExportInProgress || !exportedFullKeys,
+  };
+
   const closeExportFullKeysDialog = () => {
     setIsExportFullKeysDialogOpen(false);
   };
@@ -73,7 +99,7 @@ export const Takeover: React.FC = () => {
   };
 
   return (
-    <Card title="Takeover" actions={[takeoverAction, exportFullKeysAction, deriveAssetKeysAction]}>
+    <Card title="Takeover" actions={[takeoverAction, exportFullKeysAction, deriveAssetKeysAction, clearDataAction]}>
       {exportedFullKeys && (
         <div>
           {exportedFullKeys.map((key) => {
@@ -95,6 +121,7 @@ export const Takeover: React.FC = () => {
         onExport={doExportFullKeys}
       />
       <DeriveAssetKeysDialog isOpen={isDeriveAssetKeysDialogOpen} onClose={closeDeriveAssetKeysDialog} />
+      <ErrorToast errorStr={errorStr} />
     </Card>
   );
 };
