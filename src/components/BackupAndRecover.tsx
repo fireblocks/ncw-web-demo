@@ -103,6 +103,7 @@ export const BackupAndRecover: React.FC = () => {
         }
       }]);
     } else {
+      // create
       await db.saveRecords([{
         recordName: `backup_t_${deviceId}`,
         recordType: "Backup",
@@ -340,7 +341,7 @@ export const BackupAndRecover: React.FC = () => {
   const appleBackupAction: ICardAction = {
     label: "Backup Apple",
     action: () => doBackupKeys(backupApple),
-    isDisabled: !appleSignedIn || isBackupInProgress || hasReadyAlgo === false,
+    isDisabled: !appleSignedIn || isRecoverInProgress || isBackupInProgress || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };
 
