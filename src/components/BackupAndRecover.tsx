@@ -7,7 +7,7 @@ import { Card, ICardAction } from "./ui/Card";
 import { useFirebaseApp } from "../auth/firebaseAppHook";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 import { DISCOVERY_DOC, getUserGoogleDriveProvider } from "../auth/providers";
-import type * as CloudKit from 'tsl-apple-cloudkit';
+import type { CloudKit } from 'tsl-apple-cloudkit';
 import { randomPassPhrase } from "../services/randomPassPhrase";
 
 export const BackupAndRecover: React.FC = () => {
@@ -19,8 +19,8 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
-  const [cloudkit, setCloudkit] = React.useState<CloudKit.CloudKit | null>(null);
-  const [appleSignedIn, setAppleSignedIn] = React.useState<boolean|null>(null);
+  const [cloudkit, setCloudkit] = React.useState<CloudKit | null>(null);
+  const [appleSignedIn, setAppleSignedIn] = React.useState<boolean | null>(null);
   const { keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys, deviceId } =
     useAppStore();
 
@@ -38,7 +38,7 @@ export const BackupAndRecover: React.FC = () => {
           environment: 'development',
         }]
       });
-  
+
       setCloudkit(ck);
     };
 
@@ -46,7 +46,7 @@ export const BackupAndRecover: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const setupAuth = async (ck: CloudKit.CloudKit) => {
+    const setupAuth = async (ck: CloudKit) => {
       const appleId = await ck.getDefaultContainer().setUpAuth();
       if (appleId) {
         setAppleSignedIn(true);
@@ -61,7 +61,7 @@ export const BackupAndRecover: React.FC = () => {
   }, [cloudkit])
 
   useEffect(() => {
-    const onUserChange = async (ck: CloudKit.CloudKit) => {
+    const onUserChange = async (ck: CloudKit) => {
       if (appleSignedIn) {
         await ck.getDefaultContainer().whenUserSignsOut();
         setAppleSignedIn(false);
@@ -79,9 +79,9 @@ export const BackupAndRecover: React.FC = () => {
   const backupApple = async () => {
     const fileContent = randomPassPhrase();
     const db = cloudkit!.getDefaultContainer().privateCloudDatabase;
-    const recordName =`backup_t_${deviceId}`;
+    const recordName = `backup_t_${deviceId}`;
     const recordType = "Backup";
-    
+
     const results = await db.fetchRecords([{
       recordName,
       recordType
@@ -120,9 +120,9 @@ export const BackupAndRecover: React.FC = () => {
 
   const recoverApple = async () => {
     const db = cloudkit!.getDefaultContainer().privateCloudDatabase;
-    const recordName =`backup_t_${deviceId}`;
+    const recordName = `backup_t_${deviceId}`;
     const recordType = "Backup";
-    
+
     const results = await db.fetchRecords([{
       recordName,
       recordType
@@ -150,43 +150,45 @@ export const BackupAndRecover: React.FC = () => {
     const token = credential?.accessToken;
 
     return new Promise<string>((resolve, reject) => {
-      gapi.load("client", async () => {
-        try {
+      gapi.load("client", {
+        callback: async () => {
+          try {
 
-          const filename = `passphrase_${deviceId}.txt`;
-          await gapi.client.init({
-            discoveryDocs: [DISCOVERY_DOC]
-          });
-
-          const list = await gapi.client.drive.files.list({
-            spaces: "appDataFolder",
-            oauth_token: token,
-            q: `name='${filename}'`
-          });
-
-          console.log("list!", list.result);
-          const file = list.result.files?.find(f => f.name === filename);
-
-          if (file?.id) {
-            console.log("found", file);
-            const res = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
-              headers: {
-                "Authorization": `Bearer ${token}`,
-              },
+            const filename = `passphrase_${deviceId}.txt`;
+            await gapi.client.init({
+              discoveryDocs: [DISCOVERY_DOC]
             });
 
-            console.log("download response", res);
+            const list = await gapi.client.drive.files.list({
+              spaces: "appDataFolder",
+              oauth_token: token,
+              q: `name='${filename}'`
+            });
 
-            const content = await res.text();
-            console.log("downloaded passphrase backup", content);
-            return resolve(content);
-          } else {
-            console.log("no backup found");
-            throw new Error("not found")
+            console.log("list!", list.result);
+            const file = list.result.files?.find(f => f.name === filename);
+
+            if (file?.id) {
+              console.log("found", file);
+              const res = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+                headers: {
+                  "Authorization": `Bearer ${token}`,
+                },
+              });
+
+              console.log("download response", res);
+
+              const content = await res.text();
+              console.log("downloaded passphrase backup", content);
+              return resolve(content);
+            } else {
+              console.log("no backup found");
+              throw new Error("not found")
+            }
+          } catch (e) {
+            reject(e);
           }
-        } catch (e) {
-          reject(e);
-        }
+        }, onerror: reject, ontimeout: reject, timeout: 5_000,
       })
     })
   }
@@ -199,80 +201,82 @@ export const BackupAndRecover: React.FC = () => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential?.accessToken;
 
-    return new Promise<string>((res, rej) => {
-      gapi.load("client", async () => {
-        try {
-          await gapi.client.init({
-            discoveryDocs: [DISCOVERY_DOC]
-          });
-
-          const filename = `passphrase_${deviceId}.txt`;
-          const list = await gapi.client.drive.files.list({
-            spaces: "appDataFolder",
-            oauth_token: token,
-            q: `name='${filename}'`
-          });
-
-          const exists = Boolean(list.result.files?.length);
-          console.log("passhrase backup exists", exists);
-
-          const fileContent = randomPassPhrase();
-          console.log("xxx", fileContent);
-
-          const file = new Blob([fileContent], { type: "text/plain" });
-          const metadata: gapi.client.drive.File = {
-            name: filename,
-            mimeType: "text/plain",
-            parents: ['appDataFolder'],
-          };
-
-          if (exists) {
-            // update
-            console.log("updating...");
-
-            const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${list.result.files![0].id}?uploadType=media`, {
-              method: "PATCH",
-              headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": metadata.mimeType!,
-                "Content-Length": file.size.toString(),
-              },
-              body: fileContent,
+    return new Promise<string>((resolve, reject) => {
+      gapi.load("client", {
+        callback: async () => {
+          try {
+            await gapi.client.init({
+              discoveryDocs: [DISCOVERY_DOC]
             });
 
-            console.log("upload:", res);
-          } else {
-            // create 
-
-            console.log("creating...");
-
-            const create = await gapi.client.drive.files.create({
+            const filename = `passphrase_${deviceId}.txt`;
+            const list = await gapi.client.drive.files.list({
+              spaces: "appDataFolder",
               oauth_token: token,
-              uploadType: "media",
-              resource: metadata,
-              fields: "id",
+              q: `name='${filename}'`
             });
 
-            console.log("create:", create.result);
-            console.log("uploading...");
+            const exists = Boolean(list.result.files?.length);
+            console.log("passhrase backup exists", exists);
 
-            const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${create.result.id}?uploadType=media`, {
-              method: "PATCH",
-              headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": metadata.mimeType!,
-                "Content-Length": file.size.toString(),
-              },
-              body: fileContent,
-            });
+            const fileContent = randomPassPhrase();
+            console.log("xxx", fileContent);
 
-            console.log("upload:", res);
+            const file = new Blob([fileContent], { type: "text/plain" });
+            const metadata: gapi.client.drive.File = {
+              name: filename,
+              mimeType: "text/plain",
+              parents: ['appDataFolder'],
+            };
+
+            if (exists) {
+              // update
+              console.log("updating...");
+
+              const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${list.result.files![0].id}?uploadType=media`, {
+                method: "PATCH",
+                headers: {
+                  "Authorization": `Bearer ${token}`,
+                  "Content-Type": metadata.mimeType!,
+                  "Content-Length": file.size.toString(),
+                },
+                body: fileContent,
+              });
+
+              console.log("upload:", res);
+            } else {
+              // create 
+
+              console.log("creating...");
+
+              const create = await gapi.client.drive.files.create({
+                oauth_token: token,
+                uploadType: "media",
+                resource: metadata,
+                fields: "id",
+              });
+
+              console.log("create:", create.result);
+              console.log("uploading...");
+
+              const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${create.result.id}?uploadType=media`, {
+                method: "PATCH",
+                headers: {
+                  "Authorization": `Bearer ${token}`,
+                  "Content-Type": metadata.mimeType!,
+                  "Content-Length": file.size.toString(),
+                },
+                body: fileContent,
+              });
+
+              console.log("upload:", res);
+            }
+
+            resolve(fileContent);
+          } catch (e) {
+            reject(e);
           }
-
-          res(fileContent);
-        } catch (e) {
-          rej(e);
-        }
+        }, onerror: reject, ontimeout: reject, timeout: 5_000,
       });
     })
   }
