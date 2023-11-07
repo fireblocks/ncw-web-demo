@@ -126,6 +126,7 @@ function getDirection(walletId: string, details?: ITransactionDetails) {
 
 export const TransactionRow: React.FC<IProps> = ({ tx }) => {
   const { walletId, cancelTransaction, signTransaction } = useAppStore();
+  const [ time, setTime ] = React.useState(Date.now());
   const isMountedRef = React.useRef<boolean>(false);
   const [inProgress, setInProgress] = React.useState<boolean>(false);
   const [isSdkCompletedSigning, setSdkCompletedSigning] = React.useState<boolean>(false);
@@ -137,6 +138,14 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
       isMountedRef.current = false;
     };
   }, []);
+
+  // update "time ago" every 5 secs
+  React.useEffect(() => {
+    const interval = setInterval(() => setTime(Date.now()), 5_000);
+    return () => {
+        clearInterval(interval);
+    }
+  }, [])
 
   const onSignTransactionClicked = async (txId: string) => {
     setInProgress(true);
@@ -182,7 +191,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
           <Copyable value={tx.id} />
         </>
       </td>
-      <td className="px-1">{formatTimeAgo(new Date(tx.createdAt!))}</td>
+      <td className="px-1">{formatTimeAgo(new Date(tx.lastUpdated!))}</td>
       <td className="px-1">{tx.details?.assetId}</td>
       <td className="px-1">
         <div className="flex gap-1 items-center">
