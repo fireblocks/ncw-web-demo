@@ -1,19 +1,12 @@
-/// <reference types="../../node_modules/tsl-apple-cloudkit/lib/index.d.ts" />
-
 import React, { useEffect } from "react";
 
+import type { CloudKit } from 'tsl-apple-cloudkit';
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
-import { useFirebaseApp } from "../auth/firebaseAppHook";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { DISCOVERY_DOC, getUserGoogleDriveProvider } from "../auth/providers";
-import type { CloudKit } from 'tsl-apple-cloudkit';
+import { DISCOVERY_DOC } from "../auth/providers";
 import { randomPassPhrase } from "../services/randomPassPhrase";
 
 export const BackupAndRecover: React.FC = () => {
-  const firebaseApp = useFirebaseApp();
-  const auth = getAuth(firebaseApp);
-
   const [err, setErr] = React.useState<string | null>(null);
   const [backupCompleted, setBackupCompleted] = React.useState(false);
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
@@ -21,7 +14,7 @@ export const BackupAndRecover: React.FC = () => {
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
   const [cloudkit, setCloudkit] = React.useState<CloudKit | null>(null);
   const [appleSignedIn, setAppleSignedIn] = React.useState<boolean | null>(null);
-  const { keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys, deviceId } =
+  const { keysStatus, passphrase, getGoogleDriveCredentials, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys, deviceId } =
     useAppStore();
 
   useEffect(() => {
@@ -142,12 +135,8 @@ export const BackupAndRecover: React.FC = () => {
   }
 
   const recoverGdrive = async () => {
-    const provider = getUserGoogleDriveProvider(auth.currentUser!.email!);
-    const result = await signInWithPopup(auth, provider);
 
-    // TODO: persist credential from original firebase login
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential?.accessToken;
+    const token = await getGoogleDriveCredentials();
 
     return new Promise<string>((resolve, reject) => {
       gapi.load("client", {
@@ -195,11 +184,7 @@ export const BackupAndRecover: React.FC = () => {
 
 
   const backupGdrive = async () => {
-    const provider = getUserGoogleDriveProvider(auth.currentUser!.email!);
-    const result = await signInWithPopup(auth, provider);
-    // TODO: persist credential from original firebase login
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential?.accessToken;
+    const token = await getGoogleDriveCredentials();
 
     return new Promise<string>((resolve, reject) => {
       gapi.load("client", {

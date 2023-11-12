@@ -18,13 +18,15 @@ import { ENV_CONFIG } from "./env_config";
 import { ApiService, ITransactionData, IWalletAsset } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { randomPassPhrase } from "./services/randomPassPhrase";
+import { IAuthManager } from "./auth/IAuthManager";
+import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
 
-const rememberBackupPassphrase = (passphrase: string) => {
-  localStorage.setItem("DEMO_APP:backup-passphrase", passphrase);
+const rememberBackupPassphrase = (passphrase: string, userId: string) => {
+  localStorage.setItem(`DEMO_APP:backup-passphrase-${userId}`, passphrase);
 };
 
-const getBackupPassphrase = (): string | null => {
-  return localStorage.getItem("DEMO_APP:backup-passphrase") ?? null;
+const getBackupPassphrase = (userId: string): string | null => {
+  return localStorage.getItem(`DEMO_APP:backup-passphrase-${userId}`) ?? null;
 };
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
@@ -34,6 +36,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
   let fireblocksNCW: FireblocksNCW | null = null;
+  const authManager: IAuthManager = new FirebaseAuthManager();
+  authManager.onUserChanged((user) => {
+    set({ loggedUser: user });
+  });
 
   const updateOrAddTx = (existingTxs: ITransactionData[], newTx: ITransactionData): ITransactionData[] => {
     const index = existingTxs.findIndex((tx) => tx.id === newTx.id);
@@ -47,23 +53,24 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
   return {
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
+    loggedUser: authManager.loggedUser,
     userId: null,
     walletId: null,
     pendingWeb3Connection: null,
     web3Connections: [],
     txs: [],
     appStoreInitialized: false,
-    deviceId: getOrCreateDeviceId(),
+    deviceId: null,
     loginToDemoAppServerStatus: "not_started",
     assignDeviceStatus: "not_started",
     fireblocksNCWStatus: "sdk_not_ready",
     keysStatus: null,
-    passphrase: getBackupPassphrase(),
+    passphrase: null,
     accounts: [],
     supportedAssets: {},
-    initAppStore: (tokenGetter: () => Promise<string>) => {
+    initAppStore: () => {
       try {
-        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, tokenGetter);
+        apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, authManager);
         set((state) => ({ ...state, appStoreInitialized: true }));
       } catch (e) {
         console.error(`Failed to initialize ApiService: ${e}`);
@@ -77,11 +84,46 @@ export const useAppStore = create<IAppState>()((set, get) => {
         set((state) => ({ ...state, appStoreInitialized: false }));
       }
     },
+    async getGoogleDriveCredentials(): Promise <string> {
+      return await authManager.getGoogleDriveCredentials(); 
+    },
+    async login(provider: "GOOGLE" | "APPLE"): Promise<void> {
+      await authManager.login(provider);
+      set({ 
+        loggedUser: authManager.loggedUser,
+      });
+    },
+    async logout(): Promise<void> {
+      await authManager.logout();
+      const { disposeAppStore, disposeFireblocksNCW } = get();
+      disposeAppStore();
+      disposeFireblocksNCW();
+      set({
+        loggedUser: null,
+        userId: null,
+        walletId: null,
+        deviceId: null,
+        passphrase: null,
+        pendingWeb3Connection: null,
+        web3Connections: [],
+        txs: [],
+        appStoreInitialized: false,
+        loginToDemoAppServerStatus: "not_started",
+        assignDeviceStatus: "not_started",
+        fireblocksNCWStatus: "sdk_not_ready",
+        keysStatus: null,
+        accounts: [],
+        supportedAssets: {},
+      });
+    },
     assignCurrentDevice: async () => {
-      const { deviceId } = get();
       set((state) => ({ ...state, walletId: null, assignDeviceStatus: "started" }));
       if (!apiService) {
         throw new Error("apiService is not initialized");
+      }
+      const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
       }
       try {
         const walletId = await apiService.assignDevice(deviceId);
@@ -91,21 +133,37 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
     },
     generateNewDeviceId: async () => {
+      const { userId } = get();
+      if (!userId) {
+        throw new Error("First login to demo app server");
+      }
       const deviceId = generateDeviceId();
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started", passphrase: null }));
-      storeDeviceId(deviceId);
+      storeDeviceId(deviceId, userId);
     },
     setDeviceId: (deviceId: string) => {
-      storeDeviceId(deviceId);
+      const { userId } = get();
+      if (!userId) {
+        throw new Error("First login to demo app server");
+      }
+      storeDeviceId(deviceId, userId);
       set((state) => ({ ...state, deviceId }));
     },
     setPassphrase: (passphrase: string) => {
-      rememberBackupPassphrase(passphrase);
+      const { userId } = get();
+      if (!userId) {
+        throw new Error("First login to demo app server");
+      }
+      rememberBackupPassphrase(passphrase, userId);
       set((state) => ({ ...state, passphrase }));
     },
     regeneratePassphrase: () => {
+      const { userId } = get();
+      if (!userId) {
+        throw new Error("First login to demo app server");
+      }
       const passphrase = randomPassPhrase();
-      rememberBackupPassphrase(passphrase);
+      rememberBackupPassphrase(passphrase, userId);
       set((state) => ({ ...state, passphrase }));
     },
     backupKeys: async (passphrase: string) => {
@@ -135,7 +193,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       try {
         const userId = await apiService.login();
-        set((state) => ({ ...state, userId, loginToDemoAppServerStatus: "success" }));
+        set((state) => ({
+          ...state,
+          userId,
+          loginToDemoAppServerStatus: "success",
+          deviceId: getOrCreateDeviceId(userId),
+          passphrase: getBackupPassphrase(userId),
+        }));
       } catch (e) {
         set((state) => ({ ...state, userId: null, loginToDemoAppServerStatus: "failed" }));
       }
@@ -151,6 +215,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
           handleOutgoingMessage: (message: string) => {
             if (!apiService) {
               throw new Error("apiService is not initialized");
+            }
+            const { deviceId } = get();
+            if (!deviceId) {
+              throw new Error("deviceId is not set");
             }
             return apiService.sendMessage(deviceId, message);
           },
@@ -182,6 +250,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         };
 
         const { deviceId } = get();
+        if (!deviceId) {
+          throw new Error("deviceId is not set");
+        }
         const secureStorageProvider = new PasswordEncryptedLocalStorage(deviceId, () => {
           const password = prompt("Enter password", "");
           if (password === null) {
@@ -228,6 +299,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const newTxData = await apiService.createTransaction(deviceId);
       const txs = updateOrAddTx(get().txs, newTxData);
       set((state) => ({ ...state, txs }));
@@ -237,6 +311,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       await apiService.cancelTransaction(deviceId, txId);
       set((state) => {
         const index = state.txs.findIndex((t) => t.id === txId);
@@ -283,6 +360,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
 
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const connections = await apiService.getWeb3Connections(deviceId);
       set((state) => ({ ...state, web3Connections: connections }));
     },
@@ -292,6 +372,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
 
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const response = await apiService.createWeb3Connection(deviceId, uri);
       set((state) => ({ ...state, pendingWeb3Connection: response }));
     },
@@ -302,6 +385,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const { deviceId, pendingWeb3Connection } = get();
       if (!pendingWeb3Connection) {
         throw new Error("no pending connection");
+      }
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
       }
       await apiService.approveWeb3Connection(deviceId, pendingWeb3Connection.id);
       set((state) => ({ ...state, pendingWeb3Connection: null }));
@@ -314,6 +400,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!pendingWeb3Connection) {
         throw new Error("no pending connection");
       }
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       await apiService.denyWeb3Connection(deviceId, pendingWeb3Connection.id);
       set((state) => ({ ...state, pendingWeb3Connection: null }));
     },
@@ -322,6 +411,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       await apiService.removeWeb3Connection(deviceId, sessionId);
 
       set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
@@ -343,7 +435,25 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      fireblocksNCW.takeover();
+      return fireblocksNCW.takeover();
+    },
+    exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      return fireblocksNCW.exportFullKeys(chainCode, cloudKeyShares);
+    },
+    deriveAssetKey: (
+      extendedPrivateKey: string,
+      coinType: number,
+      account: number,
+      change: number,
+      index: number,
+    ) => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      return fireblocksNCW.deriveAssetKey(extendedPrivateKey, coinType, account, change, index);
     },
     disposeFireblocksNCW: () => {
       if (!fireblocksNCW) {
@@ -365,6 +475,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const address = await apiService.addAsset(deviceId, accountId, assetId);
       const asset = await apiService.getAsset(deviceId, accountId, assetId);
       set((state) => ({
@@ -380,6 +493,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const allAccounts = await apiService.getAccounts(deviceId);
 
       set((state) => ({
@@ -401,6 +517,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const assets = await apiService.getAssets(deviceId, accountId);
       const reduced = assets.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => {
         acc[asset.id] = { asset };
@@ -418,6 +537,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const assets = await apiService.getSupportedAssets(deviceId, accountId);
       const reduced = assets.reduce<Record<string, IWalletAsset>>((acc, asset) => {
         acc[asset.id] = asset;
@@ -438,6 +560,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const balance = await apiService.getBalance(deviceId, accountId, assetId);
 
       set((state) => ({
@@ -453,6 +578,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { deviceId } = get();
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
       const address = await apiService.getAddress(deviceId, accountId, assetId);
 
       set((state) => ({

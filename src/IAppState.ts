@@ -1,4 +1,4 @@
-import { IKeyDescriptor, TMPCAlgorithm } from "@fireblocks/ncw-js-sdk";
+import { IKeyDescriptor, TMPCAlgorithm, IFullKey } from "@fireblocks/ncw-js-sdk";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 import {
   IAssetAddress,
@@ -8,6 +8,7 @@ import {
   IWalletAsset,
   IWeb3Session,
 } from "./services/ApiService";
+import { IUser } from "./auth/IAuthManager";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
@@ -19,8 +20,9 @@ type TSupportedAssets = Record<string, IWalletAsset>;
 
 export interface IAppState {
   automateInitialization: boolean;
+  loggedUser: IUser | null;
   userId: string | null;
-  deviceId: string;
+  deviceId: string | null;
   walletId: string | null;
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
@@ -33,8 +35,11 @@ export interface IAppState {
   passphrase: string | null;
   accounts: TAccount[];
   supportedAssets: Record<number, TSupportedAssets>;
-  initAppStore: (tokenGetter: () => Promise<string>) => void;
+  initAppStore: () => void;
   disposeAppStore: () => void;
+  getGoogleDriveCredentials: () => Promise<string>;
+  login(provider: 'GOOGLE' | 'APPLE'): Promise<void>;
+  logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;
   loginToDemoAppServer: () => void;
@@ -45,7 +50,15 @@ export interface IAppState {
   createTransaction: () => Promise<void>;
   cancelTransaction: (txId: string) => Promise<void>;
   signTransaction: (txId: string) => Promise<void>;
-  takeover: () => Promise<void>;
+  takeover: () => Promise<IFullKey[]>;
+  exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => Promise<IFullKey[]>;
+  deriveAssetKey: (
+    extendedPrivateKey: string,
+    coinType: number,
+    account: number,
+    change: number,
+    index: number,
+  ) => string;
   setPassphrase: (passphrase: string) => void;
   recoverKeys: (passhrase: string) => Promise<void>;
   backupKeys: (passhrase: string) => Promise<void>;
