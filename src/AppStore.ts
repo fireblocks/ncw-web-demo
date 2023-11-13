@@ -166,23 +166,24 @@ export const useAppStore = create<IAppState>()((set, get) => {
       rememberBackupPassphrase(passphrase, userId);
       set((state) => ({ ...state, passphrase }));
     },
-    backupKeys: async (passphrase: string) => {
+    backupKeys: async (passphrase: string, passphraseId: string) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
       if (!passphrase) {
         throw new Error("passphrase is not set");
       }
-      await fireblocksNCW.backupKeys(passphrase);
+      if (!passphraseId) {
+        throw new Error("passphraseId is not set");
+      }
+
+      await fireblocksNCW.backupKeys(passphrase, passphraseId);
     },
-    recoverKeys: async (passphrase: string) => {
+    recoverKeys: async (passphraseResolver: (passphraseId: string) => Promise<string>) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      if (!passphrase) {
-        throw new Error("passphrase is not set");
-      }
-      await fireblocksNCW.recoverKeys(passphrase);
+      await fireblocksNCW.recoverKeys(passphraseResolver);
       const keysStatus = await fireblocksNCW.getKeysStatus();
       set((state) => ({ ...state, keysStatus }));
     },

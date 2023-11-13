@@ -69,51 +69,27 @@ export const BackupAndRecover: React.FC = () => {
     }
   }, [appleSignedIn])
 
-  const backupApple = async () => {
-    const fileContent = randomPassPhrase();
+  const backupApple = async (passphrase: string, passphraseId: string) => {
     const db = cloudkit!.getDefaultContainer().privateCloudDatabase;
-    const recordName = `backup_t_${deviceId}`;
+    const recordName = `backup_t_${passphraseId}`;
     const recordType = "Backup";
-
-    const results = await db.fetchRecords([{
+   
+    // create
+    await db.saveRecords([{
       recordName,
-      recordType
+      recordType,
+      fields: {
+        "phrase": {
+          type: "STRING",
+          value: passphrase,
+        }
+      }
     }]);
-
-    let recordChangeTag;
-    if (results.records.length === 1) {
-      recordChangeTag = results.records[0].recordChangeTag;
-      // update
-      await db.saveRecords([{
-        recordName: `backup_t_${deviceId}`,
-        recordType: "Backup",
-        recordChangeTag,
-        fields: {
-          "phrase": {
-            type: "STRING",
-            value: fileContent,
-          }
-        }
-      }]);
-    } else {
-      // create
-      await db.saveRecords([{
-        recordName: `backup_t_${deviceId}`,
-        recordType: "Backup",
-        fields: {
-          "phrase": {
-            type: "STRING",
-            value: fileContent,
-          }
-        }
-      }]);
-    }
-    return fileContent;
   };
 
-  const recoverApple = async () => {
+  const recoverApple = async (passphraseId: string) => {
     const db = cloudkit!.getDefaultContainer().privateCloudDatabase;
-    const recordName = `backup_t_${deviceId}`;
+    const recordName = `backup_t_${passphraseId}`;
     const recordType = "Backup";
 
     const results = await db.fetchRecords([{
@@ -134,8 +110,7 @@ export const BackupAndRecover: React.FC = () => {
     throw new Error("not found");
   }
 
-  const recoverGdrive = async () => {
-
+  const recoverGdrive = async (passphraseId: string) => {
     const token = await getGoogleDriveCredentials();
 
     return new Promise<string>((resolve, reject) => {
@@ -143,7 +118,7 @@ export const BackupAndRecover: React.FC = () => {
         callback: async () => {
           try {
 
-            const filename = `passphrase_${deviceId}.txt`;
+            const filename = `passphrase_${passphraseId}.txt`;
             await gapi.client.init({
               discoveryDocs: [DISCOVERY_DOC]
             });
@@ -182,11 +157,10 @@ export const BackupAndRecover: React.FC = () => {
     })
   }
 
-
-  const backupGdrive = async () => {
+  const backupGdrive = async (passphrase: string, passphraseId: string) => {
     const token = await getGoogleDriveCredentials();
 
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       gapi.load("client", {
         callback: async () => {
           try {
@@ -194,70 +168,37 @@ export const BackupAndRecover: React.FC = () => {
               discoveryDocs: [DISCOVERY_DOC]
             });
 
-            const filename = `passphrase_${deviceId}.txt`;
-            const list = await gapi.client.drive.files.list({
-              spaces: "appDataFolder",
-              oauth_token: token,
-              q: `name='${filename}'`
-            });
+            const filename = `passphrase_${passphraseId}.txt`;
 
-            const exists = Boolean(list.result.files?.length);
-            console.log("passhrase backup exists", exists);
-
-            const fileContent = randomPassPhrase();
-            console.log("xxx", fileContent);
-
-            const file = new Blob([fileContent], { type: "text/plain" });
+            const file = new Blob([passphrase], { type: "text/plain" });
             const metadata: gapi.client.drive.File = {
               name: filename,
               mimeType: "text/plain",
               parents: ['appDataFolder'],
             };
 
-            if (exists) {
-              // update
-              console.log("updating...");
+            const create = await gapi.client.drive.files.create({
+              oauth_token: token,
+              uploadType: "media",
+              resource: metadata,
+              fields: "id",
+            });
 
-              const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${list.result.files![0].id}?uploadType=media`, {
-                method: "PATCH",
-                headers: {
-                  "Authorization": `Bearer ${token}`,
-                  "Content-Type": metadata.mimeType!,
-                  "Content-Length": file.size.toString(),
-                },
-                body: fileContent,
-              });
+            console.log("create:", create.result);
+            console.log("uploading...");
 
-              console.log("upload:", res);
-            } else {
-              // create 
+            const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${create.result.id}?uploadType=media`, {
+              method: "PATCH",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": metadata.mimeType!,
+                "Content-Length": file.size.toString(),
+              },
+              body: passphrase,
+            });
 
-              console.log("creating...");
-
-              const create = await gapi.client.drive.files.create({
-                oauth_token: token,
-                uploadType: "media",
-                resource: metadata,
-                fields: "id",
-              });
-
-              console.log("create:", create.result);
-              console.log("uploading...");
-
-              const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${create.result.id}?uploadType=media`, {
-                method: "PATCH",
-                headers: {
-                  "Authorization": `Bearer ${token}`,
-                  "Content-Type": metadata.mimeType!,
-                  "Content-Length": file.size.toString(),
-                },
-                body: fileContent,
-              });
-
-              console.log("upload:", res);
-            }
-
-            resolve(fileContent);
+            console.log("upload:", res);
+            resolve();
           } catch (e) {
             reject(e);
           }
@@ -266,14 +207,16 @@ export const BackupAndRecover: React.FC = () => {
     })
   }
 
-  const doBackupKeys = async (passphraseResolver: () => Promise<string>) => {
+  const doBackupKeys = async (passphrasePersist: (passphrase: string, passphraseId: string) => Promise<void>) => {
     setErr(null);
     setIsBackupInProgress(true);
     setBackupCompleted(false);
     setRecoverCompleted(false);
     try {
-      const passhrase = await passphraseResolver();
-      await backupKeys(passhrase);
+      const passphrase = randomPassPhrase();
+      const passphraseId = crypto.randomUUID();
+      await passphrasePersist(passphrase, passphraseId);
+      await backupKeys(passphrase, passphraseId);
       setBackupCompleted(true);
       setIsBackupInProgress(false);
     } catch (err: unknown) {
@@ -287,14 +230,13 @@ export const BackupAndRecover: React.FC = () => {
     }
   };
 
-  const doRecoverKeys = async (passphraseResolver: () => Promise<string>) => {
+  const doRecoverKeys = async (passphraseResolver: (passphraseId: string) => Promise<string>) => {
     setErr(null);
     setIsRecoverInProgress(true);
     setRecoverCompleted(false);
     setBackupCompleted(false);
     try {
-      const passhrase = await passphraseResolver();
-      await recoverKeys(passhrase);
+      await recoverKeys(passphraseResolver);
       setRecoverCompleted(true);
       setIsRecoverInProgress(false);
     } catch (err: unknown) {
@@ -341,22 +283,22 @@ export const BackupAndRecover: React.FC = () => {
     isInProgress: isRecoverInProgress,
   };
 
-  const backupAction: ICardAction = {
-    label: "Backup keys",
-    action: () => doBackupKeys(async () => (passphrase!)),
-    isDisabled: isBackupInProgress || passphrase === null || passphrase.trim() === "" || hasReadyAlgo === false,
-    isInProgress: isBackupInProgress,
-  };
+  // const backupAction: ICardAction = {
+  //   label: "Backup keys",
+  //   action: () => doBackupKeys(async () => (passphrase!)),
+  //   isDisabled: isBackupInProgress || passphrase === null || passphrase.trim() === "" || hasReadyAlgo === false,
+  //   isInProgress: isBackupInProgress,
+  // };
 
-  const recoverAction: ICardAction = {
-    label: "Recover keys",
-    action: () => doRecoverKeys(async () => (passphrase!)),
-    isDisabled: isRecoverInProgress || passphrase === null || passphrase.trim() === "",
-    isInProgress: isRecoverInProgress,
-  };
+  // const recoverAction: ICardAction = {
+  //   label: "Recover keys",
+  //   action: () => doRecoverKeys(async () => (passphrase!)),
+  //   isDisabled: isRecoverInProgress || passphrase === null || passphrase.trim() === "",
+  //   isInProgress: isRecoverInProgress,
+  // };
 
   return (
-    <Card title="Backup/Recover" actions={[backupAction, recoverAction, googleBackupAction, googleReoverAction, appleBackupAction, appleRecoverAction]}>
+    <Card title="Backup/Recover" actions={[/*backupAction, recoverAction,*/ googleBackupAction, googleReoverAction, appleBackupAction, appleRecoverAction]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
       <div className="grid grid-cols-[150px_auto_50px] gap-2">

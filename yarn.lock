@@ -1010,18 +1010,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@npm:^9.1.0":
-  version: 9.1.0
-  resolution: "@fireblocks/ncw-js-sdk@npm:9.1.0::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-sdk%2F-%2Fncw-js-sdk-9.1.0.tgz"
+"@fireblocks/ncw-js-sdk@portal:/Users/amitperelstein/work/ncw-js-sdk::locator=%40fireblocks%2Fncw-web-demo%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@fireblocks/ncw-js-sdk@portal:/Users/amitperelstein/work/ncw-js-sdk::locator=%40fireblocks%2Fncw-web-demo%40workspace%3A."
   dependencies:
     "@fireblocks/ncw-js-infra": ^1.0.12
     "@types/jwt-decode": ^3.1.0
     "@types/node-forge": ^1.3.4
     jwt-decode: ^3.1.2
     node-forge: ^1.3.1
-  checksum: 5a6d601e5fc2c9f43b970065d89dfb22bc7e69da0ad8313116307be70e08babc8c1d20b1fa71fdd7bc0ae25e59400e90e76a8c837a25c0d0cb7f71b5a4556153
   languageName: node
-  linkType: hard
+  linkType: soft
 
 "@fireblocks/ncw-web-demo@workspace:.":
   version: 0.0.0-use.local

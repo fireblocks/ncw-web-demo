@@ -46,5 +46,8 @@
     "typescript": "^5.0.3",
     "vite": "^4.3.0",
     "zustand": "^4.3.8"
+  },
+  "resolutions": {
+    "@fireblocks/ncw-js-sdk": "portal:/Users/amitperelstein/work/ncw-js-sdk"
   }
 }

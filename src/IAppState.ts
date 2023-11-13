@@ -60,8 +60,8 @@ export interface IAppState {
     index: number,
   ) => string;
   setPassphrase: (passphrase: string) => void;
-  recoverKeys: (passhrase: string) => Promise<void>;
-  backupKeys: (passhrase: string) => Promise<void>;
+  recoverKeys: (passphraseResolver:  (passphraseId: string) => Promise<string>) => Promise<void>;
+  backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;
   regeneratePassphrase: () => void;
   initFireblocksNCW: () => Promise<void>;
   disposeFireblocksNCW: () => void;
