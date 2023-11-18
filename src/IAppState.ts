@@ -9,16 +9,25 @@ import {
   IWeb3Session,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
+import { PassphraseLocation } from "./services/ApiService";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
   balance?: IAssetBalance;
   address?: IAssetAddress;
 }
+
+export interface IPassphraseInfo {
+  passphraseId: string;
+  location: PassphraseLocation,
+}
+
 type TAccount = Record<string, IAssetInfo>;
 type TSupportedAssets = Record<string, IWalletAsset>;
+export type TPassphrases = Record<string, IPassphraseInfo>;
 
 export interface IAppState {
+  fireblocksNCWSdkVersion: string;
   automateInitialization: boolean;
   loggedUser: IUser | null;
   userId: string | null;
@@ -34,6 +43,7 @@ export interface IAppState {
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
   accounts: TAccount[];
+  passphrases: TPassphrases | null;
   supportedAssets: Record<number, TSupportedAssets>;
   initAppStore: () => void;
   disposeAppStore: () => void;
@@ -59,6 +69,8 @@ export interface IAppState {
     change: number,
     index: number,
   ) => string;
+  getPassphraseInfos: () => Promise<void>,
+  createPassphraseInfo: (passphraseId: string, location: PassphraseLocation) => Promise<void>,
   setPassphrase: (passphrase: string) => void;
   recoverKeys: (passphraseResolver:  (passphraseId: string) => Promise<string>) => Promise<void>;
   backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;

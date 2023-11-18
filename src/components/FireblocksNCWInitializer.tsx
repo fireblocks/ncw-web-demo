@@ -9,6 +9,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
     automateInitialization,
     fireblocksNCWStatus,
     initFireblocksNCW,
+    fireblocksNCWSdkVersion,
     disposeFireblocksNCW,
     clearSDKStorage,
   } = useAppStore();
@@ -87,8 +88,8 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   return (
     <>
-      <Card title="Fireblocks SDK" actions={sdkActions}>
-        {fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}
+      <Card title={`Fireblocks SDK - Version ${fireblocksNCWSdkVersion}`} actions={sdkActions}>
+        <div>{fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}</div>
       </Card>
       <AreYouSureDialog
         title="Are you sure?"

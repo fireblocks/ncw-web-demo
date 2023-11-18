@@ -12,10 +12,10 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState } from "./IAppState";
+import { IAppState, IPassphraseInfo, TPassphrases } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
-import { ApiService, ITransactionData, IWalletAsset } from "./services/ApiService";
+import { ApiService, ITransactionData, IWalletAsset, PassphraseLocation } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { randomPassPhrase } from "./services/randomPassPhrase";
 import { IAuthManager } from "./auth/IAuthManager";
@@ -52,6 +52,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
+    fireblocksNCWSdkVersion: FireblocksNCW.version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     loggedUser: authManager.loggedUser,
     userId: null,
@@ -66,6 +67,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     fireblocksNCWStatus: "sdk_not_ready",
     keysStatus: null,
     passphrase: null,
+    passphrases: null,
     accounts: [],
     supportedAssets: {},
     initAppStore: () => {
@@ -165,6 +167,22 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const passphrase = randomPassPhrase();
       rememberBackupPassphrase(passphrase, userId);
       set((state) => ({ ...state, passphrase }));
+    },
+    getPassphraseInfos: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { passphrases } = await apiService.getPassphraseInfos();
+      const reduced = passphrases.reduce<TPassphrases>((p, v) => { p[v.passphraseId] = v; return p; }, {});
+      set((state) => ({ ...state, passphrases: reduced }));
+    },
+    createPassphraseInfo: async (passphraseId: string, location: PassphraseLocation) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      await apiService.createPassphraseInfo(passphraseId, location);
+      const passphraseInfo: IPassphraseInfo = { passphraseId, location };
+      set((state) => ({ ...state, passphrases: { ...state.passphrases, [passphraseId]: passphraseInfo } }));
     },
     backupKeys: async (passphrase: string, passphraseId: string) => {
       if (!fireblocksNCW) {
@@ -444,13 +462,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       return fireblocksNCW.exportFullKeys(chainCode, cloudKeyShares);
     },
-    deriveAssetKey: (
-      extendedPrivateKey: string,
-      coinType: number,
-      account: number,
-      change: number,
-      index: number,
-    ) => {
+    deriveAssetKey: (extendedPrivateKey: string, coinType: number, account: number, change: number, index: number) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
