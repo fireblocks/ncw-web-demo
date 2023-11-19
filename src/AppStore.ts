@@ -17,17 +17,8 @@ import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId
 import { ENV_CONFIG } from "./env_config";
 import { ApiService, ITransactionData, IWalletAsset, PassphraseLocation } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
-import { randomPassPhrase } from "./services/randomPassPhrase";
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
-
-const rememberBackupPassphrase = (passphrase: string, userId: string) => {
-  localStorage.setItem(`DEMO_APP:backup-passphrase-${userId}`, passphrase);
-};
-
-const getBackupPassphrase = (userId: string): string | null => {
-  return localStorage.getItem(`DEMO_APP:backup-passphrase-${userId}`) ?? null;
-};
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -66,7 +57,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
     assignDeviceStatus: "not_started",
     fireblocksNCWStatus: "sdk_not_ready",
     keysStatus: null,
-    passphrase: null,
     passphrases: null,
     accounts: [],
     supportedAssets: {},
@@ -105,7 +95,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
         userId: null,
         walletId: null,
         deviceId: null,
-        passphrase: null,
         pendingWeb3Connection: null,
         web3Connections: [],
         txs: [],
@@ -140,7 +129,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("First login to demo app server");
       }
       const deviceId = generateDeviceId();
-      set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started", passphrase: null }));
+      set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
       storeDeviceId(deviceId, userId);
     },
     setDeviceId: (deviceId: string) => {
@@ -150,23 +139,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       storeDeviceId(deviceId, userId);
       set((state) => ({ ...state, deviceId }));
-    },
-    setPassphrase: (passphrase: string) => {
-      const { userId } = get();
-      if (!userId) {
-        throw new Error("First login to demo app server");
-      }
-      rememberBackupPassphrase(passphrase, userId);
-      set((state) => ({ ...state, passphrase }));
-    },
-    regeneratePassphrase: () => {
-      const { userId } = get();
-      if (!userId) {
-        throw new Error("First login to demo app server");
-      }
-      const passphrase = randomPassPhrase();
-      rememberBackupPassphrase(passphrase, userId);
-      set((state) => ({ ...state, passphrase }));
     },
     getPassphraseInfos: async () => {
       if (!apiService) {
@@ -217,7 +189,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
           userId,
           loginToDemoAppServerStatus: "success",
           deviceId: getOrCreateDeviceId(userId),
-          passphrase: getBackupPassphrase(userId),
         }));
       } catch (e) {
         set((state) => ({ ...state, userId: null, loginToDemoAppServerStatus: "failed" }));

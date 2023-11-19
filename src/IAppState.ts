@@ -41,7 +41,6 @@ export interface IAppState {
   assignDeviceStatus: TAsyncActionStatus;
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
-  passphrase: string | null;
   accounts: TAccount[];
   passphrases: TPassphrases | null;
   supportedAssets: Record<number, TSupportedAssets>;
@@ -71,10 +70,8 @@ export interface IAppState {
   ) => string;
   getPassphraseInfos: () => Promise<void>,
   createPassphraseInfo: (passphraseId: string, location: PassphraseLocation) => Promise<void>,
-  setPassphrase: (passphrase: string) => void;
   recoverKeys: (passphraseResolver:  (passphraseId: string) => Promise<string>) => Promise<void>;
   backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;
-  regeneratePassphrase: () => void;
   initFireblocksNCW: () => Promise<void>;
   disposeFireblocksNCW: () => void;
   getWeb3Connections: () => Promise<void>;

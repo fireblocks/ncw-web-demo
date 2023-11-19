@@ -14,7 +14,7 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
-  const { keysStatus, passphrase, getGoogleDriveCredentials, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys, getPassphraseInfos, createPassphraseInfo, passphrases } =
+  const { keysStatus, getGoogleDriveCredentials, backupKeys, recoverKeys, getPassphraseInfos, createPassphraseInfo, passphrases } =
     useAppStore();
 
   const { cloudkit, appleSignedIn } = useCloudkit();
@@ -200,42 +200,12 @@ export const BackupAndRecover: React.FC = () => {
     isInProgress: isRecoverInProgress,
   };
 
-  const recoverAction: ICardAction = {
-    label: "Recover keys (legacy)",
-    action: () => doRecoverKeys(async () => (passphrase!)),
-    isDisabled: hasCloudBackup || isRecoverInProgress || isBackupInProgress || passphrase === null || passphrase.trim() === "",
-    isInProgress: isRecoverInProgress,
-  };
-
   if (passphrases === null) {
     return;
   }
 
   return (
-    <Card title="Backup/Recover" actions={[/*backupAction,*/ recoverAction, googleBackupAction, appleBackupAction, /*googleReoverAction, */ RecoverAction, /*appleRecoverAction*/]}>
-      {!hasCloudBackup && (
-      <div className="grid grid-cols-[150px_auto_50px] gap-2">
-        <label className="label">
-          <span className="label-text">Passphrase:</span>
-        </label>
-        <input
-          type="text"
-          value={passphrase ?? ""}
-          className="input input-bordered"
-          onChange={(e) => setPassphrase(e.currentTarget.value)}
-        />
-        <button className="btn btn-secondary" onClick={regeneratePassphrase}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0,0,256,256" width="24px" height="24px" fillRule="nonzero">
-            <g fill="#ffffff" fillRule="nonzero" stroke="none" strokeWidth="1">
-              <g transform="scale(10.66667,10.66667)">
-                <path d="M16,15h8l-4,5zM8,9h-8l4,-5z"></path>
-                <path d="M21,6c0,-1.654 -1.346,-3 -3,-3h-10.839l1.6,2h9.239c0.551,0 1,0.448 1,1v10h2zM3,18c0,1.654 1.346,3 3,3h10.839l-1.6,-2h-9.239c-0.551,0 -1,-0.448 -1,-1v-10h-2z"></path>
-              </g>
-            </g>
-          </svg>
-        </button>
-      </div>
-      )}
+    <Card title="Backup/Recover" actions={[ googleBackupAction, appleBackupAction, RecoverAction ]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
       {backupCompleted && (
