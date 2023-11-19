@@ -416,6 +416,18 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
     },
+    joinExistingWallet: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      await fireblocksNCW.joinExistingWallet();
+    },
+    approveJoinWallet: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      await fireblocksNCW.approveJoinWallet();
+    },
     generateMPCKeys: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
