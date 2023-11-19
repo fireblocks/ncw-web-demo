@@ -187,7 +187,7 @@ export const BackupAndRecover: React.FC = () => {
   };
 
   const appleBackupAction: ICardAction = {
-    label: "Backup Apple iCloud",
+    label: "iCloud Backup",
     action: () => doBackupKeys(() => passphrasePersist(PassphraseLocation.iCloud)),
     isDisabled: !appleSignedIn || isRecoverInProgress || isBackupInProgress || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
