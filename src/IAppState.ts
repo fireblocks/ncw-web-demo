@@ -7,9 +7,9 @@ import {
   ITransactionData,
   IWalletAsset,
   IWeb3Session,
+  PassphraseLocation,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
-import { PassphraseLocation } from "./services/ApiService";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
