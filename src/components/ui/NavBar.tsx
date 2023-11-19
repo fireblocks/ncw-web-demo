@@ -6,7 +6,11 @@ export const NavBar: React.FC = () => {
 
   let userElement: JSX.Element | null = null;
   if (loggedUser) {
-    const initials = loggedUser.displayName?.split(" ").map((n) => n[0]).join("") ?? "";
+    const initials =
+      loggedUser.displayName
+        ?.split(" ")
+        .map((n) => n[0])
+        .join("") ?? "";
     userElement = (
       <div className="flex-none gap-2">
         <div className="dropdown dropdown-end">

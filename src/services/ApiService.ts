@@ -187,7 +187,7 @@ export class ApiService {
 
   public async getPassphraseInfo(passphraseId: string): Promise<{ location: PassphraseLocation }> {
     const response = await this._getCall(`api/passphrase/${passphraseId}`);
-    return await response.json();  
+    return await response.json();
   }
 
   public async createPassphraseInfo(passphraseId: string, location: PassphraseLocation) {
@@ -195,7 +195,7 @@ export class ApiService {
     return response;
   }
 
-  public async getPassphraseInfos(): Promise<{ passphrases: IPassphraseInfo[]}> {
+  public async getPassphraseInfos(): Promise<{ passphrases: IPassphraseInfo[] }> {
     const response = await this._getCall(`api/passphrase/`);
     return await response.json();
   }

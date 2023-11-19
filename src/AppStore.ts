@@ -76,12 +76,12 @@ export const useAppStore = create<IAppState>()((set, get) => {
         set((state) => ({ ...state, appStoreInitialized: false }));
       }
     },
-    async getGoogleDriveCredentials(): Promise <string> {
-      return await authManager.getGoogleDriveCredentials(); 
+    async getGoogleDriveCredentials(): Promise<string> {
+      return await authManager.getGoogleDriveCredentials();
     },
     async login(provider: "GOOGLE" | "APPLE"): Promise<void> {
       await authManager.login(provider);
-      set({ 
+      set({
         loggedUser: authManager.loggedUser,
       });
     },
@@ -145,7 +145,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       const { passphrases } = await apiService.getPassphraseInfos();
-      const reduced = passphrases.reduce<TPassphrases>((p, v) => { p[v.passphraseId] = v; return p; }, {});
+      const reduced = passphrases.reduce<TPassphrases>((p, v) => {
+        p[v.passphraseId] = v;
+        return p;
+      }, {});
       set((state) => ({ ...state, passphrases: reduced }));
     },
     createPassphraseInfo: async (passphraseId: string, location: PassphraseLocation) => {

@@ -14,8 +14,15 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
-  const { keysStatus, getGoogleDriveCredentials, backupKeys, recoverKeys, getPassphraseInfos, createPassphraseInfo, passphrases } =
-    useAppStore();
+  const {
+    keysStatus,
+    getGoogleDriveCredentials,
+    backupKeys,
+    recoverKeys,
+    getPassphraseInfos,
+    createPassphraseInfo,
+    passphrases,
+  } = useAppStore();
 
   const { cloudkit, appleSignedIn } = useCloudkit();
 
@@ -23,17 +30,17 @@ export const BackupAndRecover: React.FC = () => {
     if (!passphrases) {
       getPassphraseInfos();
     }
-  }, [passphrases])
+  }, [passphrases]);
 
   const recoverGoogleDrive = async (passphraseId: string) => {
     const token = await getGoogleDriveCredentials();
     return gdriveRecover(token, passphraseId);
-  }
+  };
 
   const backupGoogleDrive = async (passphrase: string, passphraseId: string) => {
     const token = await getGoogleDriveCredentials();
     return gdriveBackup(token, passphrase, passphraseId);
-  }
+  };
 
   const recoverPassphraseId: (passphraseId: string) => Promise<string> = async (passphraseId) => {
     await getPassphraseInfos();
@@ -56,16 +63,18 @@ export const BackupAndRecover: React.FC = () => {
 
             return await cloudkitRecover(cloudkit, info.passphraseId);
           }
-          default: 
+          default:
             throw new Error(`Unsupported backup location ${location}`);
-        }        
+        }
       }
     }
 
     throw new Error(`Not found backup location ${location} passphraseId ${passphraseId}`);
-  }
+  };
 
-  const passphraseRecover: (location: PassphraseLocation) => Promise<{ passphrase: string, passphraseId: string }> = async (location) => {
+  const passphraseRecover: (
+    location: PassphraseLocation,
+  ) => Promise<{ passphrase: string; passphraseId: string }> = async (location) => {
     if (passphrases === null) {
       throw new Error();
     }
@@ -86,16 +95,18 @@ export const BackupAndRecover: React.FC = () => {
             const passphrase = await cloudkitRecover(cloudkit, info.passphraseId);
             return { passphraseId: info.passphraseId, passphrase };
           }
-          default: 
+          default:
             throw new Error(`Unsupported backup location ${location}`);
-        }        
+        }
       }
     }
 
     throw new Error(`Not found backup location ${location}`);
-  }
+  };
 
-  const passphrasePersist: (location: PassphraseLocation) => Promise<{ passphrase: string, passphraseId: string }> = async (location) => {
+  const passphrasePersist: (
+    location: PassphraseLocation,
+  ) => Promise<{ passphrase: string; passphraseId: string }> = async (location) => {
     if (passphrases === null) {
       throw new Error();
     }
@@ -106,7 +117,7 @@ export const BackupAndRecover: React.FC = () => {
         return recover;
       }
     } catch (e) {
-      console.warn(`failed to load previous passphrase, creating new`, e, location)
+      console.warn(`failed to load previous passphrase, creating new`, e, location);
     }
 
     // creating new
@@ -127,12 +138,12 @@ export const BackupAndRecover: React.FC = () => {
         await createPassphraseInfo(passphraseId, location);
         return { passphraseId, passphrase };
       }
-      default: 
+      default:
         throw new Error(`Unsupported backup location ${location}`);
     }
-  }
+  };
 
-  const doBackupKeys = async (passphrasePersist: () => Promise<{ passphrase: string, passphraseId: string }>) => {
+  const doBackupKeys = async (passphrasePersist: () => Promise<{ passphrase: string; passphraseId: string }>) => {
     setErr(null);
     setIsBackupInProgress(true);
     setBackupCompleted(false);
@@ -205,7 +216,7 @@ export const BackupAndRecover: React.FC = () => {
   }
 
   return (
-    <Card title="Backup/Recover" actions={[ googleBackupAction, appleBackupAction, RecoverAction ]}>
+    <Card title="Backup/Recover" actions={[googleBackupAction, appleBackupAction, RecoverAction]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
       {backupCompleted && (

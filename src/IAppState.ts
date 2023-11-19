@@ -19,7 +19,7 @@ export interface IAssetInfo {
 
 export interface IPassphraseInfo {
   passphraseId: string;
-  location: PassphraseLocation,
+  location: PassphraseLocation;
 }
 
 type TAccount = Record<string, IAssetInfo>;
@@ -47,7 +47,7 @@ export interface IAppState {
   initAppStore: () => void;
   disposeAppStore: () => void;
   getGoogleDriveCredentials: () => Promise<string>;
-  login(provider: 'GOOGLE' | 'APPLE'): Promise<void>;
+  login(provider: "GOOGLE" | "APPLE"): Promise<void>;
   logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;
@@ -68,9 +68,9 @@ export interface IAppState {
     change: number,
     index: number,
   ) => string;
-  getPassphraseInfos: () => Promise<void>,
-  createPassphraseInfo: (passphraseId: string, location: PassphraseLocation) => Promise<void>,
-  recoverKeys: (passphraseResolver:  (passphraseId: string) => Promise<string>) => Promise<void>;
+  getPassphraseInfos: () => Promise<void>;
+  createPassphraseInfo: (passphraseId: string, location: PassphraseLocation) => Promise<void>;
+  recoverKeys: (passphraseResolver: (passphraseId: string) => Promise<string>) => Promise<void>;
   backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;
   initFireblocksNCW: () => Promise<void>;
   disposeFireblocksNCW: () => void;
