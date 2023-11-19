@@ -45,6 +45,8 @@ export interface IAppState {
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
+  joinExistingWallet: () => Promise<void>;
+  approveJoinWallet: () => Promise<boolean>;
   generateMPCKeys: () => Promise<void>;
   stopMpcDeviceSetup: () => Promise<void>;
   createTransaction: () => Promise<void>;

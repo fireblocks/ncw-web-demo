@@ -8,8 +8,10 @@ export const GenerateMPCKeys: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isGenerateInProgress, setIsGenerateInProgress] = React.useState(false);
   const [isStopInProgress, setIsStopInProgress] = React.useState(false);
+  const [isJoinExistingInProgress, setIsJoinExistingInProgress] = React.useState(false);
+  const [isApproveJoinWalletInProgress, setIsApproveJoinWalletInProgress] = React.useState(false);
   const [generateMPCKeysResult, setGenerateMPCKeysResult] = React.useState<string | null>(null);
-  const { keysStatus, generateMPCKeys, stopMpcDeviceSetup } = useAppStore();
+  const { keysStatus, generateMPCKeys, stopMpcDeviceSetup, joinExistingWallet, approveJoinWallet } = useAppStore();
 
   const doGenerateMPCKeys = async () => {
     setGenerateMPCKeysResult(null);
@@ -51,6 +53,40 @@ export const GenerateMPCKeys: React.FC = () => {
     }
   };
 
+  const doJoinExistingWallet = async () => {
+    setErr(null);
+    setIsJoinExistingInProgress(true);
+    try {
+      await joinExistingWallet();
+      setIsJoinExistingInProgress(false);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErr(err.message);
+      } else {
+        setErr("Unknown Error");
+      }
+    } finally {
+      setIsJoinExistingInProgress(false);
+    }
+  };
+
+  const doApproveJoinWallet = async () => {
+    setErr(null);
+    setIsApproveJoinWalletInProgress(true);
+    try {
+      await approveJoinWallet();
+      setIsApproveJoinWalletInProgress(false);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErr(err.message);
+      } else {
+        setErr("Unknown Error");
+      }
+    } finally {
+      setIsApproveJoinWalletInProgress(false);
+    }
+  };
+
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
   const statusToProgress = (status: TKeyStatus | null) => {
     switch (status) {
@@ -70,22 +106,42 @@ export const GenerateMPCKeys: React.FC = () => {
   };
   const secP256K1Ready = secP256K1Status === "READY";
 
+  const anyActionInProgress =
+    isApproveJoinWalletInProgress || isJoinExistingInProgress || isStopInProgress || isGenerateInProgress;
+
   const generateAction: ICardAction = {
     label: "Generate MPC Keys",
     action: doGenerateMPCKeys,
-    isDisabled: isGenerateInProgress || secP256K1Ready,
+    isDisabled: anyActionInProgress || secP256K1Ready,
     isInProgress: isGenerateInProgress,
   };
 
   const stopAction: ICardAction = {
     label: "Stop MPC Device Setup",
     action: doStopMPCDeviceSetup,
-    isDisabled: isStopInProgress || !isGenerateInProgress,
+    isDisabled: anyActionInProgress || !isGenerateInProgress,
     isInProgress: isStopInProgress,
   };
 
+  const joinExistingWalletAction: ICardAction = {
+    action: doJoinExistingWallet,
+    isDisabled: anyActionInProgress || secP256K1Ready,
+    label: "Join Existing Wallet",
+    isInProgress: isJoinExistingInProgress,
+  };
+
+  const approveJoinWalletAction: ICardAction = {
+    action: doApproveJoinWallet,
+    isDisabled: anyActionInProgress || secP256K1Ready,
+    label: "Approve Join Wallet",
+    isInProgress: isJoinExistingInProgress,
+  };
+
   return (
-    <Card title="Generate MPC Keys" actions={[generateAction, stopAction]}>
+    <Card
+      title="Generate MPC Keys"
+      actions={[joinExistingWalletAction, approveJoinWalletAction, generateAction, stopAction]}
+    >
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
