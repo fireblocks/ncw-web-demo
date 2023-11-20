@@ -1,4 +1,4 @@
-import { IPassphraseInfo } from "../IAppState";
+import { IBackupInfo, IPassphraseInfo } from "../IAppState";
 import { IAuthManager } from "../auth/IAuthManager";
 
 export type TTransactionStatus =
@@ -183,6 +183,22 @@ export class ApiService {
     const response = await this._postCall(`api/login`);
     const userId = response.id;
     return userId;
+  }
+
+  public async getWallets(): Promise<{ wallets: Array<{ walletId: string }> }> {
+    const response = await this._getCall(`api/wallets`);
+    return await response.json();
+  }
+
+  public async getLatestBackup(walletId: string): Promise<IBackupInfo|null> {
+    const response = await this._getCall(`api/wallets/${walletId}/backup/latest`);
+    if (response.status >= 200 && response.status < 300) {
+      return await response.json();
+    } else if (response.status === 404) {
+      return null;
+    } else {
+      throw new Error("Failed to get latest backup");
+    }
   }
 
   public async getPassphraseInfo(passphraseId: string): Promise<{ location: PassphraseLocation }> {

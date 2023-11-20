@@ -26,6 +26,12 @@ type TAccount = Record<string, IAssetInfo>;
 type TSupportedAssets = Record<string, IWalletAsset>;
 export type TPassphrases = Record<string, IPassphraseInfo>;
 
+export interface IBackupInfo {
+  passphraseId: string;
+  location: PassphraseLocation;
+  createdAt: number;
+}
+
 export interface IAppState {
   fireblocksNCWSdkVersion: string;
   automateInitialization: boolean;
@@ -33,6 +39,7 @@ export interface IAppState {
   userId: string | null;
   deviceId: string | null;
   walletId: string | null;
+  latestBackup: IBackupInfo | null;
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
   pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
@@ -69,6 +76,7 @@ export interface IAppState {
     index: number,
   ) => string;
   getPassphraseInfos: () => Promise<void>;
+  getLatestBackup: () => Promise<void>;
   createPassphraseInfo: (passphraseId: string, location: PassphraseLocation) => Promise<void>;
   recoverKeys: (passphraseResolver: (passphraseId: string) => Promise<string>) => Promise<void>;
   backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;

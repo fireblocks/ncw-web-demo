@@ -20,8 +20,11 @@ export const BackupAndRecover: React.FC = () => {
     backupKeys,
     recoverKeys,
     getPassphraseInfos,
+    getLatestBackup,
     createPassphraseInfo,
+    latestBackup,
     passphrases,
+    walletId,
   } = useAppStore();
 
   const { cloudkit, appleSignedIn } = useCloudkit();
@@ -31,6 +34,13 @@ export const BackupAndRecover: React.FC = () => {
       getPassphraseInfos();
     }
   }, [passphrases]);
+
+
+  useEffect(() => {
+    if (!latestBackup) {
+      getLatestBackup();
+    }
+  }, [latestBackup, walletId]);
 
   const recoverGoogleDrive = async (passphraseId: string) => {
     const token = await getGoogleDriveCredentials();
@@ -162,6 +172,7 @@ export const BackupAndRecover: React.FC = () => {
     } finally {
       setIsBackupInProgress(false);
     }
+    await getLatestBackup();
   };
 
   const doRecoverKeys = async (passphraseResolver: (passphraseId: string) => Promise<string>) => {
@@ -186,9 +197,7 @@ export const BackupAndRecover: React.FC = () => {
 
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
   const ed25519Status = keysStatus?.MPC_EDDSA_ED25519?.keyStatus ?? null;
-
   const hasReadyAlgo = secP256K1Status === "READY" || ed25519Status === "READY";
-  const hasCloudBackup = Object.keys(passphrases ?? {}).length > 0;
 
   const googleBackupAction: ICardAction = {
     label: "Google Drive Backup",
@@ -207,18 +216,24 @@ export const BackupAndRecover: React.FC = () => {
   const RecoverAction: ICardAction = {
     label: "Recover",
     action: () => doRecoverKeys(recoverPassphraseId),
-    isDisabled: !hasCloudBackup || isRecoverInProgress || isBackupInProgress,
+    isDisabled: !latestBackup || isRecoverInProgress || isBackupInProgress,
     isInProgress: isRecoverInProgress,
   };
 
   if (passphrases === null) {
     return;
   }
-
   return (
     <Card title="Backup/Recover" actions={[googleBackupAction, appleBackupAction, RecoverAction]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
+      {latestBackup &&          
+          <div>
+            <div>Last known backup</div>
+            <div>Location: {latestBackup.location}</div>
+            <div>Created: {new Date(latestBackup.createdAt).toString()}</div>
+          </div>
+      }
       {backupCompleted && (
         <div className="mockup-code">
           <pre>

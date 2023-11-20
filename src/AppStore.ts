@@ -48,6 +48,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     loggedUser: authManager.loggedUser,
     userId: null,
     walletId: null,
+    latestBackup: null,
     pendingWeb3Connection: null,
     web3Connections: [],
     txs: [],
@@ -96,6 +97,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         walletId: null,
         deviceId: null,
         pendingWeb3Connection: null,
+        latestBackup: null,
         web3Connections: [],
         txs: [],
         appStoreInitialized: false,
@@ -139,6 +141,17 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       storeDeviceId(deviceId, userId);
       set((state) => ({ ...state, deviceId }));
+    },
+    getLatestBackup: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { walletId } = get();
+      if (!walletId) {
+        throw new Error("No wallet set");
+      }
+      const latestBackup = await apiService.getLatestBackup(walletId);
+      set((state) => ({ ...state, latestBackup }));
     },
     getPassphraseInfos: async () => {
       if (!apiService) {
