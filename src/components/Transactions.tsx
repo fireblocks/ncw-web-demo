@@ -1,7 +1,8 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
 import { TransactionRow } from "./TransactionRow";
-import { Card, ICardAction } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Card } from "./ui/Card";
 
 export const Transactions: React.FC = () => {
   const { createTransaction, txs } = useAppStore();
@@ -10,7 +11,7 @@ export const Transactions: React.FC = () => {
     await createTransaction();
   };
 
-  const createTxAction: ICardAction = {
+  const createTxAction: IActionButtonProps = {
     action: onCreateTransactionClicked,
     label: "Create Tx",
   };

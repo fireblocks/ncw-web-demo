@@ -5,21 +5,20 @@ import { useAppStore } from "../AppStore";
 import { IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
 
-export const GenerateMPCKeys: React.FC = () => {
+export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
-  const [isGenerateInProgress, setIsGenerateInProgress] = React.useState(false);
-  const [isStopInProgress, setIsStopInProgress] = React.useState(false);
-  const [generateMPCKeysResult, setGenerateMPCKeysResult] = React.useState<string | null>(null);
-  const { keysStatus, generateMPCKeys, stopMpcDeviceSetup, approveJoinWallet } = useAppStore();
+  const [isJoinInProgress, setIsJoinInProgress] = React.useState(false);
+  const [joinExistingWalletResult, setJoinExistingWalletResult] = React.useState<string | null>(null);
+  const { keysStatus, joinExistingWallet } = useAppStore();
 
-  const doGenerateMPCKeys = async () => {
-    setGenerateMPCKeysResult(null);
+  const doJoinExistingWallet = async () => {
+    setJoinExistingWalletResult(null);
     setErr(null);
-    setIsGenerateInProgress(true);
+    setIsJoinInProgress(true);
     try {
-      await generateMPCKeys();
-      setGenerateMPCKeysResult("Success");
-      setIsGenerateInProgress(false);
+      await joinExistingWallet();
+      setJoinExistingWalletResult("Success");
+      setIsJoinInProgress(false);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErr(err.message);
@@ -31,24 +30,7 @@ export const GenerateMPCKeys: React.FC = () => {
         }
       }
     } finally {
-      setIsGenerateInProgress(false);
-    }
-  };
-
-  const doStopMPCDeviceSetup = async () => {
-    setErr(null);
-    setIsStopInProgress(true);
-    try {
-      await stopMpcDeviceSetup();
-      setIsStopInProgress(false);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErr(err.message);
-      } else {
-        setErr("Unknown Error");
-      }
-    } finally {
-      setIsStopInProgress(false);
+      setIsJoinInProgress(false);
     }
   };
 
@@ -72,27 +54,14 @@ export const GenerateMPCKeys: React.FC = () => {
   const secP256K1Ready = secP256K1Status === "READY";
 
   const generateAction: IActionButtonProps = {
-    label: "Generate MPC Keys",
-    action: doGenerateMPCKeys,
-    isDisabled: isGenerateInProgress || secP256K1Ready,
-    isInProgress: isGenerateInProgress,
-  };
-
-  const stopAction: IActionButtonProps = {
-    label: "Stop MPC Device Setup",
-    action: doStopMPCDeviceSetup,
-    isDisabled: isStopInProgress || !isGenerateInProgress,
-    isInProgress: isStopInProgress,
-  };
-
-  const approveJoinWalletAction: IActionButtonProps = {
-    label: "Approve Join Wallet",
-    action: approveJoinWallet,
-    isDisabled: (isStopInProgress || isGenerateInProgress) && secP256K1Ready,
+    label: "Join",
+    action: doJoinExistingWallet,
+    isDisabled: isJoinInProgress || secP256K1Ready,
+    isInProgress: isJoinInProgress,
   };
 
   return (
-    <Card title="Generate MPC Keys" actions={[generateAction, stopAction, approveJoinWalletAction]}>
+    <Card title="Join Existing Wallet" actions={[generateAction]}>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
@@ -122,10 +91,10 @@ export const GenerateMPCKeys: React.FC = () => {
           </tbody>
         </table>
       </div>
-      {generateMPCKeysResult && (
+      {joinExistingWalletResult && (
         <div className="mockup-code">
           <pre>
-            <code>Result: {generateMPCKeysResult}</code>
+            <code>Result: {joinExistingWalletResult}</code>
           </pre>
         </div>
       )}

@@ -1,8 +1,9 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
 import { AssetRow } from "./AssetRow";
+import { IActionButtonProps } from "./ui/ActionButton";
 import { Autocomplete } from "./ui/Autocomplete";
+import { Card } from "./ui/Card";
 
 export const Assets: React.FC = () => {
   const { accounts, refreshAccounts, addAsset, refreshSupportedAssets, supportedAssets } = useAppStore();
@@ -34,7 +35,7 @@ export const Assets: React.FC = () => {
     }
   };
 
-  const refeshAction: ICardAction = {
+  const refeshAction: IActionButtonProps = {
     action: onRefreshClicked,
     label: "Refresh",
     isDisabled: isRefreshing,

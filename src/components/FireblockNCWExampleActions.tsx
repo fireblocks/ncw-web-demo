@@ -7,14 +7,18 @@ import { Assets } from "./Assets";
 import { Transactions } from "./Transactions";
 import { Web3 } from "./Web3";
 import { useAppStore } from "../AppStore";
+import { JoinExistingWallet } from "./JoinExistingWallet";
 
 export const FireblockNCWExampleActions: React.FC = () => {
-  const { keysStatus } = useAppStore();
+  const { keysStatus, joinExistingWalletMode } = useAppStore();
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
   const ed25519Status = keysStatus?.MPC_EDDSA_ED25519?.keyStatus ?? null;
 
   const hasAKey = secP256K1Status === "READY" || ed25519Status === "READY";
-  return (
+
+  return joinExistingWalletMode ? (
+    <JoinExistingWallet />
+  ) : (
     <>
       <GenerateMPCKeys />
       <BackupAndRecover />

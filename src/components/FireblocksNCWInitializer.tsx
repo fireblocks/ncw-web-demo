@@ -1,8 +1,9 @@
 import React from "react";
 
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
 import { AreYouSureDialog } from "./ui/AreYouSureDialog";
+import { Card } from "./ui/Card";
 
 export const FireblocksNCWInitializer: React.FC = () => {
   const {
@@ -44,7 +45,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
     [],
   );
 
-  let sdkActions: ICardAction[];
+  let sdkActions: IActionButtonProps[];
 
   switch (fireblocksNCWStatus) {
     case "sdk_not_ready":

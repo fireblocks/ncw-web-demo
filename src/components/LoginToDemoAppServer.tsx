@@ -1,6 +1,7 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Card } from "./ui/Card";
 
 export const LoginToDemoAppServer: React.FC = () => {
   const { userId, loginToDemoAppServerStatus, automateInitialization, loginToDemoAppServer } = useAppStore();
@@ -11,7 +12,7 @@ export const LoginToDemoAppServer: React.FC = () => {
     }
   }, [loginToDemoAppServer, automateInitialization, userId]);
 
-  const cardAction: ICardAction = {
+  const cardAction: IActionButtonProps = {
     action: loginToDemoAppServer,
     isDisabled: loginToDemoAppServerStatus === "started" || !!userId,
     isInProgress: loginToDemoAppServerStatus === "started",

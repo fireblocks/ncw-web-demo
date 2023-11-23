@@ -21,6 +21,7 @@ type TSupportedAssets = Record<string, IWalletAsset>;
 export interface IAppState {
   fireblocksNCWSdkVersion: string;
   automateInitialization: boolean;
+  joinExistingWalletMode: boolean;
   loggedUser: IUser | null;
   userId: string | null;
   deviceId: string | null;
@@ -31,6 +32,7 @@ export interface IAppState {
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
+  joinWalletStatus: TAsyncActionStatus;
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
@@ -42,8 +44,10 @@ export interface IAppState {
   logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;
+  setWalletId: (walletId: string) => void;
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
+  askToJoinWalletExisting: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
   generateMPCKeys: () => Promise<void>;
   stopMpcDeviceSetup: () => Promise<void>;
@@ -60,6 +64,8 @@ export interface IAppState {
     index: number,
   ) => string;
   setPassphrase: (passphrase: string) => void;
+  approveJoinWallet: () => Promise<void>;
+  joinExistingWallet: () => Promise<void>;
   recoverKeys: () => Promise<void>;
   backupKeys: () => Promise<void>;
   regeneratePassphrase: () => void;

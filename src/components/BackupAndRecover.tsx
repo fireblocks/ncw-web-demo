@@ -1,7 +1,8 @@
 import React from "react";
 
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Card } from "./ui/Card";
 
 export const BackupAndRecover: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
@@ -57,14 +58,14 @@ export const BackupAndRecover: React.FC = () => {
 
   const hasReadyAlgo = secP256K1Status === "READY" || ed25519Status === "READY";
 
-  const backupAction: ICardAction = {
+  const backupAction: IActionButtonProps = {
     label: "Backup keys",
     action: doBackupKeys,
     isDisabled: isBackupInProgress || passphrase === null || passphrase.trim() === "" || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };
 
-  const recoverAction: ICardAction = {
+  const recoverAction: IActionButtonProps = {
     label: "Recover keys",
     action: doRecoverKeys,
     isDisabled: isRecoverInProgress || passphrase === null || passphrase.trim() === "",

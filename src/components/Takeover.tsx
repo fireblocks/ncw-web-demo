@@ -1,7 +1,8 @@
 import { IFullKey } from "@fireblocks/ncw-js-sdk";
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Card } from "./ui/Card";
 import { Copyable } from "./ui/Copyable";
 import { DeriveAssetKeysDialog } from "./ui/DeriveAssetKeysDialog";
 import { ErrorToast } from "./ui/ErrorToast";
@@ -63,28 +64,28 @@ export const Takeover: React.FC = () => {
     setExportedFullKeys(null);
   };
 
-  const takeoverAction: ICardAction = {
+  const takeoverAction: IActionButtonProps = {
     action: onTakeoverClicked,
     label: "Takeover",
     isDisabled: isTakeoverInProgress || isExportInProgress,
     isInProgress: isTakeoverInProgress,
   };
 
-  const exportFullKeysAction: ICardAction = {
+  const exportFullKeysAction: IActionButtonProps = {
     action: onExportFullKeysClicked,
     label: "Export FullKeys",
     isDisabled: isTakeoverInProgress || isExportInProgress,
     isInProgress: isExportInProgress,
   };
 
-  const deriveAssetKeysAction: ICardAction = {
+  const deriveAssetKeysAction: IActionButtonProps = {
     action: onDeriveAssetKeysClicked,
     label: "Derive Asset Keys",
     isDisabled: isTakeoverInProgress || isExportInProgress,
     isInProgress: isExportInProgress,
   };
 
-  const clearDataAction: ICardAction = {
+  const clearDataAction: IActionButtonProps = {
     action: onClearDataClicked,
     label: "Clear",
     isDisabled: isTakeoverInProgress || isExportInProgress || !exportedFullKeys,
