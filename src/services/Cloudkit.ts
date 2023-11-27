@@ -6,7 +6,7 @@ export const cloudkitBackup = async (cloudkit: CloudKit, passphrase: string, pas
   const recordType = "Backup";
 
   // create
-  await db.saveRecords([
+  const result = await db.saveRecords([
     {
       recordName,
       recordType,
@@ -18,6 +18,11 @@ export const cloudkitBackup = async (cloudkit: CloudKit, passphrase: string, pas
       },
     },
   ]);
+
+  if (result.hasErrors) {
+    console.error("Failed to save records", result.errors);
+    throw new Error("Failed to backup");
+  }
 };
 
 export const cloudkitRecover = async (cloudkit: CloudKit, passphraseId: string) => {
@@ -31,6 +36,11 @@ export const cloudkitRecover = async (cloudkit: CloudKit, passphraseId: string) 
       recordType,
     },
   ]);
+
+  if (results.hasErrors) {
+    console.error("Failed to fetch records", results.errors);
+    throw new Error("Failed to recover");
+  }
 
   if (results.records.length === 1) {
     if (Array.isArray(results.records[0].fields)) {
