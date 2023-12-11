@@ -36,6 +36,7 @@ export interface IAppState {
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
   passphrase: string | null;
+  addDeviceRequestId: string | null;
   accounts: TAccount[];
   supportedAssets: Record<number, TSupportedAssets>;
   initAppStore: () => void;
@@ -66,6 +67,7 @@ export interface IAppState {
   setPassphrase: (passphrase: string) => void;
   approveJoinWallet: () => Promise<void>;
   joinExistingWallet: () => Promise<void>;
+  stopJoinExistingWallet: () => Promise<void>;
   recoverKeys: () => Promise<void>;
   backupKeys: () => Promise<void>;
   regeneratePassphrase: () => void;

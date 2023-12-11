@@ -9,7 +9,7 @@ export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isJoinInProgress, setIsJoinInProgress] = React.useState(false);
   const [joinExistingWalletResult, setJoinExistingWalletResult] = React.useState<string | null>(null);
-  const { keysStatus, joinExistingWallet } = useAppStore();
+  const { keysStatus, joinExistingWallet, stopJoinExistingWallet } = useAppStore();
 
   const doJoinExistingWallet = async () => {
     setJoinExistingWalletResult(null);
@@ -56,12 +56,17 @@ export const JoinExistingWallet: React.FC = () => {
   const generateAction: IActionButtonProps = {
     label: "Join",
     action: doJoinExistingWallet,
-    isDisabled: isJoinInProgress || secP256K1Ready,
+    isDisabled: false,
     isInProgress: isJoinInProgress,
   };
 
+  const stopAction: IActionButtonProps = {
+    label: "STOP!!!!",
+    action: stopJoinExistingWallet,
+  };
+
   return (
-    <Card title="Join Existing Wallet" actions={[generateAction]}>
+    <Card title="Join Existing Wallet" actions={[generateAction, stopAction]}>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}

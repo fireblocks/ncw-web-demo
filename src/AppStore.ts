@@ -2,6 +2,7 @@ import {
   ConsoleLogger,
   FireblocksNCW,
   IEventsHandler,
+  IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
   IKeyRecoveryEvent,
@@ -67,6 +68,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     assignDeviceStatus: "not_started",
     joinWalletStatus: "not_started",
     fireblocksNCWStatus: "sdk_not_ready",
+    addDeviceRequestId: null,
     keysStatus: null,
     passphrase: null,
     accounts: [],
@@ -205,13 +207,33 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      await fireblocksNCW.approveJoinWallet();
+      const requests = await fireblocksNCW.getJoinWalletRequests();
+      const requestId = requests.find((r) => r.status === "PENDING_PROVISIONER")?.id;
+      if (!requestId) {
+        throw new Error("no open requests found");
+      }
+      const result = await fireblocksNCW.approveJoinWallet(requestId);
+      console.log("@@@ DEBUGS | approveJoinWallet: | result:", result)
     },
     joinExistingWallet: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
       await fireblocksNCW.joinExistingWallet();
+      // set((state) => ({ ...state, addDeviceRequestId }) as any);
+    },
+    stopJoinExistingWallet: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      const { addDeviceRequestId } = get();
+      if (!addDeviceRequestId) {
+        console.log("no add device setup request to stop....");
+        return;
+      }
+      console.log("stopping add device setup request", addDeviceRequestId);
+      await fireblocksNCW.stopAddDeviceSetup(addDeviceRequestId);
+      set((state) => ({ ...state, addDeviceRequestId: null }));
     },
     backupKeys: async () => {
       const { passphrase } = get();
@@ -293,6 +315,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
               case "keys_recovery":
                 console.log(`Key recover status: ${JSON.stringify((event as IKeyRecoveryEvent).keyDescriptor)}`);
+                break;
+
+              case "join_wallet_descriptor":
+                console.log(`join wallet status: ${JSON.stringify((event as IJoinWalletEvent).joinWalletDescriptor)}`);
+                set((state) => ({ ...state, addDeviceRequestId: event.joinWalletDescriptor.requestId }));
                 break;
             }
           },
