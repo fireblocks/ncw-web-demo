@@ -16,7 +16,7 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
 
   constructor(
     private _salt: string,
-    private getPassword: GetUserPasswordFunc,
+    private _getPassword: GetUserPasswordFunc,
   ) {
     super();
   }
@@ -55,7 +55,7 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
   }
 
   private async _generateEncryptionKey(): Promise<string> {
-    let key = await this.getPassword();
+    let key = await this._getPassword();
     const md5 = md.md5.create();
 
     for (let i = 0; i < 1000; ++i) {
