@@ -213,7 +213,7 @@ export const BackupAndRecover: React.FC = () => {
     isInProgress: isBackupInProgress,
   };
 
-  const RecoverAction: ICardAction = {
+  const recoverAction: ICardAction = {
     label: "Recover",
     action: () => doRecoverKeys(recoverPassphraseId),
     isDisabled: !latestBackup || isRecoverInProgress || isBackupInProgress,
@@ -224,7 +224,7 @@ export const BackupAndRecover: React.FC = () => {
     return;
   }
   return (
-    <Card title="Backup/Recover" actions={[googleBackupAction, appleBackupAction, RecoverAction]}>
+    <Card title="Backup/Recover" actions={[googleBackupAction, appleBackupAction, recoverAction]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
       {latestBackup &&          
