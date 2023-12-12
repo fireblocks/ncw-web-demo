@@ -7,6 +7,7 @@ export function useCloudkit() {
   const [appleSignedIn, setAppleSignedIn] = React.useState<boolean | null>(null);
 
   useEffect(() => {
+    let cancel = false;
     const loadApple = () => {
       const ck = window.CloudKit.configure({
         containers: [
@@ -23,10 +24,15 @@ export function useCloudkit() {
         ],
       });
 
-      setCloudkit(ck);
+      if (!cancel) {
+        setCloudkit(ck);
+      }
     };
 
     loadApple();
+    return () => {
+      cancel = true;
+    };
   }, []);
 
   useEffect(() => {
