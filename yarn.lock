@@ -1001,25 +1001,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-infra@npm:^1.0.12":
-  version: 1.0.12
-  resolution: "@fireblocks/ncw-js-infra@npm:1.0.12::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-infra%2F-%2Fncw-js-infra-1.0.12.tgz"
+"@fireblocks/ncw-js-infra@npm:^1.0.13":
+  version: 1.0.13
+  resolution: "@fireblocks/ncw-js-infra@npm:1.0.13::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-infra%2F-%2Fncw-js-infra-1.0.13.tgz"
   dependencies:
     "@types/emscripten": ^1.39.7
-  checksum: 442ef3a9da3003518c989f89b3a9619bb5a270ef102209a0972e7ff000fc2e33d5f7daa3e827b0faffc09f448867710698726c51f3ba0c3fd3b995bac773aa93
+  checksum: 481e9a4350df1e0b74ffdedf14e6285bb08354eae01325ca3deebbfd581fa2f26db61b68b8e96b96fa2823397a4289c37607de6af268a4c5d38ae5702c29074f
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@https://github.com/fireblocks/ncw-js-sdk.git#backup":
-  version: 9.3.1
-  resolution: "@fireblocks/ncw-js-sdk@https://github.com/fireblocks/ncw-js-sdk.git#commit=db8fd95b9f8a0fb7a142895bdab65ad03a9dd1fe"
+"@fireblocks/ncw-js-sdk@npm:^10.0.0":
+  version: 10.0.1
+  resolution: "@fireblocks/ncw-js-sdk@npm:10.0.1::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2F%40fireblocks%2Fncw-js-sdk%2F-%2Fncw-js-sdk-10.0.1.tgz"
   dependencies:
-    "@fireblocks/ncw-js-infra": ^1.0.12
+    "@fireblocks/ncw-js-infra": ^1.0.13
     "@types/jwt-decode": ^3.1.0
     "@types/node-forge": ^1.3.4
     jwt-decode: ^3.1.2
     node-forge: ^1.3.1
-  checksum: e57ef3fa2e93ed692c33cc768713e4dd872627c9e79c15a32637b63ba5a4891a23aa95d0bd82ced6a455f2ab685a8b4f090b0ab104c54ca5f4439e68ff4fd1aa
+  checksum: 37c82db6db2d6bbfdb5e85cc2ab95626f7bf4a0ea5040d1e6a681124869b560722a1e79b889403565d1c3de519c2ffbc5d2f8bd684a4602ed2cbeb512e6a2cdd
   languageName: node
   linkType: hard
 
@@ -1027,7 +1027,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fireblocks/ncw-web-demo@workspace:."
   dependencies:
-    "@fireblocks/ncw-js-sdk": "https://github.com/fireblocks/ncw-js-sdk.git#backup"
+    "@fireblocks/ncw-js-sdk": ^10.0.0
     "@types/gapi": ^0.0.46
     "@types/gapi.auth2": ^0.0.59
     "@types/gapi.client.drive-v3": ^0.0.3
