@@ -1,6 +1,7 @@
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, AuthProvider, GoogleAuthProvider, OAuthProvider, User, getAuth, signInWithPopup } from "firebase/auth";
 import { IAuthManager, IUser } from "./IAuthManager";
+import { getUserGoogleDriveProvider } from "./providers";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA2E5vK3fhxvftpfS02T8eIC3SrXnIUjrs",
@@ -22,6 +23,18 @@ export class FirebaseAuthManager implements IAuthManager {
     this._auth.onAuthStateChanged((user) => {
       this._loggedUser = user;
     });
+  }
+
+  public async getGoogleDriveCredentials() {
+    const provider = getUserGoogleDriveProvider(this._auth.currentUser!.email!);
+    const result = await signInWithPopup(this._auth, provider);
+    // TODO: persist credential from original firebase login
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential?.accessToken;
+    if (!token) {
+      throw new Error("Failed to retrieve token");
+    }
+    return token;
   }
 
   public async login(provider: "GOOGLE" | "APPLE"): Promise<void> {

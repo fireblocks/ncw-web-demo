@@ -39,7 +39,7 @@ export const Web3ConnectionRow: React.FC<IProps> = ({ session }) => {
       <td>{appName}</td>
       <td>{appDescription}</td>
       <td>{appUrl}</td>
-      <td>{appIcon && <img src={appIcon}/>}</td>
+      <td>{appIcon && <img src={appIcon} />}</td>
       <td>
         <button className="btn btn-sm btn-secondary" disabled={inProgress} onClick={removeClicked}>
           Remove

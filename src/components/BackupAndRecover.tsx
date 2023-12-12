@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
+import { randomPassPhrase } from "../services/randomPassPhrase";
+import { TPassphraseLocation } from "../services/ApiService";
+import { gdriveBackup, gdriveRecover } from "../services/GoogleDrive";
+import { cloudkitBackup, cloudkitRecover } from "../services/Cloudkit";
+import { useCloudkit } from "./Cloudkit";
 
 export const BackupAndRecover: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
@@ -9,16 +14,153 @@ export const BackupAndRecover: React.FC = () => {
   const [recoverCompleted, setRecoverCompleted] = React.useState(false);
   const [isBackupInProgress, setIsBackupInProgress] = React.useState(false);
   const [isRecoverInProgress, setIsRecoverInProgress] = React.useState(false);
-  const { keysStatus, passphrase, regeneratePassphrase, setPassphrase, backupKeys, recoverKeys } =
-    useAppStore();
+  const {
+    keysStatus,
+    getGoogleDriveCredentials,
+    backupKeys,
+    recoverKeys,
+    getPassphraseInfos,
+    getLatestBackup,
+    createPassphraseInfo,
+    latestBackup,
+    passphrases,
+    walletId,
+  } = useAppStore();
 
-  const doBackupKeys = async () => {
+  const { cloudkit, appleSignedIn } = useCloudkit();
+
+  useEffect(() => {
+    if (!passphrases) {
+      getPassphraseInfos();
+    }
+  }, [passphrases]);
+
+
+  useEffect(() => {
+    if (!latestBackup) {
+      getLatestBackup();
+    }
+  }, [latestBackup, walletId]);
+
+  const recoverGoogleDrive = async (passphraseId: string) => {
+    const token = await getGoogleDriveCredentials();
+    return gdriveRecover(token, passphraseId);
+  };
+
+  const backupGoogleDrive = async (passphrase: string, passphraseId: string) => {
+    const token = await getGoogleDriveCredentials();
+    return gdriveBackup(token, passphrase, passphraseId);
+  };
+
+  const recoverPassphraseId: (passphraseId: string) => Promise<string> = async (passphraseId) => {
+    await getPassphraseInfos();
+
+    if (passphrases === null) {
+      throw new Error();
+    }
+
+    // try to reuse previous
+    for (const info of Object.values(passphrases)) {
+      if (info.passphraseId === passphraseId) {
+        switch (info.location) {
+          case "GoogleDrive": {
+            return await recoverGoogleDrive(info.passphraseId);
+          }
+          case "iCloud": {
+            if (!cloudkit || !appleSignedIn) {
+              throw new Error("Sign in with Apple ID required");
+            }
+
+            return await cloudkitRecover(cloudkit, info.passphraseId);
+          }
+          default:
+            throw new Error(`Unsupported backup location ${location}`);
+        }
+      }
+    }
+
+    throw new Error(`Not found backup location ${location} passphraseId ${passphraseId}`);
+  };
+
+  const passphraseRecover: (
+    location: TPassphraseLocation,
+  ) => Promise<{ passphrase: string; passphraseId: string }> = async (location) => {
+    if (passphrases === null) {
+      throw new Error();
+    }
+
+    // try to reuse previous
+    for (const info of Object.values(passphrases)) {
+      if (info.location === location) {
+        switch (location) {
+          case "GoogleDrive": {
+            const passphrase = await recoverGoogleDrive(info.passphraseId);
+            return { passphraseId: info.passphraseId, passphrase };
+          }
+          case "iCloud": {
+            if (!cloudkit || !appleSignedIn) {
+              throw new Error("Sign in with Apple ID required");
+            }
+
+            const passphrase = await cloudkitRecover(cloudkit, info.passphraseId);
+            return { passphraseId: info.passphraseId, passphrase };
+          }
+          default:
+            throw new Error(`Unsupported backup location ${location}`);
+        }
+      }
+    }
+
+    throw new Error(`Not found backup location ${location}`);
+  };
+
+  const passphrasePersist: (
+    location: TPassphraseLocation,
+  ) => Promise<{ passphrase: string; passphraseId: string }> = async (location) => {
+    if (passphrases === null) {
+      throw new Error();
+    }
+
+    try {
+      const recover = await passphraseRecover(location);
+      if (recover) {
+        return recover;
+      }
+    } catch (e) {
+      console.warn(`failed to load previous passphrase, creating new`, e, location);
+    }
+
+    // creating new
+    const passphrase = randomPassPhrase();
+    const passphraseId = crypto.randomUUID();
+
+    switch (location) {
+      case "GoogleDrive": {
+        await backupGoogleDrive(passphrase, passphraseId);
+        await createPassphraseInfo(passphraseId, location);
+        return { passphraseId, passphrase };
+      }
+      case "iCloud": {
+        if (!cloudkit || !appleSignedIn) {
+          throw new Error("Apple Sign in required");
+        }
+        await cloudkitBackup(cloudkit, passphrase, passphraseId);
+        await createPassphraseInfo(passphraseId, location);
+        return { passphraseId, passphrase };
+      }
+      default:
+        throw new Error(`Unsupported backup location ${location}`);
+    }
+  };
+
+  const doBackupKeys = async (passphrasePersist: () => Promise<{ passphrase: string; passphraseId: string }>) => {
     setErr(null);
     setIsBackupInProgress(true);
     setBackupCompleted(false);
     setRecoverCompleted(false);
     try {
-      await backupKeys();
+      const { passphrase, passphraseId } = await passphrasePersist();
+      await backupKeys(passphrase, passphraseId);
       setBackupCompleted(true);
       setIsBackupInProgress(false);
     } catch (err: unknown) {
@@ -30,15 +172,16 @@ export const BackupAndRecover: React.FC = () => {
     } finally {
       setIsBackupInProgress(false);
     }
+    await getLatestBackup();
   };
 
-  const doRecoverKeys = async () => {
+  const doRecoverKeys = async (passphraseResolver: (passphraseId: string) => Promise<string>) => {
     setErr(null);
     setIsRecoverInProgress(true);
     setRecoverCompleted(false);
     setBackupCompleted(false);
     try {
-      await recoverKeys();
+      await recoverKeys(passphraseResolver);
       setRecoverCompleted(true);
       setIsRecoverInProgress(false);
     } catch (err: unknown) {
@@ -54,46 +197,43 @@ export const BackupAndRecover: React.FC = () => {
 
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
   const ed25519Status = keysStatus?.MPC_EDDSA_ED25519?.keyStatus ?? null;
-
   const hasReadyAlgo = secP256K1Status === "READY" || ed25519Status === "READY";
 
-  const backupAction: ICardAction = {
-    label: "Backup keys",
-    action: doBackupKeys,
-    isDisabled: isBackupInProgress || passphrase === null || passphrase.trim() === "" || hasReadyAlgo === false,
+  const googleBackupAction: ICardAction = {
+    label: "Google Drive Backup",
+    action: () => doBackupKeys(() => passphrasePersist("GoogleDrive")),
+    isDisabled: isRecoverInProgress || isBackupInProgress || hasReadyAlgo === false,
+    isInProgress: isBackupInProgress,
+  };
+
+  const appleBackupAction: ICardAction = {
+    label: "iCloud Backup",
+    action: () => doBackupKeys(() => passphrasePersist("iCloud")),
+    isDisabled: !appleSignedIn || isRecoverInProgress || isBackupInProgress || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };
 
   const recoverAction: ICardAction = {
-    label: "Recover keys",
-    action: doRecoverKeys,
-    isDisabled: isRecoverInProgress || passphrase === null || passphrase.trim() === "",
+    label: "Recover",
+    action: () => doRecoverKeys(recoverPassphraseId),
+    isDisabled: !latestBackup || isRecoverInProgress || isBackupInProgress,
     isInProgress: isRecoverInProgress,
   };
 
+  if (passphrases === null) {
+    return;
+  }
   return (
-    <Card title="Backup/Recover" actions={[backupAction, recoverAction]}>
-      <div className="grid grid-cols-[150px_auto_50px] gap-2">
-        <label className="label">
-          <span className="label-text">Passphrase:</span>
-        </label>
-        <input
-          type="text"
-          value={passphrase ?? ""}
-          className="input input-bordered"
-          onChange={(e) => setPassphrase(e.currentTarget.value)}
-        />
-        <button className="btn btn-secondary" onClick={regeneratePassphrase}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0,0,256,256" width="24px" height="24px" fillRule="nonzero">
-            <g fill="#ffffff" fillRule="nonzero" stroke="none" strokeWidth="1">
-              <g transform="scale(10.66667,10.66667)">
-                <path d="M16,15h8l-4,5zM8,9h-8l4,-5z"></path>
-                <path d="M21,6c0,-1.654 -1.346,-3 -3,-3h-10.839l1.6,2h9.239c0.551,0 1,0.448 1,1v10h2zM3,18c0,1.654 1.346,3 3,3h10.839l-1.6,-2h-9.239c-0.551,0 -1,-0.448 -1,-1v-10h-2z"></path>
-              </g>
-            </g>
-          </svg>
-        </button>
-      </div>
+    <Card title="Backup/Recover" actions={[googleBackupAction, appleBackupAction, recoverAction]}>
+      <div id="sign-in-button"></div>
+      <div id="sign-out-button"></div>
+      {latestBackup &&          
+          <div>
+            <div>Last known backup</div>
+            <div>Location: {latestBackup.location}</div>
+            <div>Created: {new Date(latestBackup.createdAt).toString()}</div>
+          </div>
+      }
       {backupCompleted && (
         <div className="mockup-code">
           <pre>

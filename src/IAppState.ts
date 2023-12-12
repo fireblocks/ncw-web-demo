@@ -7,6 +7,7 @@ import {
   ITransactionData,
   IWalletAsset,
   IWeb3Session,
+  TPassphraseLocation,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
 
@@ -15,8 +16,21 @@ export interface IAssetInfo {
   balance?: IAssetBalance;
   address?: IAssetAddress;
 }
+
+export interface IPassphraseInfo {
+  passphraseId: string;
+  location: TPassphraseLocation;
+}
+
 type TAccount = Record<string, IAssetInfo>;
 type TSupportedAssets = Record<string, IWalletAsset>;
+export type TPassphrases = Record<string, IPassphraseInfo>;
+
+export interface IBackupInfo {
+  passphraseId: string;
+  location: TPassphraseLocation;
+  createdAt: number;
+}
 
 export interface IAppState {
   fireblocksNCWSdkVersion: string;
@@ -25,6 +39,7 @@ export interface IAppState {
   userId: string | null;
   deviceId: string | null;
   walletId: string | null;
+  latestBackup: IBackupInfo | null;
   txs: ITransactionData[];
   web3Connections: IWeb3Session[];
   pendingWeb3Connection: ICreateWeb3ConnectionResponse | null;
@@ -33,11 +48,12 @@ export interface IAppState {
   assignDeviceStatus: TAsyncActionStatus;
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
-  passphrase: string | null;
   accounts: TAccount[];
+  passphrases: TPassphrases | null;
   supportedAssets: Record<number, TSupportedAssets>;
   initAppStore: () => void;
   disposeAppStore: () => void;
+  getGoogleDriveCredentials: () => Promise<string>;
   login(provider: "GOOGLE" | "APPLE"): Promise<void>;
   logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
@@ -59,10 +75,11 @@ export interface IAppState {
     change: number,
     index: number,
   ) => string;
-  setPassphrase: (passphrase: string) => void;
-  recoverKeys: () => Promise<void>;
-  backupKeys: () => Promise<void>;
-  regeneratePassphrase: () => void;
+  getPassphraseInfos: () => Promise<void>;
+  getLatestBackup: () => Promise<void>;
+  createPassphraseInfo: (passphraseId: string, location: TPassphraseLocation) => Promise<void>;
+  recoverKeys: (passphraseResolver: (passphraseId: string) => Promise<string>) => Promise<void>;
+  backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;
   initFireblocksNCW: () => Promise<void>;
   disposeFireblocksNCW: () => void;
   getWeb3Connections: () => Promise<void>;

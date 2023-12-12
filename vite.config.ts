@@ -6,6 +6,6 @@ export default defineConfig({
   base: "/ncw-web-demo/",
   plugins: [react()],
   optimizeDeps: {
-    exclude: ["@fireblocks/ncw-js-sdk"],
+    exclude: ["@fireblocks/ncw-js-sdk", "tsl-apple-cloudkit"],
   },
 });
