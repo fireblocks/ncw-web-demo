@@ -1,6 +1,6 @@
 import { DISCOVERY_DOC } from "../auth/providers";
 
-export const gdriveRecover = async (token: string, passphraseId: string) => {
+export const gdriveRecover = (token: string, passphraseId: string) => {
   return new Promise<string>((resolve, reject) => {
     gapi.load("client", {
       callback: async () => {
@@ -39,7 +39,7 @@ export const gdriveRecover = async (token: string, passphraseId: string) => {
   });
 };
 
-export const gdriveBackup = async (token: string, passphrase: string, passphraseId: string) => {
+export const gdriveBackup = (token: string, passphrase: string, passphraseId: string) => {
   return new Promise<void>((resolve, reject) => {
     gapi.load("client", {
       callback: async () => {
