@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useAppStore } from "../AppStore";
 import { Card, ICardAction } from "./ui/Card";
 import { randomPassPhrase } from "../services/randomPassPhrase";
-import { PassphraseLocation } from "../services/ApiService";
+import { TPassphraseLocation } from "../services/ApiService";
 import { gdriveBackup, gdriveRecover } from "../services/GoogleDrive";
 import { cloudkitBackup, cloudkitRecover } from "../services/Cloudkit";
 import { useCloudkit } from "./Cloudkit";
@@ -63,10 +63,10 @@ export const BackupAndRecover: React.FC = () => {
     for (const info of Object.values(passphrases)) {
       if (info.passphraseId === passphraseId) {
         switch (info.location) {
-          case PassphraseLocation.GoogleDrive: {
+          case "GoogleDrive": {
             return await recoverGoogleDrive(info.passphraseId);
           }
-          case PassphraseLocation.iCloud: {
+          case "iCloud": {
             if (!cloudkit || !appleSignedIn) {
               throw new Error("Sign in with Apple ID required");
             }
@@ -83,7 +83,7 @@ export const BackupAndRecover: React.FC = () => {
   };
 
   const passphraseRecover: (
-    location: PassphraseLocation,
+    location: TPassphraseLocation,
   ) => Promise<{ passphrase: string; passphraseId: string }> = async (location) => {
     if (passphrases === null) {
       throw new Error();
@@ -93,11 +93,11 @@ export const BackupAndRecover: React.FC = () => {
     for (const info of Object.values(passphrases)) {
       if (info.location === location) {
         switch (location) {
-          case PassphraseLocation.GoogleDrive: {
+          case "GoogleDrive": {
             const passphrase = await recoverGoogleDrive(info.passphraseId);
             return { passphraseId: info.passphraseId, passphrase };
           }
-          case PassphraseLocation.iCloud: {
+          case "iCloud": {
             if (!cloudkit || !appleSignedIn) {
               throw new Error("Sign in with Apple ID required");
             }
@@ -115,7 +115,7 @@ export const BackupAndRecover: React.FC = () => {
   };
 
   const passphrasePersist: (
-    location: PassphraseLocation,
+    location: TPassphraseLocation,
   ) => Promise<{ passphrase: string; passphraseId: string }> = async (location) => {
     if (passphrases === null) {
       throw new Error();
@@ -135,12 +135,12 @@ export const BackupAndRecover: React.FC = () => {
     const passphraseId = crypto.randomUUID();
 
     switch (location) {
-      case PassphraseLocation.GoogleDrive: {
+      case "GoogleDrive": {
         await backupGoogleDrive(passphrase, passphraseId);
         await createPassphraseInfo(passphraseId, location);
         return { passphraseId, passphrase };
       }
-      case PassphraseLocation.iCloud: {
+      case "iCloud": {
         if (!cloudkit || !appleSignedIn) {
           throw new Error("Apple Sign in required");
         }
@@ -201,14 +201,14 @@ export const BackupAndRecover: React.FC = () => {
 
   const googleBackupAction: ICardAction = {
     label: "Google Drive Backup",
-    action: () => doBackupKeys(() => passphrasePersist(PassphraseLocation.GoogleDrive)),
+    action: () => doBackupKeys(() => passphrasePersist("GoogleDrive")),
     isDisabled: isRecoverInProgress || isBackupInProgress || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };
 
   const appleBackupAction: ICardAction = {
     label: "iCloud Backup",
-    action: () => doBackupKeys(() => passphrasePersist(PassphraseLocation.iCloud)),
+    action: () => doBackupKeys(() => passphrasePersist("iCloud")),
     isDisabled: !appleSignedIn || isRecoverInProgress || isBackupInProgress || hasReadyAlgo === false,
     isInProgress: isBackupInProgress,
   };

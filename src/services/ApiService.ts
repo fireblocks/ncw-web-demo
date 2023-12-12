@@ -156,10 +156,7 @@ export interface IAssetBalance {
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
-export enum PassphraseLocation {
-  GoogleDrive = "GoogleDrive",
-  iCloud = "iCloud",
-}
+export type TPassphraseLocation = "GoogleDrive" | "iCloud";
 
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -190,7 +187,7 @@ export class ApiService {
     return await response.json();
   }
 
-  public async getLatestBackup(walletId: string): Promise<IBackupInfo|null> {
+  public async getLatestBackup(walletId: string): Promise<IBackupInfo | null> {
     const response = await this._getCall(`api/wallets/${walletId}/backup/latest`);
     if (response.status >= 200 && response.status < 300) {
       return await response.json();
@@ -201,12 +198,12 @@ export class ApiService {
     }
   }
 
-  public async getPassphraseInfo(passphraseId: string): Promise<{ location: PassphraseLocation }> {
+  public async getPassphraseInfo(passphraseId: string): Promise<{ location: TPassphraseLocation }> {
     const response = await this._getCall(`api/passphrase/${passphraseId}`);
     return await response.json();
   }
 
-  public async createPassphraseInfo(passphraseId: string, location: PassphraseLocation) {
+  public async createPassphraseInfo(passphraseId: string, location: TPassphraseLocation) {
     const response = await this._postCall(`api/passphrase/${passphraseId}`, { location });
     return response;
   }

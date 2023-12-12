@@ -15,7 +15,7 @@ import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
-import { ApiService, ITransactionData, IWalletAsset, PassphraseLocation } from "./services/ApiService";
+import { ApiService, ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
@@ -164,7 +164,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }, {});
       set((state) => ({ ...state, passphrases: reduced }));
     },
-    createPassphraseInfo: async (passphraseId: string, location: PassphraseLocation) => {
+    createPassphraseInfo: async (passphraseId: string, location: TPassphraseLocation) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }

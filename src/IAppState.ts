@@ -7,7 +7,7 @@ import {
   ITransactionData,
   IWalletAsset,
   IWeb3Session,
-  PassphraseLocation,
+  TPassphraseLocation,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
 
@@ -19,7 +19,7 @@ export interface IAssetInfo {
 
 export interface IPassphraseInfo {
   passphraseId: string;
-  location: PassphraseLocation;
+  location: TPassphraseLocation;
 }
 
 type TAccount = Record<string, IAssetInfo>;
@@ -28,7 +28,7 @@ export type TPassphrases = Record<string, IPassphraseInfo>;
 
 export interface IBackupInfo {
   passphraseId: string;
-  location: PassphraseLocation;
+  location: TPassphraseLocation;
   createdAt: number;
 }
 
@@ -77,7 +77,7 @@ export interface IAppState {
   ) => string;
   getPassphraseInfos: () => Promise<void>;
   getLatestBackup: () => Promise<void>;
-  createPassphraseInfo: (passphraseId: string, location: PassphraseLocation) => Promise<void>;
+  createPassphraseInfo: (passphraseId: string, location: TPassphraseLocation) => Promise<void>;
   recoverKeys: (passphraseResolver: (passphraseId: string) => Promise<string>) => Promise<void>;
   backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;
   initFireblocksNCW: () => Promise<void>;
