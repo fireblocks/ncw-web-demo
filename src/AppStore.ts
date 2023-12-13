@@ -213,13 +213,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("no open requests found");
       }
       const result = await fireblocksNCW.approveJoinWallet(requestId);
-      console.log("@@@ DEBUGS | approveJoinWallet: | result:", result)
+      console.log("approveJoinWallet result:", result);
     },
     joinExistingWallet: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      await fireblocksNCW.joinExistingWallet();
+      await fireblocksNCW.requestJoinExistingWallet();
       // set((state) => ({ ...state, addDeviceRequestId }) as any);
     },
     stopJoinExistingWallet: async () => {
@@ -318,7 +318,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
                 break;
 
               case "join_wallet_descriptor":
-                console.log(`join wallet status: ${JSON.stringify((event as IJoinWalletEvent).joinWalletDescriptor)}`);
+                console.log(`join wallet event: ${JSON.stringify((event as IJoinWalletEvent).joinWalletDescriptor)}`);
                 set((state) => ({ ...state, addDeviceRequestId: event.joinWalletDescriptor.requestId }));
                 break;
             }
