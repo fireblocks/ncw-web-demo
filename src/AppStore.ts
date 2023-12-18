@@ -207,12 +207,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const requests = await fireblocksNCW.getJoinWalletRequests();
-      const requestId = requests.find((r) => r.status === "PENDING_PROVISIONER")?.id;
-      if (!requestId) {
-        throw new Error("no open requests found");
-      }
-      const result = await fireblocksNCW.approveJoinWallet(requestId);
+      // const requests = await fireblocksNCW.getJoinWalletRequests();
+      // const requestId = requests.find((r) => r.status === "PENDING_PROVISIONER")?.id;
+      // if (!requestId) {
+      //   throw new Error("no open requests found");
+      // }
+      const requestId = await prompt("insert request id... (UUID)")
+      const result = await fireblocksNCW.approveJoinWalletRequest(requestId);
       console.log("approveJoinWallet result:", result);
     },
     joinExistingWallet: async () => {
@@ -221,19 +222,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       await fireblocksNCW.requestJoinExistingWallet();
       // set((state) => ({ ...state, addDeviceRequestId }) as any);
-    },
-    stopJoinExistingWallet: async () => {
-      if (!fireblocksNCW) {
-        throw new Error("fireblocksNCW is not initialized");
-      }
-      const { addDeviceRequestId } = get();
-      if (!addDeviceRequestId) {
-        console.log("no add device setup request to stop....");
-        return;
-      }
-      console.log("stopping add device setup request", addDeviceRequestId);
-      await fireblocksNCW.stopAddDeviceSetup(addDeviceRequestId);
-      set((state) => ({ ...state, addDeviceRequestId: null }));
     },
     backupKeys: async () => {
       const { passphrase } = get();
