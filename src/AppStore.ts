@@ -227,19 +227,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       await fireblocksNCW.requestJoinExistingWallet();
       // set((state) => ({ ...state, addDeviceRequestId }) as any);
     },
-    stopJoinExistingWallet: async () => {
-      if (!fireblocksNCW) {
-        throw new Error("fireblocksNCW is not initialized");
-      }
-      const { addDeviceRequestId } = get();
-      if (!addDeviceRequestId) {
-        console.log("no add device setup request to stop....");
-        return;
-      }
-      console.log("stopping add device setup request", addDeviceRequestId);
-      await fireblocksNCW.stopAddDeviceSetup(addDeviceRequestId);
-      set((state) => ({ ...state, addDeviceRequestId: null }));
-    },
     backupKeys: async () => {
       const { passphrase } = get();
       if (!fireblocksNCW) {
