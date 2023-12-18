@@ -13,7 +13,7 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState } from "./IAppState";
+import { IAppState, TAppMode } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
 import { ApiService, ITransactionData, IWalletAsset } from "./services/ApiService";
@@ -57,6 +57,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
+    appMode: null,
     userId: null,
     walletId: null,
     pendingWeb3Connection: null,
@@ -175,6 +176,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started", passphrase: null }));
       storeDeviceId(deviceId, userId);
     },
+    setAppMode: (appMode: TAppMode) => {
+      set((state) => ({ ...state, appMode, assignDeviceStatus: "not_started" }));
+    },
     setDeviceId: (deviceId: string) => {
       const { userId } = get();
       if (!userId) {
@@ -207,13 +211,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const requests = await fireblocksNCW.getJoinWalletRequests();
-      const requestId = requests.find((r) => r.status === "PENDING_PROVISIONER")?.id;
-      if (!requestId) {
-        throw new Error("no open requests found");
+      const requestId = await prompt("insert request id... (UUID)");
+      if (requestId) {
+        const result = await fireblocksNCW.approveJoinWalletRequest(requestId);
+        // set((state) => ({ ...state, passphrase }));
+        console.log("approveJoinWallet result:", result);
+      } else {
+        console.log("approveJoinWallet cancelled");
       }
-      const result = await fireblocksNCW.approveJoinWallet(requestId);
-      console.log("approveJoinWallet result:", result);
     },
     joinExistingWallet: async () => {
       if (!fireblocksNCW) {

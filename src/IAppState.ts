@@ -17,8 +17,10 @@ export interface IAssetInfo {
 }
 type TAccount = Record<string, IAssetInfo>;
 type TSupportedAssets = Record<string, IWalletAsset>;
+export type TAppMode = "SIGN_IN" | "JOIN" | null;
 
 export interface IAppState {
+  appMode: TAppMode;
   fireblocksNCWSdkVersion: string;
   automateInitialization: boolean;
   joinExistingWalletMode: boolean;
@@ -42,6 +44,7 @@ export interface IAppState {
   initAppStore: () => void;
   disposeAppStore: () => void;
   login(provider: "GOOGLE" | "APPLE"): Promise<void>;
+  setAppMode: (mode: TAppMode) => void;
   logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;

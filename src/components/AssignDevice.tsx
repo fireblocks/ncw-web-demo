@@ -2,7 +2,8 @@ import React from "react";
 import { useAppStore } from "../AppStore";
 import { Card } from "./ui/Card";
 import { validateGuid } from "./validateGuid";
-import { ActionButton, IActionButtonProps } from "./ui/ActionButton";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Copyable } from "./ui/Copyable";
 
 export const AssignDevice: React.FC = () => {
   const {
@@ -16,6 +17,7 @@ export const AssignDevice: React.FC = () => {
     automateInitialization,
     assignCurrentDevice,
     generateNewDeviceId,
+    appMode,
   } = useAppStore();
 
   React.useEffect(() => {
@@ -54,8 +56,11 @@ export const AssignDevice: React.FC = () => {
   };
 
   return (
-    <Card title="Device ID" actions={[generateNewDeviceIdAction]}>
-      <div className="grid grid-cols-[150px_auto_180px] gap-2">
+    <Card
+      title="Device ID"
+      actions={[generateNewDeviceIdAction, appMode === "SIGN_IN" ? assignDeviceAction : joinWalletAction]}
+    >
+      <div className="grid grid-cols-[150px_auto_20px] gap-2 mb-4">
         <label className="label">
           <span className="label-text">Device ID:</span>
         </label>
@@ -65,8 +70,9 @@ export const AssignDevice: React.FC = () => {
           value={deviceId ?? ""}
           className="input input-bordered"
           onChange={(e) => setDeviceId(e.target.value)}
+          placeholder="Device id"
         />
-        <ActionButton {...assignDeviceAction} />
+        {deviceId ? <Copyable value={deviceId} /> : <span />}
         <label className="label">
           <span className="label-text">Wallet ID:</span>
         </label>
@@ -76,8 +82,9 @@ export const AssignDevice: React.FC = () => {
           value={walletId ?? ""}
           className="input input-bordered"
           onChange={(e) => setWalletId(e.target.value)}
+          placeholder="Wallet id"
         />
-        <ActionButton {...joinWalletAction} />
+        {walletId ? <Copyable value={walletId} /> : <span />}
       </div>
       {assignDeviceStatus === "failed" && (
         <div className="alert alert-error shadow-lg">

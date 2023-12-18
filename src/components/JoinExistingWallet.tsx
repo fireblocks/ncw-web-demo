@@ -4,12 +4,13 @@ import { TKeyStatus } from "@fireblocks/ncw-js-sdk";
 import { useAppStore } from "../AppStore";
 import { IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
+import { Copyable } from "./ui/Copyable";
 
 export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isJoinInProgress, setIsJoinInProgress] = React.useState(false);
   const [joinExistingWalletResult, setJoinExistingWalletResult] = React.useState<string | null>(null);
-  const { keysStatus, joinExistingWallet, stopJoinExistingWallet } = useAppStore();
+  const { keysStatus, joinExistingWallet, addDeviceRequestId } = useAppStore();
 
   const doJoinExistingWallet = async () => {
     setJoinExistingWalletResult(null);
@@ -60,13 +61,8 @@ export const JoinExistingWallet: React.FC = () => {
     isInProgress: isJoinInProgress,
   };
 
-  const stopAction: IActionButtonProps = {
-    label: "STOP!!!!",
-    action: stopJoinExistingWallet,
-  };
-
   return (
-    <Card title="Join Existing Wallet" actions={[generateAction, stopAction]}>
+    <Card title="Join Existing Wallet" actions={[generateAction]}>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
@@ -121,6 +117,12 @@ export const JoinExistingWallet: React.FC = () => {
             </svg>
             <span>{err}</span>
           </div>
+        </div>
+      )}
+      {addDeviceRequestId && (
+        <div className="my-4">
+          <span className="label-text">Request ID to approve: </span>
+          <Copyable value={addDeviceRequestId} />
         </div>
       )}
     </Card>
