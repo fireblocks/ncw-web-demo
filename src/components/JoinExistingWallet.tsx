@@ -2,15 +2,18 @@ import React from "react";
 
 import { TKeyStatus } from "@fireblocks/ncw-js-sdk";
 import { useAppStore } from "../AppStore";
-import { IActionButtonProps } from "./ui/ActionButton";
+import { ActionButton, IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
 import { Copyable } from "./ui/Copyable";
+import { ENV_CONFIG } from "../env_config";
+import QRCode from "react-qr-code";
+import Popup from "reactjs-popup";
 
 export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isJoinInProgress, setIsJoinInProgress] = React.useState(false);
   const [joinExistingWalletResult, setJoinExistingWalletResult] = React.useState<string | null>(null);
-  const { keysStatus, joinExistingWallet, addDeviceRequestId } = useAppStore();
+  const { keysStatus, joinExistingWallet, addDeviceRequestId, stopJoinExistingWallet } = useAppStore();
 
   const doJoinExistingWallet = async () => {
     setJoinExistingWalletResult(null);
@@ -61,8 +64,19 @@ export const JoinExistingWallet: React.FC = () => {
     isInProgress: isJoinInProgress,
   };
 
+  const stopAction: IActionButtonProps = {
+    label: "STOP",
+    action: stopJoinExistingWallet,
+  };
+
+  const actions = [generateAction];
+
+  if (ENV_CONFIG.DEV_MODE) {
+    actions.push(stopAction);
+  }
+
   return (
-    <Card title="Join Existing Wallet" actions={[generateAction]}>
+    <Card title="Join Existing Wallet" actions={actions}>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
@@ -121,8 +135,15 @@ export const JoinExistingWallet: React.FC = () => {
       )}
       {addDeviceRequestId && (
         <div className="my-4">
-          <span className="label-text">Request ID to approve: </span>
-          <Copyable value={addDeviceRequestId} />
+          <div>
+            <span className="label-text">Request ID to approve: </span>
+            <Copyable value={addDeviceRequestId} />
+          </div>
+          <div>
+            <Popup trigger={<ActionButton label="Show QR" />} position="center center">
+              <QRCode value={addDeviceRequestId} style={{ height: "400px", width: "400px" }} />
+            </Popup>
+          </div>
         </div>
       )}
     </Card>
