@@ -7,13 +7,18 @@ import { Card } from "./ui/Card";
 import { Copyable } from "./ui/Copyable";
 import { ENV_CONFIG } from "../env_config";
 import QRCode from "react-qr-code";
-import Popup from "reactjs-popup";
+import "react-responsive-modal/styles.css";
+import { Modal } from "react-responsive-modal";
 
 export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isJoinInProgress, setIsJoinInProgress] = React.useState(false);
   const [joinExistingWalletResult, setJoinExistingWalletResult] = React.useState<string | null>(null);
   const { keysStatus, joinExistingWallet, addDeviceRequestId, stopJoinExistingWallet } = useAppStore();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  const onOpenModal = () => setIsModalOpen(true);
+  const onCloseModal = () => setIsModalOpen(false);
 
   const doJoinExistingWallet = async () => {
     setJoinExistingWalletResult(null);
@@ -140,9 +145,12 @@ export const JoinExistingWallet: React.FC = () => {
             <Copyable value={addDeviceRequestId} />
           </div>
           <div>
-            <Popup trigger={<ActionButton label="Show QR" />} position="center center">
-              <QRCode value={addDeviceRequestId} style={{ height: "400px", width: "400px" }} />
-            </Popup>
+            <ActionButton label="Show QR" action={onOpenModal} />
+            <Modal open={isModalOpen} onClose={onCloseModal} center>
+              <div className="p-8">
+                <QRCode value={addDeviceRequestId} style={{ height: "300px", width: "300px" }} />
+              </div>
+            </Modal>
           </div>
         </div>
       )}
