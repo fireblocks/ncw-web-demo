@@ -134,7 +134,7 @@ export const JoinExistingWallet: React.FC = () => {
         </div>
       )}
       {addDeviceRequestId && (
-        <div className="my-4">
+        <div className="my-4 flex justify-start items-center gap-6">
           <div>
             <span className="label-text">Request ID to approve: </span>
             <Copyable value={addDeviceRequestId} />
