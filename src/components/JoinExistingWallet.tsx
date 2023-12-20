@@ -65,7 +65,7 @@ export const JoinExistingWallet: React.FC = () => {
   };
 
   const stopAction: IActionButtonProps = {
-    label: "STOP",
+    label: "Stop the process",
     action: stopJoinExistingWallet,
   };
 
