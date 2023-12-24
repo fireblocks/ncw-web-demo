@@ -10,6 +10,6 @@ export default defineConfig({
     host: 'localhost',
   },
   optimizeDeps: {
-    exclude: ["@fireblocks/ncw-js-sdk"],
+    exclude: ["@fireblocks/ncw-js-sdk", "tsl-apple-cloudkit"],
   },
 });

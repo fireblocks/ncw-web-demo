@@ -1,21 +1,16 @@
-import { GoogleAuthProvider } from "firebase/auth";
 import { useAppStore } from "../AppStore";
-import { IActionButtonProps } from "../components/ui/ActionButton";
-import { Card } from "../components/ui/Card";
+import { Card, ICardAction } from "../components/ui/Card";
 import { ReactFCC } from "../types";
 
 export const Login: ReactFCC = ({ children }) => {
   const { login } = useAppStore();
 
-  const googleProvider = new GoogleAuthProvider();
-  googleProvider.setCustomParameters({ prompt: "select_account" });
-
-  const googleCardAction: IActionButtonProps = {
+  const googleCardAction: ICardAction = {
     action: () => login("GOOGLE"),
     label: "Sign In With Google",
   };
 
-  const appleCardAction: IActionButtonProps = {
+  const appleCardAction: ICardAction = {
     action: () => login("APPLE"),
     label: "Sign In With Apple",
   };

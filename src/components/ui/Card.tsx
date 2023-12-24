@@ -1,11 +1,34 @@
 import React from "react";
-import { ActionButton, IActionButtonProps } from "./ActionButton";
+
+export interface ICardAction {
+  action?: () => void;
+  isDisabled?: boolean;
+  isInProgress?: boolean;
+  buttonVariant?: "primary" | "accent";
+  label: string;
+}
 
 interface IProps {
   title: string;
   children?: React.ReactNode;
-  actions?: IActionButtonProps[];
+  actions?: ICardAction[];
 }
+
+const CardActionButton: React.FC<ICardAction> = ({
+  action,
+  isDisabled = false,
+  isInProgress = false,
+  buttonVariant = "primary",
+  label,
+}) => {
+  const buttonClassName = buttonVariant === "primary" ? "btn btn-primary" : "btn btn-accent";
+  return (
+    <button className={buttonClassName} disabled={isDisabled} onClick={action}>
+      {isInProgress && <span className="loading loading-spinner">x</span>}
+      {label}
+    </button>
+  );
+};
 
 export const Card: React.FC<IProps> = ({ title, children, actions = [] }) => {
   return (
@@ -15,7 +38,7 @@ export const Card: React.FC<IProps> = ({ title, children, actions = [] }) => {
         {children}
         <div className="card-actions">
           {actions.map((action) => (
-            <ActionButton key={action.label} {...action} />
+            <CardActionButton key={action.label} {...action} />
           ))}
         </div>
       </div>

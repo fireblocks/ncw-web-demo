@@ -13,22 +13,13 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState, TAppMode } from "./IAppState";
+import { IAppState, IPassphraseInfo, TPassphrases, TAppMode } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
-import { ApiService, ITransactionData, IWalletAsset } from "./services/ApiService";
+import { ApiService, ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
-import { randomPassPhrase } from "./services/randomPassPhrase";
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
-
-const rememberBackupPassphrase = (passphrase: string, userId: string) => {
-  localStorage.setItem(`DEMO_APP:backup-passphrase-${userId}`, passphrase);
-};
-
-const getBackupPassphrase = (userId: string): string | null => {
-  return localStorage.getItem(`DEMO_APP:backup-passphrase-${userId}`) ?? null;
-};
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -60,6 +51,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     appMode: null,
     userId: null,
     walletId: null,
+    latestBackup: null,
     pendingWeb3Connection: null,
     web3Connections: [],
     txs: [],
@@ -71,7 +63,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     fireblocksNCWStatus: "sdk_not_ready",
     addDeviceRequestId: null,
     keysStatus: null,
-    passphrase: null,
+    passphrases: null,
     accounts: [],
     supportedAssets: {},
     initAppStore: () => {
@@ -90,9 +82,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
         set((state) => ({ ...state, appStoreInitialized: false }));
       }
     },
+    async getGoogleDriveCredentials(): Promise<string> {
+      return await authManager.getGoogleDriveCredentials();
+    },
     async login(provider: "GOOGLE" | "APPLE"): Promise<void> {
       await authManager.login(provider);
-      set({ loggedUser: authManager.loggedUser });
+      set({
+        loggedUser: authManager.loggedUser,
+      });
     },
     async logout(): Promise<void> {
       await authManager.logout();
@@ -100,12 +97,12 @@ export const useAppStore = create<IAppState>()((set, get) => {
       disposeAppStore();
       disposeFireblocksNCW();
       set({
-        loggedUser: authManager.loggedUser,
+        loggedUser: null,
         userId: null,
         walletId: null,
         deviceId: null,
-        passphrase: null,
         pendingWeb3Connection: null,
+        latestBackup: null,
         web3Connections: [],
         txs: [],
         appStoreInitialized: false,
@@ -173,7 +170,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("First login to demo app server");
       }
       const deviceId = generateDeviceId();
-      set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started", passphrase: null }));
+      set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
       storeDeviceId(deviceId, userId);
     },
     setAppMode: (appMode: TAppMode) => {
@@ -195,17 +192,17 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!userId) {
         throw new Error("First login to demo app server");
       }
-      rememberBackupPassphrase(passphrase, userId);
-      set((state) => ({ ...state, passphrase }));
     },
-    regeneratePassphrase: () => {
-      const { userId } = get();
-      if (!userId) {
-        throw new Error("First login to demo app server");
+    getLatestBackup: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
       }
-      const passphrase = randomPassPhrase();
-      rememberBackupPassphrase(passphrase, userId);
-      set((state) => ({ ...state, passphrase }));
+      const { walletId } = get();
+      if (!walletId) {
+        throw new Error("No wallet set");
+      }
+      const latestBackup = await apiService.getLatestBackup(walletId);
+      set((state) => ({ ...state, latestBackup }));
     },
     approveJoinWallet: async () => {
       if (!fireblocksNCW) {
@@ -227,25 +224,43 @@ export const useAppStore = create<IAppState>()((set, get) => {
       await fireblocksNCW.requestJoinExistingWallet();
       // set((state) => ({ ...state, addDeviceRequestId }) as any);
     },
-    backupKeys: async () => {
-      const { passphrase } = get();
-      if (!fireblocksNCW) {
-        throw new Error("fireblocksNCW is not initialized");
+    getPassphraseInfos: async () => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
       }
-      if (!passphrase) {
-        throw new Error("passphrase is not set");
-      }
-      await fireblocksNCW.backupKeys(passphrase);
+      const { passphrases } = await apiService.getPassphraseInfos();
+      const reduced = passphrases.reduce<TPassphrases>((p, v) => {
+        p[v.passphraseId] = v;
+        return p;
+      }, {});
+      set((state) => ({ ...state, passphrases: reduced }));
     },
-    recoverKeys: async () => {
-      const { passphrase } = get();
+    createPassphraseInfo: async (passphraseId: string, location: TPassphraseLocation) => {
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      await apiService.createPassphraseInfo(passphraseId, location);
+      const passphraseInfo: IPassphraseInfo = { passphraseId, location };
+      set((state) => ({ ...state, passphrases: { ...state.passphrases, [passphraseId]: passphraseInfo } }));
+    },
+    backupKeys: async (passphrase: string, passphraseId: string) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
       if (!passphrase) {
         throw new Error("passphrase is not set");
       }
-      await fireblocksNCW.recoverKeys(passphrase);
+      if (!passphraseId) {
+        throw new Error("passphraseId is not set");
+      }
+
+      await fireblocksNCW.backupKeys(passphrase, passphraseId);
+    },
+    recoverKeys: async (passphraseResolver: (passphraseId: string) => Promise<string>) => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      await fireblocksNCW.recoverKeys(passphraseResolver);
       const keysStatus = await fireblocksNCW.getKeysStatus();
       set((state) => ({ ...state, keysStatus }));
     },
@@ -261,7 +276,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
           userId,
           loginToDemoAppServerStatus: "success",
           deviceId: getOrCreateDeviceId(userId),
-          passphrase: getBackupPassphrase(userId),
         }));
       } catch (e) {
         set((state) => ({ ...state, userId: null, loginToDemoAppServerStatus: "failed" }));
