@@ -5,4 +5,5 @@ export const ENV_CONFIG = {
   DEV_MODE: import.meta.env.DEV,
   CLOUDKIT_APITOKEN: import.meta.env.VITE_CLOUDKIT_APITOKEN,
   CLOUDKIT_CONTAINER_ID: import.meta.env.VITE_CLOUDKIT_CONTAINER_ID,
+  CLOUDKIT_ENV: import.meta.env.VITE_CLOUDKIT_ENV,
 };

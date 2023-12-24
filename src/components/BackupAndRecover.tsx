@@ -36,7 +36,6 @@ export const BackupAndRecover: React.FC = () => {
     }
   }, [passphrases]);
 
-
   useEffect(() => {
     if (!latestBackup) {
       getLatestBackup();
@@ -228,13 +227,13 @@ export const BackupAndRecover: React.FC = () => {
     <Card title="Backup/Recover" actions={[googleBackupAction, appleBackupAction, recoverAction]}>
       <div id="sign-in-button"></div>
       <div id="sign-out-button"></div>
-      {latestBackup &&          
-          <div>
-            <div>Last known backup</div>
-            <div>Location: {latestBackup.location}</div>
-            <div>Created: {new Date(latestBackup.createdAt).toString()}</div>
-          </div>
-      }
+      {latestBackup && (
+        <div>
+          <div>Last known backup</div>
+          <div>Location: {latestBackup.location}</div>
+          <div>Created: {new Date(latestBackup.createdAt).toString()}</div>
+        </div>
+      )}
       {backupCompleted && (
         <div className="mockup-code">
           <pre>
