@@ -6,7 +6,6 @@ import { ActionButton, IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
 import { Copyable } from "./ui/Copyable";
 import { ENV_CONFIG } from "../env_config";
-import "react-responsive-modal/styles.css";
 import { QRDialog } from "./ui/QRDialog";
 
 export const JoinExistingWallet: React.FC = () => {
