@@ -6,9 +6,8 @@ import { ActionButton, IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
 import { Copyable } from "./ui/Copyable";
 import { ENV_CONFIG } from "../env_config";
-import QRCode from "react-qr-code";
 import "react-responsive-modal/styles.css";
-import { Modal } from "react-responsive-modal";
+import { QRDialog } from "./ui/QRDialog";
 
 export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
@@ -146,11 +145,7 @@ export const JoinExistingWallet: React.FC = () => {
           </div>
           <div>
             <ActionButton label="Show QR" action={onOpenModal} />
-            <Modal open={isModalOpen} onClose={onCloseModal} center>
-              <div className="p-8">
-                <QRCode value={addDeviceRequestId} style={{ height: "300px", width: "300px" }} />
-              </div>
-            </Modal>
+            <QRDialog qrCodeValue={addDeviceRequestId} isOpen={isModalOpen} onClose={onCloseModal} />
           </div>
         </div>
       )}
