@@ -19,7 +19,7 @@ export function useCloudkit() {
               signInButton: { id: "sign-in-button", theme: "black" },
               signOutButton: { id: "sign-out-button", theme: "black" },
             },
-            environment: ENV_CONFIG.CLOUDKIT_ENV ?? "development",
+            environment: "development",
           },
         ],
       });
