@@ -26,6 +26,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   const onClearSDKStorageApproved = async () => {
     setIsAreYouSureDialogOpen(false);
+    localStorage.clear();
     await clearSDKStorage();
     await initFireblocksNCW();
   };

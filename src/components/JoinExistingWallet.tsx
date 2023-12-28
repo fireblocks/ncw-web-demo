@@ -7,12 +7,13 @@ import { Card } from "./ui/Card";
 import { Copyable } from "./ui/Copyable";
 import { ENV_CONFIG } from "../env_config";
 import { QRDialog } from "./ui/QRDialog";
+import { encode } from "js-base64";
 
 export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isJoinInProgress, setIsJoinInProgress] = React.useState(false);
   const [joinExistingWalletResult, setJoinExistingWalletResult] = React.useState<string | null>(null);
-  const { keysStatus, joinExistingWallet, addDeviceRequestId, stopJoinExistingWallet } = useAppStore();
+  const { keysStatus, joinExistingWallet, addDeviceRequestId, stopJoinExistingWallet, loggedUser } = useAppStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const onOpenModal = () => setIsModalOpen(true);
@@ -78,6 +79,10 @@ export const JoinExistingWallet: React.FC = () => {
     actions.push(stopAction);
   }
 
+  const qrCodeValue = encode(
+    `{"email":"${loggedUser?.email ?? "not available"}","platform":"WEB","requestId":"${addDeviceRequestId}"}`,
+  );
+
   return (
     <Card title="Join Existing Wallet" actions={actions}>
       <div className="overflow-x-auto">
@@ -138,13 +143,13 @@ export const JoinExistingWallet: React.FC = () => {
       )}
       {addDeviceRequestId && (
         <div className="my-4 flex justify-start items-center gap-6">
-          <div>
-            <span className="label-text">Request ID to approve: </span>
-            <Copyable value={addDeviceRequestId} />
+          <div className="max-w-[500px]">
+            <span className="label-text">Request data to approve:</span>
+            <Copyable value={qrCodeValue} />
           </div>
           <div>
             <ActionButton label="Show QR" action={onOpenModal} />
-            <QRDialog qrCodeValue={addDeviceRequestId} isOpen={isModalOpen} onClose={onCloseModal} />
+            <QRDialog qrCodeValue={qrCodeValue} isOpen={isModalOpen} onClose={onCloseModal} />
           </div>
         </div>
       )}

@@ -26,14 +26,22 @@ export const AssignDevice: React.FC = () => {
     }
   }, [automateInitialization, walletId]);
 
+  React.useEffect(() => {
+    if (appMode === "JOIN") {
+      generateNewDeviceId();
+    }
+  }, [appMode]);
+
   const isValidDeviceId = validateGuid(deviceId);
   const isValidWalletId = validateGuid(walletId);
 
-  const blockActions =
-    assignDeviceStatus === "started" ||
-    assignDeviceStatus === "success" ||
-    joinWalletStatus === "success" ||
-    joinWalletStatus === "started";
+  const blockActions = React.useMemo(() => {
+    if (appMode === "SIGN_IN") {
+      return assignDeviceStatus === "started" || assignDeviceStatus === "success";
+    } else {
+      return joinWalletStatus === "started";
+    }
+  }, [appMode, assignDeviceStatus, joinWalletStatus]);
 
   const generateNewDeviceIdAction: IActionButtonProps = {
     action: generateNewDeviceId,

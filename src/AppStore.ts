@@ -20,9 +20,11 @@ import { ApiService, ITransactionData, IWalletAsset, TPassphraseLocation } from 
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
+import { decode } from "js-base64";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
+export type TRequestDecodedData = { email: string; requestId: string; platform: string };
 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
@@ -208,11 +210,16 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const requestId = await prompt("insert request id... (UUID)");
-      if (requestId) {
-        const result = await fireblocksNCW.approveJoinWalletRequest(requestId);
+      const requestData = await prompt("Insert encoded request data");
+      if (requestData) {
+        try {
+          const decodedData: TRequestDecodedData = JSON.parse(decode(requestData));
+          const result = await fireblocksNCW.approveJoinWalletRequest(decodedData.requestId);
+          console.log("approveJoinWallet result:", result);
+        } catch (e) {
+          console.error(e);
+        }
         // set((state) => ({ ...state, passphrase }));
-        console.log("approveJoinWallet result:", result);
       } else {
         console.log("approveJoinWallet cancelled");
       }

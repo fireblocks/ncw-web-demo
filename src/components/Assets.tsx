@@ -1,7 +1,6 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
 import { AssetRow } from "./AssetRow";
-import { IActionButtonProps } from "./ui/ActionButton";
 import { Autocomplete } from "./ui/Autocomplete";
 import { Card } from "./ui/Card";
 
@@ -9,17 +8,6 @@ export const Assets: React.FC = () => {
   const { accounts, refreshAccounts, addAsset, refreshSupportedAssets, supportedAssets } = useAppStore();
   const [assetIdPrompt, setAssetIdPrompt] = React.useState<string | null>(null);
   const [isAddingAsset, setIsAddingAsset] = React.useState(false);
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-
-  const onRefreshClicked = async () => {
-    setIsRefreshing(true);
-    try {
-      await refreshAccounts();
-      await refreshSupportedAssets(0);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
 
   const onAddAssetClicked = async () => {
     if (!assetIdPrompt) {
@@ -35,16 +23,20 @@ export const Assets: React.FC = () => {
     }
   };
 
-  const refeshAction: IActionButtonProps = {
-    action: onRefreshClicked,
-    label: "Refresh",
-    isDisabled: isRefreshing,
-  };
-
   const hasAccounts = accounts.length > 0;
 
+  React.useEffect(() => {
+    async function fetchAssets() {
+      try {
+        await refreshAccounts();
+        await refreshSupportedAssets(0);
+      } catch (e) {}
+    }
+    fetchAssets();
+  }, []);
+
   return (
-    <Card title="Assets" actions={[refeshAction]}>
+    <Card title="Assets">
       <div>
         {hasAccounts &&
           accounts.map((account, index) => (
