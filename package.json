@@ -15,7 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fireblocks/ncw-js-sdk": "^10.0.0",
+    "@fireblocks/ncw-js-sdk": "^10.0.5-beta.3",
     "base58-js": "^2.0.0",
     "classnames": "^2.3.2",
     "js-base64": "^3.7.5",
