@@ -4,13 +4,14 @@ import { TKeyStatus } from "@fireblocks/ncw-js-sdk";
 import { useAppStore } from "../AppStore";
 import { IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
+import { ENV_CONFIG } from "../env_config";
 
 export const GenerateMPCKeys: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
   const [isGenerateInProgress, setIsGenerateInProgress] = React.useState(false);
   const [isStopInProgress, setIsStopInProgress] = React.useState(false);
   const [generateMPCKeysResult, setGenerateMPCKeysResult] = React.useState<string | null>(null);
-  const { keysStatus, generateMPCKeys, stopMpcDeviceSetup, approveJoinWallet } = useAppStore();
+  const { keysStatus, generateMPCKeys, stopMpcDeviceSetup, approveJoinWallet, stopJoinExistingWallet } = useAppStore();
 
   const doGenerateMPCKeys = async () => {
     setGenerateMPCKeysResult(null);
@@ -90,9 +91,18 @@ export const GenerateMPCKeys: React.FC = () => {
     action: approveJoinWallet,
     isDisabled: (isStopInProgress || isGenerateInProgress) && secP256K1Ready,
   };
+  const stopApproveWalletAction: IActionButtonProps = {
+    label: "Stop Approve Join Wallet",
+    action: stopJoinExistingWallet,
+  };
+
+  const actions = [generateAction, stopAction, approveJoinWalletAction];
+  if (ENV_CONFIG.DEV_MODE) {
+    actions.push(stopApproveWalletAction);
+  }
 
   return (
-    <Card title="Generate MPC Keys" actions={[generateAction, stopAction, approveJoinWalletAction]}>
+    <Card title="Generate MPC Keys" actions={actions}>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}

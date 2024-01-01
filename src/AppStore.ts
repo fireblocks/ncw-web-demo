@@ -231,6 +231,12 @@ export const useAppStore = create<IAppState>()((set, get) => {
       await fireblocksNCW.requestJoinExistingWallet();
       // set((state) => ({ ...state, addDeviceRequestId }) as any);
     },
+    stopJoinExistingWallet: () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      fireblocksNCW.stopJoinWallet();
+    },
     getPassphraseInfos: async () => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
