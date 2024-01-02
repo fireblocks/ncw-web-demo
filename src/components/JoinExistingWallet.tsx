@@ -80,7 +80,7 @@ export const JoinExistingWallet: React.FC = () => {
   }
 
   const qrCodeValue = encode(
-    `{"email":"${loggedUser?.email ?? "not available"}","platform":"WEB","requestId":"${addDeviceRequestId}"}`,
+    `{"email":"${loggedUser?.email ?? "not available"}","platform":"Web","requestId":"${addDeviceRequestId}"}`,
   );
 
   return (
