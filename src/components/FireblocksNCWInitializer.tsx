@@ -4,6 +4,7 @@ import { useAppStore } from "../AppStore";
 import { IActionButtonProps } from "./ui/ActionButton";
 import { AreYouSureDialog } from "./ui/AreYouSureDialog";
 import { Card } from "./ui/Card";
+import { ENV_CONFIG } from "../env_config";
 
 export const FireblocksNCWInitializer: React.FC = () => {
   const {
@@ -90,7 +91,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   return (
     <>
-      <Card title={`Fireblocks SDK - Version ${fireblocksNCWSdkVersion}`} actions={sdkActions}>
+      <Card title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV}) - Version ${fireblocksNCWSdkVersion}`} actions={sdkActions}>
         <div>{fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}</div>
       </Card>
       <AreYouSureDialog
