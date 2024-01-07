@@ -228,8 +228,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      await fireblocksNCW.requestJoinExistingWallet();
-      // set((state) => ({ ...state, addDeviceRequestId }) as any);
+      await fireblocksNCW.requestJoinExistingWallet({
+        onRequestId(requestId) {
+          set((state) => ({ ...state, addDeviceRequestId: requestId }));
+        },
+      });
     },
     stopJoinExistingWallet: () => {
       if (!fireblocksNCW) {
@@ -338,7 +341,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
               case "join_wallet_descriptor":
                 console.log(`join wallet event: ${JSON.stringify((event as IJoinWalletEvent).joinWalletDescriptor)}`);
-                set((state) => ({ ...state, addDeviceRequestId: event.joinWalletDescriptor.requestId }));
                 break;
             }
           },
