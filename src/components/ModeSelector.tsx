@@ -10,7 +10,7 @@ export const ModeSelector: ReactFCC = () => {
     action: () => {
       setAppMode("SIGN_IN");
     },
-    label: "Sign into your waller to create new one",
+    label: "Sign into your wallet or create a new wallet",
     buttonVariant: appMode === "SIGN_IN" ? "accent" : "primary",
   };
 

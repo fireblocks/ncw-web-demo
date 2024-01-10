@@ -81,18 +81,22 @@ export const AssignDevice: React.FC = () => {
           placeholder="Device id"
         />
         {deviceId ? <Copyable value={deviceId} /> : <span />}
-        <label className="label">
-          <span className="label-text">Wallet ID:</span>
-        </label>
-        <input
-          type="text"
-          disabled={blockActions}
-          value={walletId ?? ""}
-          className="input input-bordered"
-          onChange={(e) => setWalletId(e.target.value)}
-          placeholder="Wallet id"
-        />
-        {walletId ? <Copyable value={walletId} /> : <span />}
+        {(walletId || appMode === "JOIN") && (
+          <>
+            <label className="label">
+              <span className="label-text">Wallet ID:</span>
+            </label>
+            <input
+              type="text"
+              disabled={blockActions || appMode === "SIGN_IN"}
+              value={walletId ?? ""}
+              className="input input-bordered"
+              onChange={(e) => setWalletId(e.target.value)}
+              placeholder="Wallet id"
+            />
+            <Copyable value={walletId} />
+          </>
+        )}
       </div>
       {assignDeviceStatus === "failed" && (
         <div className="alert alert-error shadow-lg">
