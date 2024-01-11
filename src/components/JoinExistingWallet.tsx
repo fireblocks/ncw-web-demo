@@ -141,7 +141,7 @@ export const JoinExistingWallet: React.FC = () => {
           </div>
         </div>
       )}
-      {addDeviceRequestId && (
+      {addDeviceRequestId && isJoinInProgress && (
         <div className="my-4 flex justify-start items-center gap-6">
           <div className="max-w-[500px]">
             <span className="label-text">Request data to approve:</span>
