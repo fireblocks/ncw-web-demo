@@ -3,11 +3,13 @@ import { useAppStore } from "../AppStore";
 import { AssetRow } from "./AssetRow";
 import { Autocomplete } from "./ui/Autocomplete";
 import { Card } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
 
 export const Assets: React.FC = () => {
   const { accounts, refreshAccounts, addAsset, refreshSupportedAssets, supportedAssets } = useAppStore();
   const [assetIdPrompt, setAssetIdPrompt] = React.useState<string | null>(null);
   const [isAddingAsset, setIsAddingAsset] = React.useState(false);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const onAddAssetClicked = async () => {
     if (!assetIdPrompt) {
@@ -23,6 +25,16 @@ export const Assets: React.FC = () => {
     }
   };
 
+  const onRefreshClicked = async () => {
+    setIsRefreshing(true)
+    try {
+      await refreshAccounts();
+      await refreshSupportedAssets(0);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const hasAccounts = accounts.length > 0;
 
   React.useEffect(() => {
@@ -35,8 +47,14 @@ export const Assets: React.FC = () => {
     fetchAssets();
   }, []);
 
+  const refreshAction: IActionButtonProps = {
+    action: onRefreshClicked,
+    label: "Refresh",
+    isDisabled: isRefreshing,
+  };
+
   return (
-    <Card title="Assets">
+    <Card title="Assets" actions={[refreshAction]}>
       <div>
         {hasAccounts &&
           accounts.map((account, index) => (
