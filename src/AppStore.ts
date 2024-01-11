@@ -1,7 +1,8 @@
 import {
-  ConsoleLogger,
-  FireblocksNCW,
+  ConsoleLoggerFactory,
+  FireblocksNCWFactory,
   IEventsHandler,
+  IFireblocksNCW,
   IKeyBackupEvent,
   IKeyDescriptor,
   IKeyRecoveryEvent,
@@ -26,7 +27,7 @@ export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_a
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
-  let fireblocksNCW: FireblocksNCW | null = null;
+  let fireblocksNCW: IFireblocksNCW | null = null;
   const authManager: IAuthManager = new FirebaseAuthManager();
   authManager.onUserChanged((user) => {
     set({ loggedUser: user });
@@ -43,7 +44,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: FireblocksNCW.version,
+    fireblocksNCWSdkVersion: FireblocksNCWFactory.version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     loggedUser: authManager.loggedUser,
     userId: null,
@@ -267,13 +268,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
 
-        fireblocksNCW = await FireblocksNCW.initialize({
+        fireblocksNCW = await FireblocksNCWFactory.initialize({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
           deviceId,
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: new ConsoleLogger(),
+          logger: ConsoleLoggerFactory(),
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
