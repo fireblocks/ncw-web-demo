@@ -75,7 +75,7 @@ export const JoinExistingWallet: React.FC = () => {
 
   const actions = [generateAction];
 
-  if (ENV_CONFIG.DEV_MODE) {
+  if (ENV_CONFIG.DEV_MODE && isJoinInProgress) {
     actions.push(stopAction);
   }
 

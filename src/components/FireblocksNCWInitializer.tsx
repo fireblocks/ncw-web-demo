@@ -30,6 +30,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
     localStorage.clear();
     await clearSDKStorage();
     await initFireblocksNCW();
+    location.reload();
   };
 
   // An easy way to auto-initialize
