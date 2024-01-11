@@ -76,7 +76,7 @@ export const Assets: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-              <div className="grid grid-cols-[150px_auto_100px] gap-2">
+              <div className="grid grid-cols-[150px_auto_100px] gap-2 mb-4">
                 <label className="label">
                   <span className="label-text">Add asset:</span>
                 </label>
