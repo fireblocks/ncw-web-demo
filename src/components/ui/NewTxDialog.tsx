@@ -17,12 +17,16 @@ export const NewTxDialog: React.FC<IProps> = ({ isOpen, onClose, assetsToSelectF
   const [txType, setTXType] = React.useState<"transfer" | "typed-message">("transfer");
   const [txFee, setTXFee] = React.useState<"LOW" | "MEDIUM" | "HIGH">("LOW");
 
-  const closeDialog = () => {
+  const clearForm = () => {
     setAssetIdPrompt("");
     setAmount("");
     setDestinationAddress("");
-    setTXType("transfer");
     setTXFee("LOW");
+  };
+
+  const closeDialog = () => {
+    setTXType("transfer");
+    clearForm();
     onClose();
   };
 
@@ -82,7 +86,10 @@ export const NewTxDialog: React.FC<IProps> = ({ isOpen, onClose, assetsToSelectF
                   name="txType"
                   id="transfer"
                   checked={txType === "transfer"}
-                  onChange={() => setTXType("transfer")}
+                  onChange={() => {
+                    setTXType("transfer");
+                    clearForm();
+                  }}
                 />
                 <label htmlFor="transfer" className="pl-1">
                   Transfer
@@ -94,7 +101,10 @@ export const NewTxDialog: React.FC<IProps> = ({ isOpen, onClose, assetsToSelectF
                   name="txType"
                   id="typed-message"
                   checked={txType === "typed-message"}
-                  onChange={() => setTXType("typed-message")}
+                  onChange={() => {
+                    setTXType("typed-message");
+                    clearForm();
+                  }}
                 />
                 <label htmlFor="typed-message" className="pl-1">
                   Typed message
