@@ -1,4 +1,4 @@
-import { IBackupInfo, IPassphraseInfo } from "../IAppState";
+import { IBackupInfo, INewTransactionData, IPassphraseInfo } from "../IAppState";
 import { IAuthManager } from "../auth/IAuthManager";
 
 export type TTransactionStatus =
@@ -252,8 +252,8 @@ export class ApiService {
     return response;
   }
 
-  public async createTransaction(deviceId: string): Promise<ITransactionData> {
-    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`);
+  public async createTransaction(deviceId: string, dataToSend?: INewTransactionData): Promise<ITransactionData> {
+    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`, dataToSend );
     return createTxResponse;
   }
 

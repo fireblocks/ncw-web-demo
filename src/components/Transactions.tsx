@@ -3,17 +3,30 @@ import { useAppStore } from "../AppStore";
 import { TransactionRow } from "./TransactionRow";
 import { IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
+import { NewTxDialog } from "./ui/NewTxDialog";
 
 export const Transactions: React.FC = () => {
-  const { createTransaction, txs } = useAppStore();
+  const { txs, accounts } = useAppStore();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const onCreateTransactionClicked = async () => {
-    await createTransaction();
-  };
+  const onOpenModal = () => setIsModalOpen(true);
+  const onCloseModal = () => setIsModalOpen(false);
+
+  const assetsToSelectFrom = React.useMemo(() => {
+    const assetsList = accounts.map((account) => {
+      return Object.entries(account).map(([_, assetInfo]) => {
+        const { id, name, iconUrl } = assetInfo.asset;
+        return { id, name, iconUrl, balance: assetInfo.balance?.total ?? "" };
+      });
+    });
+
+    return assetsList[0];
+  }, [accounts]);
 
   const createTxAction: IActionButtonProps = {
-    action: onCreateTransactionClicked,
+    action: onOpenModal,
     label: "Create Tx",
+    isDisabled: !assetsToSelectFrom?.length,
   };
 
   return (
@@ -37,6 +50,10 @@ export const Transactions: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {assetsToSelectFrom && (
+        <NewTxDialog isOpen={isModalOpen} onClose={onCloseModal} assetsToSelectFrom={assetsToSelectFrom} />
+      )}
     </Card>
   );
 };

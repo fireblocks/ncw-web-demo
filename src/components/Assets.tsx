@@ -19,6 +19,8 @@ export const Assets: React.FC = () => {
     setIsAddingAsset(true);
     try {
       await addAsset(0, assetIdPrompt);
+      await refreshAccounts();
+      await refreshSupportedAssets(0);
     } finally {
       setIsAddingAsset(false);
       setAssetIdPrompt(null);

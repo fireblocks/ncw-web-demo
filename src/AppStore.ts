@@ -13,7 +13,7 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState, IPassphraseInfo, TPassphrases, TAppMode } from "./IAppState";
+import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
 import { ApiService, ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
@@ -391,7 +391,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const keysStatus = await fireblocksNCW.getKeysStatus();
       set((state) => ({ ...state, keysStatus }));
     },
-    createTransaction: async () => {
+    createTransaction: async (dataToSend?: INewTransactionData) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
@@ -399,7 +399,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const newTxData = await apiService.createTransaction(deviceId);
+      const newTxData = await apiService.createTransaction(deviceId, dataToSend);
       const txs = updateOrAddTx(get().txs, newTxData);
       set((state) => ({ ...state, txs }));
     },

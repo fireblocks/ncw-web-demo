@@ -33,6 +33,16 @@ export interface IBackupInfo {
   createdAt: number;
 }
 
+export interface INewTransactionData {
+  note: string;
+  accountId: string;
+  assetId: string;
+  amount: string;
+  destAddress: string;
+  feeLevel: "LOW" | "MEDIUM" | "HIGH";
+  estimateFee: boolean;
+}
+
 export interface IAppState {
   appMode: TAppMode;
   fireblocksNCWSdkVersion: string;
@@ -72,7 +82,7 @@ export interface IAppState {
   generateNewDeviceId: () => Promise<void>;
   generateMPCKeys: () => Promise<void>;
   stopMpcDeviceSetup: () => Promise<void>;
-  createTransaction: () => Promise<void>;
+  createTransaction: (dataToSend?: INewTransactionData) => Promise<void>;
   cancelTransaction: (txId: string) => Promise<void>;
   signTransaction: (txId: string) => Promise<void>;
   takeover: () => Promise<IFullKey[]>;

@@ -5,6 +5,7 @@ export interface IAutoCompleteItem {
   id: string;
   name: string;
   iconUrl?: string;
+  balance?: string;
 }
 
 type Props = {
@@ -62,7 +63,7 @@ export const Autocomplete = memo((props: Props) => {
                 >
                   <button>
                     <img width={32} height={32} src={item.iconUrl}></img>
-                    {item.name} ({item.id})
+                    {item.name} ({item.id}) {item.balance ? ` / Balance: ${item.balance}` : ""}
                   </button>
                 </li>
               );
