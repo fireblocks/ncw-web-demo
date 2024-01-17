@@ -1,6 +1,8 @@
+import { generateDeviceId as _generateDeviceId } from "@fireblocks/ncw-js-sdk";
+
 const DEVICE_ID_KEY = "DEMO_APP:deviceId";
 
-export const generateDeviceId = () => crypto.randomUUID();
+export const generateDeviceId = () => _generateDeviceId();
 
 export const loadDeviceId = (userId: string) => {
   return localStorage.getItem(`${DEVICE_ID_KEY}-${userId}`);

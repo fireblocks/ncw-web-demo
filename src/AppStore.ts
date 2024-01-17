@@ -1,7 +1,8 @@
 import {
-  ConsoleLogger,
-  FireblocksNCW,
+  ConsoleLoggerFactory,
+  FireblocksNCWFactory,
   IEventsHandler,
+  IFireblocksNCW,
   IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
@@ -11,6 +12,7 @@ import {
   TEnv,
   TEvent,
   TMPCAlgorithm,
+  version,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
@@ -29,7 +31,7 @@ export type TRequestDecodedData = { email: string; requestId: string; platform: 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
-  let fireblocksNCW: FireblocksNCW | null = null;
+  let fireblocksNCW: IFireblocksNCW | null = null;
   const authManager: IAuthManager = new FirebaseAuthManager();
   authManager.onUserChanged((user) => {
     set({ loggedUser: user });
@@ -46,7 +48,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: FireblocksNCW.version,
+    fireblocksNCWSdkVersion: version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
@@ -65,7 +67,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
     fireblocksNCWStatus: "sdk_not_ready",
     addDeviceRequestId: null,
     keysStatus: null,
+    passphrase: null,
     passphrases: null,
+    regeneratePassphrase: () => {},
     accounts: [],
     supportedAssets: {},
     initAppStore: () => {
@@ -171,6 +175,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!userId) {
         throw new Error("First login to demo app server");
       }
+      // const deviceId = generateDeviceId();
       const deviceId = generateDeviceId();
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
       storeDeviceId(deviceId, userId);
@@ -229,7 +234,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("fireblocksNCW is not initialized");
       }
       await fireblocksNCW.requestJoinExistingWallet({
-        onRequestId(requestId) {
+        onRequestId(requestId: string) {
           set((state) => ({ ...state, addDeviceRequestId: requestId }));
         },
       });
@@ -358,13 +363,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
 
-        fireblocksNCW = await FireblocksNCW.initialize({
+        fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
           deviceId,
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: new ConsoleLogger(),
+          logger: ConsoleLoggerFactory(),
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {

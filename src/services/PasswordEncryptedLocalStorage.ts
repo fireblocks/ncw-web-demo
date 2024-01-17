@@ -53,6 +53,13 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
     const encryptedData = await encryptAesGCM(data, this.encKey, this._salt);
     await super.set(key, encryptedData);
   }
+  public getAllKeys(): Promise<string[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  public clear(key: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
 
   private async _generateEncryptionKey(): Promise<string> {
     let key = await this._getPassword();

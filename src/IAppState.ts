@@ -97,7 +97,7 @@ export interface IAppState {
   setPassphrase: (passphrase: string) => void;
   approveJoinWallet: () => Promise<void>;
   joinExistingWallet: () => Promise<void>;
-  stopJoinExistingWallet: () => Promise<void>;
+  stopJoinExistingWallet: () => void;
   regeneratePassphrase: () => void;
   getPassphraseInfos: () => Promise<void>;
   getLatestBackup: () => Promise<void>;

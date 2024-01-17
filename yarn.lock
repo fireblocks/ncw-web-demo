@@ -745,14 +745,12 @@
   dependencies:
     "@types/emscripten" "^1.39.7"
 
-"@fireblocks/ncw-js-sdk@10.0.7-rc.4":
-  version "10.0.7-rc.4"
-  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-10.0.7-rc.4.tgz#a1b8f50725450a86d5f7fe7ea400285ec276e0c9"
-  integrity sha512-lUBJFkFENlCDnFV6OZBv7Z1wIqc1vH0M5XmutwjackKmbJlxDOHN06j+cm5IROtUOwKc/+iPYyyhqgTfE/YcVA==
+"@fireblocks/ncw-js-sdk@11.0.0-beta.1":
+  version "11.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-11.0.0-beta.1.tgz#e7f9d732d36dd65e5252a45a89ad4de1c27f10c4"
+  integrity sha512-D1pMV1Y3mcMVZG0Th1JJg5SMh/TkR47c9YZI4ofQ9hIVUigiCIa1YJArYUDGLnbPRUWfhkhS5I3NXTJLXLvBMA==
   dependencies:
     "@fireblocks/ncw-js-infra" "^1.0.17"
-    "@types/jwt-decode" "^3.1.0"
-    "@types/node-forge" "^1.3.4"
     jwt-decode "^3.1.2"
     node-forge "^1.3.1"
 
@@ -1010,13 +1008,6 @@
   version "7.0.15"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
-
-"@types/jwt-decode@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@types/jwt-decode/-/jwt-decode-3.1.0.tgz#eb1b24f436962b8857beaf8addfd542de56670a2"
-  integrity sha512-tthwik7TKkou3mVnBnvVuHnHElbjtdbM63pdBCbZTirCt3WAdM73Y79mOri7+ljsS99ZVwUFZHLMxJuJnv/z1w==
-  dependencies:
-    jwt-decode "*"
 
 "@types/node-forge@^1.3.4":
   version "1.3.10"
@@ -2048,11 +2039,6 @@ json5@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
-
-jwt-decode@*:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-4.0.0.tgz#2270352425fd413785b2faf11f6e755c5151bd4b"
-  integrity sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==
 
 jwt-decode@^3.1.2:
   version "3.1.2"
