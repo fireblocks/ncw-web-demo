@@ -175,7 +175,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!userId) {
         throw new Error("First login to demo app server");
       }
-      // const deviceId = generateDeviceId();
       const deviceId = generateDeviceId();
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
       storeDeviceId(deviceId, userId);
@@ -365,6 +364,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
+          logLevel: "DEBUG",
           deviceId,
           messagesHandler,
           eventsHandler,
