@@ -54,7 +54,8 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
     await super.set(key, encryptedData);
   }
   public getAllKeys(): Promise<string[]> {
-    throw new Error("Method not implemented.");
+    // TODO: implement
+    return Promise.resolve([]);
   }
 
   public clear(key: string) {
