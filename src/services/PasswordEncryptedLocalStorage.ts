@@ -57,8 +57,9 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
     throw new Error("Method not implemented.");
   }
 
-  public clear(key: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  public clear(key: string) {
+    // TODO: implement
+    return Promise.resolve();
   }
 
   private async _generateEncryptionKey(): Promise<string> {

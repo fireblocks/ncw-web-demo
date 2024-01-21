@@ -8,6 +8,7 @@ import {
   IKeyDescriptor,
   IKeyRecoveryEvent,
   IMessagesHandler,
+  IndexedDBLoggerFactory,
   SigningInProgressError,
   TEnv,
   TEvent,
@@ -369,7 +370,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: ConsoleLoggerFactory(),
+          logger: await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() }),
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
