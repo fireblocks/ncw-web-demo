@@ -1,24 +1,15 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
 import { AssetRow } from "./AssetRow";
 import { Autocomplete } from "./ui/Autocomplete";
+import { Card } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
 
 export const Assets: React.FC = () => {
   const { accounts, refreshAccounts, addAsset, refreshSupportedAssets, supportedAssets } = useAppStore();
   const [assetIdPrompt, setAssetIdPrompt] = React.useState<string | null>(null);
   const [isAddingAsset, setIsAddingAsset] = React.useState(false);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
-
-  const onRefreshClicked = async () => {
-    setIsRefreshing(true);
-    try {
-      await refreshAccounts();
-      await refreshSupportedAssets(0);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
 
   const onAddAssetClicked = async () => {
     if (!assetIdPrompt) {
@@ -28,22 +19,44 @@ export const Assets: React.FC = () => {
     setIsAddingAsset(true);
     try {
       await addAsset(0, assetIdPrompt);
+      await refreshAccounts();
+      await refreshSupportedAssets(0);
     } finally {
       setIsAddingAsset(false);
       setAssetIdPrompt(null);
     }
   };
 
-  const refeshAction: ICardAction = {
+  const onRefreshClicked = async () => {
+    setIsRefreshing(true)
+    try {
+      await refreshAccounts();
+      await refreshSupportedAssets(0);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const hasAccounts = accounts.length > 0;
+
+  React.useEffect(() => {
+    async function fetchAssets() {
+      try {
+        await refreshAccounts();
+        await refreshSupportedAssets(0);
+      } catch (e) {}
+    }
+    fetchAssets();
+  }, []);
+
+  const refreshAction: IActionButtonProps = {
     action: onRefreshClicked,
     label: "Refresh",
     isDisabled: isRefreshing,
   };
 
-  const hasAccounts = accounts.length > 0;
-
   return (
-    <Card title="Assets" actions={[refeshAction]}>
+    <Card title="Assets" actions={[refreshAction]}>
       <div>
         {hasAccounts &&
           accounts.map((account, index) => (
@@ -65,7 +78,7 @@ export const Assets: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-              <div className="grid grid-cols-[150px_auto_100px] gap-2">
+              <div className="grid grid-cols-[150px_auto_100px] gap-2 mb-4">
                 <label className="label">
                   <span className="label-text">Add asset:</span>
                 </label>

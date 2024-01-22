@@ -1,7 +1,8 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
 import { Web3ConnectionRow } from "./Web3ConnectionRow";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Card } from "./ui/Card";
 
 export const Web3: React.FC = () => {
   const {
@@ -18,7 +19,7 @@ export const Web3: React.FC = () => {
     await getWeb3Connections();
   };
 
-  const refeshAction: ICardAction = {
+  const refeshAction: IActionButtonProps = {
     action: onRefreshClicked,
     label: "Refresh",
   };

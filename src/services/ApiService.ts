@@ -1,4 +1,4 @@
-import { IBackupInfo, IPassphraseInfo } from "../IAppState";
+import { IBackupInfo, INewTransactionData, IPassphraseInfo } from "../IAppState";
 import { IAuthManager } from "../auth/IAuthManager";
 
 export type TTransactionStatus =
@@ -218,6 +218,11 @@ export class ApiService {
     return response.walletId;
   }
 
+  public async askToJoinWalletExisting(deviceId: string, walletId: string): Promise<string> {
+    const response = await this._postCall(`api/devices/${deviceId}/join`, { walletId });
+    return response.walletId;
+  }
+
   public sendMessage(deviceId: string, message: string): Promise<any> {
     return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }
@@ -247,8 +252,8 @@ export class ApiService {
     return response;
   }
 
-  public async createTransaction(deviceId: string): Promise<ITransactionData> {
-    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`);
+  public async createTransaction(deviceId: string, dataToSend?: INewTransactionData): Promise<ITransactionData> {
+    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`, dataToSend );
     return createTxResponse;
   }
 
