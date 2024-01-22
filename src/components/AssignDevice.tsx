@@ -94,7 +94,7 @@ export const AssignDevice: React.FC = () => {
               onChange={(e) => setWalletId(e.target.value)}
               placeholder="Wallet id"
             />
-            <Copyable value={walletId} />
+            <Copyable value={walletId ?? ""} />
           </>
         )}
       </div>
