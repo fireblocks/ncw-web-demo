@@ -1,7 +1,8 @@
 import {
-  ConsoleLogger,
-  FireblocksNCW,
+  ConsoleLoggerFactory,
+  FireblocksNCWFactory,
   IEventsHandler,
+  IFireblocksNCW,
   IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
@@ -11,6 +12,7 @@ import {
   TEnv,
   TEvent,
   TMPCAlgorithm,
+  version,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
@@ -21,6 +23,7 @@ import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocal
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
 import { decode } from "js-base64";
+import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -29,7 +32,7 @@ export type TRequestDecodedData = { email: string; requestId: string; platform: 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
-  let fireblocksNCW: FireblocksNCW | null = null;
+  let fireblocksNCW: IFireblocksNCW | null = null;
   const authManager: IAuthManager = new FirebaseAuthManager();
   authManager.onUserChanged((user) => {
     set({ loggedUser: user });
@@ -46,7 +49,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: FireblocksNCW.version,
+    fireblocksNCWSdkVersion: version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
@@ -360,13 +363,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
 
-        fireblocksNCW = await FireblocksNCW.initialize({
+        fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
+          logLevel: "INFO",
           deviceId,
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: new ConsoleLogger(),
+          logger: await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() }),
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
