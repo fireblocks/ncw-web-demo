@@ -1,8 +1,7 @@
 import {
-  ConsoleLoggerFactory,
-  FireblocksNCWFactory,
+  ConsoleLogger,
+  FireblocksNCW,
   IEventsHandler,
-  IFireblocksNCW,
   IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
@@ -12,7 +11,6 @@ import {
   TEnv,
   TEvent,
   TMPCAlgorithm,
-  version,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
@@ -31,7 +29,7 @@ export type TRequestDecodedData = { email: string; requestId: string; platform: 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
-  let fireblocksNCW: IFireblocksNCW | null = null;
+  let fireblocksNCW: FireblocksNCW | null = null;
   const authManager: IAuthManager = new FirebaseAuthManager();
   authManager.onUserChanged((user) => {
     set({ loggedUser: user });
@@ -48,7 +46,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: version,
+    fireblocksNCWSdkVersion: FireblocksNCW.version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
@@ -362,14 +360,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
 
-        fireblocksNCW = await FireblocksNCWFactory({
+        fireblocksNCW = await FireblocksNCW.initialize({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "VERBOSE",
           deviceId,
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: ConsoleLoggerFactory(),
+          logger: new ConsoleLogger(),
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
