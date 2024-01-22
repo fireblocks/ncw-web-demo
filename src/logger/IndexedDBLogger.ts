@@ -25,7 +25,7 @@ export class IndexedDBLogger implements ILogger {
   private _deviceId: string;
   private _logger: ILogger;
 
-  constructor(options: IIndexedDBLoggerOptions) {
+  private constructor(options: IIndexedDBLoggerOptions) {
     this._deviceId = options.deviceId;
     this._logger = options.logger ?? NullLoggerFactory();
     this._dbName = options.dbName ?? DB_NAME;
@@ -60,37 +60,32 @@ export class IndexedDBLogger implements ILogger {
 
   public collect(limit: number | null): Promise<LogEntry[]> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this._dbName, 1);
+      if (!this._dbInstance) {
+        reject("IndexedDB is not initialized");
+        return;
+      }
 
-      request.onsuccess = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
+      const transaction = this._dbInstance.transaction(this._tableName, "readonly");
+      const store = transaction.objectStore(this._tableName);
 
-        const transaction = db.transaction(this._tableName, "readonly");
-        const store = transaction.objectStore(this._tableName);
+      const index = store.index(DEVICE_ID_INDEX);
+      const range = IDBKeyRange.only(this._deviceId);
+      const cursorRequest = index.openCursor(range, "prev");
 
-        const index = store.index(DEVICE_ID_INDEX);
-        const range = IDBKeyRange.only(this._deviceId);
-        const cursorRequest = index.openCursor(range, "prev");
+      const result: LogEntry[] = [];
 
-        const result: LogEntry[] = [];
-
-        cursorRequest.onsuccess = (event) => {
-          const cursor = (event.target as IDBRequest).result;
-          if (!cursor || result.length === limit) {
-            resolve(result);
-          } else {
-            result.push(cursor.value);
-            cursor.continue();
-          }
-        };
-
-        cursorRequest.onerror = () => {
-          reject("Error retrieving logs from IndexedDB");
-        };
+      cursorRequest.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result;
+        if (!cursor || result.length === limit) {
+          resolve(result);
+        } else {
+          result.push(cursor.value);
+          cursor.continue();
+        }
       };
 
-      request.onerror = () => {
-        reject("Error opening IndexedDB");
+      cursorRequest.onerror = () => {
+        reject("Error retrieving logs from IndexedDB");
       };
     });
   }

@@ -70,9 +70,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
     keysStatus: null,
     passphrase: null,
     passphrases: null,
-    regeneratePassphrase: () => {},
     accounts: [],
     supportedAssets: {},
+    logger: null,
+    regeneratePassphrase: () => {},
     initAppStore: () => {
       try {
         apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, authManager);
@@ -362,6 +363,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
           }
           return Promise.resolve(password || "");
         });
+        const logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
+        set((state) => ({ ...state, logger }));
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
@@ -370,7 +373,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() }),
+          logger,
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
@@ -686,6 +689,35 @@ export const useAppStore = create<IAppState>()((set, get) => {
           i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], address } } } : v,
         ),
       }));
+    },
+    collectLogs: async () => {
+      const { logger } = get();
+      if (!logger) {
+        return;
+      }
+      const logs = await logger.collect(null);
+
+      // Download logs
+      const downloadLink = document.createElement("a");
+      downloadLink.href = URL.createObjectURL(new Blob([JSON.stringify(logs)], { type: "text/plain" }));
+      downloadLink.download = "logs.txt";
+      downloadLink.click();
+    },
+    clearLogs: async () => {
+      const { logger } = get();
+      if (!logger) {
+        return;
+      }
+      const clearedLogsNum = await logger.clear(null);
+      logger.log("INFO", `Cleared logs: ${clearedLogsNum}`);
+    },
+    countLogs: async () => {
+      const { logger } = get();
+      if (!logger) {
+        return;
+      }
+      const numberOfLogs = await logger.count();
+      logger.log("INFO", `Number of logs: ${numberOfLogs}`);
     },
   };
 });
