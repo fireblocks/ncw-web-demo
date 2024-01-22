@@ -695,12 +695,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!logger) {
         return;
       }
-      const logs = await logger.collect(null);
+      const limitInput = await prompt("Enter number of logs to collect (empty for all)");
+      const limit = limitInput ? parseInt(limitInput) : null;
+      const logs = await logger.collect(limit);
+      const logsString = logs.map((log) => JSON.stringify(log)).join("\n");
 
-      // Download logs
       const downloadLink = document.createElement("a");
-      downloadLink.href = URL.createObjectURL(new Blob([JSON.stringify(logs)], { type: "text/plain" }));
-      downloadLink.download = "logs.txt";
+      downloadLink.href = URL.createObjectURL(new Blob([logsString], { type: "text/plain" }));
+      downloadLink.download = `${Date.now()}_ncw-sdk-logs.log`;
       downloadLink.click();
     },
     clearLogs: async () => {
@@ -708,7 +710,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!logger) {
         return;
       }
-      const clearedLogsNum = await logger.clear(null);
+      const limitInput = await prompt("Enter number of logs to clear (empty for all)");
+      const limit = limitInput ? parseInt(limitInput) : null;
+      const clearedLogsNum = await logger.clear(limit);
       logger.log("INFO", `Cleared logs: ${clearedLogsNum}`);
     },
     countLogs: async () => {
