@@ -1,4 +1,4 @@
-import { IKeyDescriptor, TMPCAlgorithm, IFullKey, ILogger } from "@fireblocks/ncw-js-sdk";
+import { IKeyDescriptor, TMPCAlgorithm, IFullKey } from "@fireblocks/ncw-js-sdk";
 import { TAsyncActionStatus, TFireblocksNCWStatus } from "./AppStore";
 import {
   IAssetAddress,

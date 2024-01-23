@@ -70,10 +70,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
     keysStatus: null,
     passphrase: null,
     passphrases: null,
+    regeneratePassphrase: () => {},
     accounts: [],
     supportedAssets: {},
     logger: null,
-    regeneratePassphrase: () => {},
     initAppStore: () => {
       try {
         apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, authManager);
