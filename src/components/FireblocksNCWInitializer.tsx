@@ -92,7 +92,10 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   return (
     <>
-      <Card title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV}) - Version ${fireblocksNCWSdkVersion}`} actions={sdkActions}>
+      <Card
+        title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV}) - Version ${fireblocksNCWSdkVersion}`}
+        actions={sdkActions}
+      >
         <div>{fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}</div>
       </Card>
       <AreYouSureDialog

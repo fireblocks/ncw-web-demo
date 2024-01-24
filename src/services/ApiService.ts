@@ -180,7 +180,9 @@ export class ApiService {
     }
 
     this.manager = new Manager(this._baseUrl, { autoConnect: true });
-    this.socket = this.manager.socket("/", { auth: async (cb) => cb({ token: await this.authManager.getAccessToken() }) });
+    this.socket = this.manager.socket("/", {
+      auth: async (cb) => cb({ token: await this.authManager.getAccessToken() }),
+    });
 
     this.socket.on("connect", () => console.log("websocket connected"));
     this.socket.on("disconnect", () => console.log("websocket disconnected"));
@@ -267,7 +269,7 @@ export class ApiService {
   }
 
   public async createTransaction(deviceId: string, dataToSend?: INewTransactionData): Promise<ITransactionData> {
-    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`, dataToSend );
+    const createTxResponse = await this._postCall(`api/devices/${deviceId}/transactions`, dataToSend);
     return createTxResponse;
   }
 
