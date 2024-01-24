@@ -28,7 +28,7 @@ export const Assets: React.FC = () => {
   };
 
   const onRefreshClicked = async () => {
-    setIsRefreshing(true)
+    setIsRefreshing(true);
     try {
       await refreshAccounts();
       await refreshSupportedAssets(0);
