@@ -4,7 +4,8 @@ import { useAppStore } from "../AppStore";
 import { AssignDevice } from "./AssignDevice";
 import { FireblocksNCWInitializer } from "./FireblocksNCWInitializer";
 import { LoginToDemoAppServer } from "./LoginToDemoAppServer";
-import { FireblockNCWExampleActions } from "./FireblockNCWExampleActions";
+import { FireblocksNCWExampleActions } from "./FireblocksNCWExampleActions";
+import { ModeSelector } from "./ModeSelector";
 
 export const AppContent: React.FC = () => {
   const {
@@ -14,6 +15,7 @@ export const AppContent: React.FC = () => {
     fireblocksNCWStatus,
     initAppStore,
     disposeAppStore,
+    appMode,
   } = useAppStore();
 
   React.useEffect(() => {
@@ -35,11 +37,16 @@ export const AppContent: React.FC = () => {
       <LoginToDemoAppServer />
       {loginToDemoAppServerStatus === "success" && (
         <>
-          <AssignDevice />
-          {assignDeviceStatus === "success" && (
+          <ModeSelector />
+          {appMode && (
             <>
-              <FireblocksNCWInitializer />
-              {fireblocksNCWStatus === "sdk_available" && <FireblockNCWExampleActions />}
+              <AssignDevice />
+              {assignDeviceStatus === "success" && (
+                <>
+                  <FireblocksNCWInitializer />
+                  {fireblocksNCWStatus === "sdk_available" && <FireblocksNCWExampleActions />}
+                </>
+              )}
             </>
           )}
         </>

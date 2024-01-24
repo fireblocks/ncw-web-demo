@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 
 import { useAppStore } from "../AppStore";
+import { IActionButtonProps } from "./ui/ActionButton";
 import { Card, ICardAction } from "./ui/Card";
 import { randomPassPhrase } from "../services/randomPassPhrase";
 import { TPassphraseLocation } from "../services/ApiService";

@@ -2,6 +2,7 @@ import {
   ConsoleLogger,
   FireblocksNCW,
   IEventsHandler,
+  IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
   IKeyRecoveryEvent,
@@ -12,16 +13,18 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState, IPassphraseInfo, TPassphrases } from "./IAppState";
+import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
 import { ApiService, ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
+import { decode } from "js-base64";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
+export type TRequestDecodedData = { email: string; requestId: string; platform: string };
 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
@@ -45,7 +48,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
   return {
     fireblocksNCWSdkVersion: FireblocksNCW.version,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
+    joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
+    appMode: null,
     userId: null,
     walletId: null,
     latestBackup: null,
@@ -56,9 +61,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
     deviceId: null,
     loginToDemoAppServerStatus: "not_started",
     assignDeviceStatus: "not_started",
+    joinWalletStatus: "not_started",
     fireblocksNCWStatus: "sdk_not_ready",
+    addDeviceRequestId: null,
     keysStatus: null,
+    passphrase: null,
     passphrases: null,
+    regeneratePassphrase: () => {},
     accounts: [],
     supportedAssets: {},
     initAppStore: () => {
@@ -103,6 +112,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         appStoreInitialized: false,
         loginToDemoAppServerStatus: "not_started",
         assignDeviceStatus: "not_started",
+        joinWalletStatus: "not_started",
         fireblocksNCWStatus: "sdk_not_ready",
         keysStatus: null,
         accounts: [],
@@ -125,6 +135,39 @@ export const useAppStore = create<IAppState>()((set, get) => {
         set((state) => ({ ...state, walletId: null, assignDeviceStatus: "failed" }));
       }
     },
+    askToJoinWalletExisting: async () => {
+      set((state) => ({ ...state, joinWalletStatus: "started" }));
+      if (!apiService) {
+        throw new Error("apiService is not initialized");
+      }
+      const { walletId, deviceId } = get();
+      if (!walletId) {
+        throw new Error("walletId is not set");
+      }
+      if (!deviceId) {
+        throw new Error("deviceId is not set");
+      }
+
+      try {
+        await apiService.askToJoinWalletExisting(deviceId, walletId);
+        set((state) => ({
+          ...state,
+          deviceId,
+          walletId,
+          assignDeviceStatus: "success",
+          joinWalletStatus: "success",
+          joinExistingWalletMode: true,
+        }));
+      } catch (e) {
+        set((state) => ({
+          ...state,
+          deviceId: null,
+          walletId: null,
+          assignDeviceStatus: "failed",
+          joinWalletStatus: "failed",
+        }));
+      }
+    },
     generateNewDeviceId: async () => {
       const { userId } = get();
       if (!userId) {
@@ -134,6 +177,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       set((state) => ({ ...state, deviceId, walletId: null, assignDeviceStatus: "not_started" }));
       storeDeviceId(deviceId, userId);
     },
+    setAppMode: (appMode: TAppMode) => {
+      set((state) => ({ ...state, appMode, assignDeviceStatus: "not_started" }));
+    },
     setDeviceId: (deviceId: string) => {
       const { userId } = get();
       if (!userId) {
@@ -141,6 +187,15 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       storeDeviceId(deviceId, userId);
       set((state) => ({ ...state, deviceId }));
+    },
+    setWalletId: (walletId: string) => {
+      set((state) => ({ ...state, walletId }));
+    },
+    setPassphrase: (passphrase: string) => {
+      const { userId } = get();
+      if (!userId) {
+        throw new Error("First login to demo app server");
+      }
     },
     getLatestBackup: async () => {
       if (!apiService) {
@@ -152,6 +207,40 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       const latestBackup = await apiService.getLatestBackup(walletId);
       set((state) => ({ ...state, latestBackup }));
+    },
+    approveJoinWallet: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      const requestData = await prompt("Insert encoded request data");
+      if (requestData) {
+        try {
+          const decodedData: TRequestDecodedData = JSON.parse(decode(requestData));
+          const result = await fireblocksNCW.approveJoinWalletRequest(decodedData.requestId);
+          console.log("approveJoinWallet result:", result);
+        } catch (e) {
+          console.error(e);
+        }
+        // set((state) => ({ ...state, passphrase }));
+      } else {
+        console.log("approveJoinWallet cancelled");
+      }
+    },
+    joinExistingWallet: async () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      await fireblocksNCW.requestJoinExistingWallet({
+        onRequestId(requestId: string) {
+          set((state) => ({ ...state, addDeviceRequestId: requestId }));
+        },
+      });
+    },
+    stopJoinExistingWallet: () => {
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      fireblocksNCW.stopJoinWallet();
     },
     getPassphraseInfos: async () => {
       if (!apiService) {
@@ -251,6 +340,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
               case "keys_recovery":
                 console.log(`Key recover status: ${JSON.stringify((event as IKeyRecoveryEvent).keyDescriptor)}`);
                 break;
+
+              case "join_wallet_descriptor":
+                console.log(`join wallet event: ${JSON.stringify((event as IJoinWalletEvent).joinWalletDescriptor)}`);
+                break;
             }
           },
         };
@@ -300,7 +393,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const keysStatus = await fireblocksNCW.getKeysStatus();
       set((state) => ({ ...state, keysStatus }));
     },
-    createTransaction: async () => {
+    createTransaction: async (dataToSend?: INewTransactionData) => {
       if (!apiService) {
         throw new Error("apiService is not initialized");
       }
@@ -308,7 +401,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const newTxData = await apiService.createTransaction(deviceId);
+      const newTxData = await apiService.createTransaction(deviceId, dataToSend);
       const txs = updateOrAddTx(get().txs, newTxData);
       set((state) => ({ ...state, txs }));
     },

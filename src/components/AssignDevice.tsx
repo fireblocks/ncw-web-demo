@@ -1,18 +1,23 @@
 import React from "react";
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
-
-const uuidRegex = new RegExp("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", "i");
+import { Card } from "./ui/Card";
+import { validateGuid } from "./validateGuid";
+import { IActionButtonProps } from "./ui/ActionButton";
+import { Copyable } from "./ui/Copyable";
 
 export const AssignDevice: React.FC = () => {
   const {
     walletId,
     deviceId,
     setDeviceId,
+    setWalletId,
+    askToJoinWalletExisting,
     assignDeviceStatus,
+    joinWalletStatus,
     automateInitialization,
     assignCurrentDevice,
     generateNewDeviceId,
+    appMode,
   } = useAppStore();
 
   React.useEffect(() => {
@@ -21,42 +26,78 @@ export const AssignDevice: React.FC = () => {
     }
   }, [automateInitialization, walletId]);
 
-  const isValidDeviceId = deviceId && uuidRegex.test(deviceId);
+  React.useEffect(() => {
+    if (appMode === "JOIN") {
+      generateNewDeviceId();
+    }
+  }, [appMode]);
 
-  const generateNewDeviceIdAction: ICardAction = {
+  const isValidDeviceId = validateGuid(deviceId);
+  const isValidWalletId = validateGuid(walletId);
+
+  const blockActions = React.useMemo(() => {
+    if (appMode === "SIGN_IN") {
+      return assignDeviceStatus === "started" || assignDeviceStatus === "success";
+    } else {
+      return joinWalletStatus === "started";
+    }
+  }, [appMode, assignDeviceStatus, joinWalletStatus]);
+
+  const generateNewDeviceIdAction: IActionButtonProps = {
     action: generateNewDeviceId,
-    isDisabled: assignDeviceStatus === "started" || !walletId,
+    isDisabled: assignDeviceStatus === "started" || joinWalletStatus === "started",
     label: "Generate new Device ID",
   };
 
-  const assignDeviceAction: ICardAction = {
+  const assignDeviceAction: IActionButtonProps = {
     action: assignCurrentDevice,
-    isDisabled: assignDeviceStatus !== "not_started" || !isValidDeviceId,
+    isDisabled: blockActions || !isValidDeviceId,
     isInProgress: assignDeviceStatus === "started",
     label: "Assign Device",
   };
 
+  const joinWalletAction: IActionButtonProps = {
+    action: askToJoinWalletExisting,
+    isDisabled: blockActions || !isValidWalletId,
+    isInProgress: assignDeviceStatus === "started",
+    label: "Join Existing Wallet",
+  };
+
   return (
-    <Card title="Device ID" actions={[assignDeviceAction, generateNewDeviceIdAction]}>
-      <div className="grid grid-cols-[150px_auto] gap-2">
+    <Card
+      title="Device ID"
+      actions={[generateNewDeviceIdAction, appMode === "SIGN_IN" ? assignDeviceAction : joinWalletAction]}
+    >
+      <div className="grid grid-cols-[150px_auto_20px] gap-2 mb-4">
         <label className="label">
           <span className="label-text">Device ID:</span>
         </label>
         <input
           type="text"
-          disabled={!!walletId}
+          disabled={blockActions}
           value={deviceId ?? ""}
           className="input input-bordered"
           onChange={(e) => setDeviceId(e.target.value)}
+          placeholder="Device id"
         />
+        {deviceId ? <Copyable value={deviceId} /> : <span />}
+        {(walletId || appMode === "JOIN") && (
+          <>
+            <label className="label">
+              <span className="label-text">Wallet ID:</span>
+            </label>
+            <input
+              type="text"
+              disabled={blockActions || appMode === "SIGN_IN"}
+              value={walletId ?? ""}
+              className="input input-bordered"
+              onChange={(e) => setWalletId(e.target.value)}
+              placeholder="Wallet id"
+            />
+            <Copyable value={walletId ?? ""} />
+          </>
+        )}
       </div>
-      {walletId && (
-        <div className="mockup-code">
-          <pre>
-            <code>Wallet ID: {walletId}</code>
-          </pre>
-        </div>
-      )}
       {assignDeviceStatus === "failed" && (
         <div className="alert alert-error shadow-lg">
           <div>

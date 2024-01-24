@@ -24,6 +24,7 @@ export interface IPassphraseInfo {
 
 type TAccount = Record<string, IAssetInfo>;
 type TSupportedAssets = Record<string, IWalletAsset>;
+export type TAppMode = "SIGN_IN" | "JOIN" | null;
 export type TPassphrases = Record<string, IPassphraseInfo>;
 
 export interface IBackupInfo {
@@ -32,9 +33,21 @@ export interface IBackupInfo {
   createdAt: number;
 }
 
+export interface INewTransactionData {
+  note: string;
+  accountId: string;
+  assetId: string;
+  amount: string;
+  destAddress: string;
+  feeLevel: "LOW" | "MEDIUM" | "HIGH";
+  estimateFee: boolean;
+}
+
 export interface IAppState {
+  appMode: TAppMode;
   fireblocksNCWSdkVersion: string;
   automateInitialization: boolean;
+  joinExistingWalletMode: boolean;
   loggedUser: IUser | null;
   userId: string | null;
   deviceId: string | null;
@@ -46,8 +59,11 @@ export interface IAppState {
   appStoreInitialized: boolean;
   loginToDemoAppServerStatus: TAsyncActionStatus;
   assignDeviceStatus: TAsyncActionStatus;
+  joinWalletStatus: TAsyncActionStatus;
   fireblocksNCWStatus: TFireblocksNCWStatus;
   keysStatus: Record<TMPCAlgorithm, IKeyDescriptor> | null;
+  passphrase: string | null;
+  addDeviceRequestId: string | null;
   accounts: TAccount[];
   passphrases: TPassphrases | null;
   supportedAssets: Record<number, TSupportedAssets>;
@@ -55,15 +71,18 @@ export interface IAppState {
   disposeAppStore: () => void;
   getGoogleDriveCredentials: () => Promise<string>;
   login(provider: "GOOGLE" | "APPLE"): Promise<void>;
+  setAppMode: (mode: TAppMode) => void;
   logout: () => Promise<void>;
   clearSDKStorage: () => Promise<void>;
   setDeviceId: (deviceId: string) => void;
+  setWalletId: (walletId: string) => void;
   loginToDemoAppServer: () => void;
   assignCurrentDevice: () => Promise<void>;
+  askToJoinWalletExisting: () => Promise<void>;
   generateNewDeviceId: () => Promise<void>;
   generateMPCKeys: () => Promise<void>;
   stopMpcDeviceSetup: () => Promise<void>;
-  createTransaction: () => Promise<void>;
+  createTransaction: (dataToSend?: INewTransactionData) => Promise<void>;
   cancelTransaction: (txId: string) => Promise<void>;
   signTransaction: (txId: string) => Promise<void>;
   takeover: () => Promise<IFullKey[]>;
@@ -75,6 +94,11 @@ export interface IAppState {
     change: number,
     index: number,
   ) => string;
+  setPassphrase: (passphrase: string) => void;
+  approveJoinWallet: () => Promise<void>;
+  joinExistingWallet: () => Promise<void>;
+  stopJoinExistingWallet: () => void;
+  regeneratePassphrase: () => void;
   getPassphraseInfos: () => Promise<void>;
   getLatestBackup: () => Promise<void>;
   createPassphraseInfo: (passphraseId: string, location: TPassphraseLocation) => Promise<void>;

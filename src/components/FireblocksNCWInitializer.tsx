@@ -1,8 +1,10 @@
 import React from "react";
 
 import { useAppStore } from "../AppStore";
-import { Card, ICardAction } from "./ui/Card";
+import { IActionButtonProps } from "./ui/ActionButton";
 import { AreYouSureDialog } from "./ui/AreYouSureDialog";
+import { Card } from "./ui/Card";
+import { ENV_CONFIG } from "../env_config";
 
 export const FireblocksNCWInitializer: React.FC = () => {
   const {
@@ -25,8 +27,10 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   const onClearSDKStorageApproved = async () => {
     setIsAreYouSureDialogOpen(false);
+    localStorage.clear();
     await clearSDKStorage();
     await initFireblocksNCW();
+    location.reload();
   };
 
   // An easy way to auto-initialize
@@ -44,7 +48,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
     [],
   );
 
-  let sdkActions: ICardAction[];
+  let sdkActions: IActionButtonProps[];
 
   switch (fireblocksNCWStatus) {
     case "sdk_not_ready":
@@ -88,7 +92,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   return (
     <>
-      <Card title={`Fireblocks SDK - Version ${fireblocksNCWSdkVersion}`} actions={sdkActions}>
+      <Card title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV}) - Version ${fireblocksNCWSdkVersion}`} actions={sdkActions}>
         <div>{fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}</div>
       </Card>
       <AreYouSureDialog

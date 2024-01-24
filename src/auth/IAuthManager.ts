@@ -1,5 +1,6 @@
 export interface IUser {
   displayName: string | null;
+  email: string | null;
 }
 
 export interface IAuthManager {
