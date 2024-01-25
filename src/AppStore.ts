@@ -7,12 +7,13 @@ import {
   IKeyBackupEvent,
   IKeyDescriptor,
   IKeyRecoveryEvent,
+  ILogger,
   IMessagesHandler,
   SigningInProgressError,
   TEnv,
   TEvent,
   TMPCAlgorithm,
-  version,
+  version as fireblocksNCWSdkVersion,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
@@ -24,11 +25,13 @@ import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
 import { decode } from "js-base64";
 import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
+import { IndexedDBLogger } from "./logger/IndexedDBLogger";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
 export type TRequestDecodedData = { email: string; requestId: string; platform: string };
 
+let logger: IndexedDBLogger | null = null;
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
@@ -49,7 +52,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: version,
+    fireblocksNCWSdkVersion,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
@@ -73,7 +76,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
     regeneratePassphrase: () => {},
     accounts: [],
     supportedAssets: {},
-    logger: null,
     initAppStore: () => {
       try {
         apiService = new ApiService(ENV_CONFIG.BACKEND_BASE_URL, authManager);
@@ -363,8 +365,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           }
           return Promise.resolve(password || "");
         });
-        const logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
-        set((state) => ({ ...state, logger }));
+        logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
@@ -695,7 +696,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }));
     },
     collectLogs: async () => {
-      const { logger } = get();
       if (!logger) {
         return;
       }
@@ -710,7 +710,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       downloadLink.click();
     },
     clearLogs: async () => {
-      const { logger } = get();
       if (!logger) {
         return;
       }
@@ -720,7 +719,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
       logger.log("INFO", `Cleared logs: ${clearedLogsNum}`);
     },
     countLogs: async () => {
-      const { logger } = get();
       if (!logger) {
         return;
       }
