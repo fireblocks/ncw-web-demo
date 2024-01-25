@@ -10,7 +10,6 @@ import {
   TPassphraseLocation,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
-import { IndexedDBLogger } from "./logger/IndexedDBLogger";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
@@ -68,7 +67,6 @@ export interface IAppState {
   accounts: TAccount[];
   passphrases: TPassphrases | null;
   supportedAssets: Record<number, TSupportedAssets>;
-  logger: IndexedDBLogger | null;
   initAppStore: () => void;
   disposeAppStore: () => void;
   getGoogleDriveCredentials: () => Promise<string>;
@@ -119,7 +117,7 @@ export interface IAppState {
   refreshSupportedAssets: (accountId: number) => Promise<void>;
   refreshAddress: (accountId: number, assetId: string) => Promise<void>;
   addAsset: (accountId: number, assetId: string) => Promise<void>;
-  countLogs: () => void;
-  clearLogs: () => void;
-  collectLogs: () => void;
+  countLogs: () => Promise<void>;
+  clearLogs: () => Promise<void>;
+  collectLogs: () => Promise<void>;
 }
