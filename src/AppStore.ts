@@ -368,7 +368,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "INFO",
+          logLevel: "DEBUG",
           deviceId,
           messagesHandler,
           eventsHandler,
@@ -528,7 +528,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const ALGORITHMS = new Set<TMPCAlgorithm>(["MPC_CMP_ECDSA_SECP256K1"]);
+      const ALGORITHMS = new Set<TMPCAlgorithm>([
+        //
+        // "MPC_CMP_ECDSA_SECP256K1",
+        "MPC_CMP_EDDSA_ED25519",
+      ]);
       await fireblocksNCW.generateMPCKeys(ALGORITHMS);
     },
     stopMpcDeviceSetup: async () => {

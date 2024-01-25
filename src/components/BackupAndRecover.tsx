@@ -196,7 +196,7 @@ export const BackupAndRecover: React.FC = () => {
   };
 
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
-  const ed25519Status = keysStatus?.MPC_EDDSA_ED25519?.keyStatus ?? null;
+  const ed25519Status = keysStatus?.MPC_CMP_EDDSA_ED25519?.keyStatus ?? null;
   const hasReadyAlgo = secP256K1Status === "READY" || ed25519Status === "READY";
 
   const googleBackupAction: ICardAction = {

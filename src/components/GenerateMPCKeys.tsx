@@ -54,6 +54,7 @@ export const GenerateMPCKeys: React.FC = () => {
   };
 
   const secP256K1Status = keysStatus?.MPC_CMP_ECDSA_SECP256K1?.keyStatus ?? null;
+  const ed25519Status = keysStatus?.MPC_CMP_EDDSA_ED25519?.keyStatus ?? null;
   const statusToProgress = (status: TKeyStatus | null) => {
     switch (status) {
       case "INITIATED":
@@ -71,11 +72,12 @@ export const GenerateMPCKeys: React.FC = () => {
     }
   };
   const secP256K1Ready = secP256K1Status === "READY";
+  const ed25519Ready = ed25519Status === "READY";
 
   const generateAction: IActionButtonProps = {
     label: "Generate MPC Keys",
     action: doGenerateMPCKeys,
-    isDisabled: isGenerateInProgress || secP256K1Ready,
+    isDisabled: isGenerateInProgress || (secP256K1Ready && ed25519Ready),
     isInProgress: isGenerateInProgress,
   };
 
@@ -89,7 +91,7 @@ export const GenerateMPCKeys: React.FC = () => {
   const approveJoinWalletAction: IActionButtonProps = {
     label: "Approve Join Wallet",
     action: approveJoinWallet,
-    isDisabled: (isStopInProgress || isGenerateInProgress) && secP256K1Ready,
+    isDisabled: (isStopInProgress || isGenerateInProgress) && (ed25519Ready || secP256K1Ready),
   };
   const stopApproveWalletAction: IActionButtonProps = {
     label: "Stop Approve Join Wallet",
@@ -125,6 +127,20 @@ export const GenerateMPCKeys: React.FC = () => {
                 <progress
                   className="progress progress-primary"
                   value={statusToProgress(secP256K1Status)}
+                  max="100"
+                ></progress>
+              </td>
+            </tr>
+          </tbody>
+          <tbody>
+            <tr>
+              <th>
+                <span className="label-text">ECDSA ED25519</span>
+              </th>
+              <td colSpan={5}>
+                <progress
+                  className="progress progress-primary"
+                  value={statusToProgress(ed25519Status)}
                   max="100"
                 ></progress>
               </td>
