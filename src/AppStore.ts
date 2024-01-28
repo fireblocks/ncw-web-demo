@@ -31,11 +31,11 @@ export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
 export type TRequestDecodedData = { email: string; requestId: string; platform: string };
 
-let logger: IndexedDBLogger | null = null;
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
   let fireblocksNCW: IFireblocksNCW | null = null;
+  let logger: IndexedDBLogger | null = null;
   const authManager: IAuthManager = new FirebaseAuthManager();
   authManager.onUserChanged((user) => {
     set({ loggedUser: user });
@@ -369,7 +369,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "DEBUG",
+          logLevel: "INFO",
           deviceId,
           messagesHandler,
           eventsHandler,
@@ -708,6 +708,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       downloadLink.href = URL.createObjectURL(new Blob([logsString], { type: "text/plain" }));
       downloadLink.download = `${Date.now()}_ncw-sdk-logs.log`;
       downloadLink.click();
+      logger.log("INFO", `Collected ${logs.length} logs`);
     },
     clearLogs: async () => {
       if (!logger) {

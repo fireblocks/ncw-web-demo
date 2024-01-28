@@ -89,12 +89,12 @@ export const GenerateMPCKeys: React.FC = () => {
   };
 
   const approveJoinWalletAction: IActionButtonProps = {
-    label: "Approve Join Wallet",
+    label: "Approve Joining Wallet",
     action: approveJoinWallet,
     isDisabled: (isStopInProgress || isGenerateInProgress) && (ed25519Ready || secP256K1Ready),
   };
   const stopApproveWalletAction: IActionButtonProps = {
-    label: "Stop Approve Join Wallet",
+    label: "Stop Join Process",
     action: stopJoinExistingWallet,
   };
 
