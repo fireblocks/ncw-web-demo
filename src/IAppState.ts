@@ -117,4 +117,7 @@ export interface IAppState {
   refreshSupportedAssets: (accountId: number) => Promise<void>;
   refreshAddress: (accountId: number, assetId: string) => Promise<void>;
   addAsset: (accountId: number, assetId: string) => Promise<void>;
+  countLogs: () => Promise<void>;
+  clearLogs: () => Promise<void>;
+  collectLogs: () => Promise<void>;
 }

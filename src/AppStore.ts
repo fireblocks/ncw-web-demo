@@ -1,16 +1,19 @@
 import {
-  ConsoleLogger,
-  FireblocksNCW,
+  ConsoleLoggerFactory,
+  FireblocksNCWFactory,
   IEventsHandler,
+  IFireblocksNCW,
   IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
   IKeyRecoveryEvent,
+  ILogger,
   IMessagesHandler,
   SigningInProgressError,
   TEnv,
   TEvent,
   TMPCAlgorithm,
+  version as fireblocksNCWSdkVersion,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
@@ -21,6 +24,8 @@ import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocal
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
 import { decode } from "js-base64";
+import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
+import { IndexedDBLogger } from "./logger/IndexedDBLogger";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -29,7 +34,8 @@ export type TRequestDecodedData = { email: string; requestId: string; platform: 
 export const useAppStore = create<IAppState>()((set, get) => {
   let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
-  let fireblocksNCW: FireblocksNCW | null = null;
+  let fireblocksNCW: IFireblocksNCW | null = null;
+  let logger: IndexedDBLogger | null = null;
   const authManager: IAuthManager = new FirebaseAuthManager();
   authManager.onUserChanged((user) => {
     set({ loggedUser: user });
@@ -46,7 +52,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: FireblocksNCW.version,
+    fireblocksNCWSdkVersion,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
@@ -359,14 +365,16 @@ export const useAppStore = create<IAppState>()((set, get) => {
           }
           return Promise.resolve(password || "");
         });
+        logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
 
-        fireblocksNCW = await FireblocksNCW.initialize({
+        fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
+          logLevel: "INFO",
           deviceId,
           messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger: new ConsoleLogger(),
+          logger,
         });
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
@@ -682,6 +690,37 @@ export const useAppStore = create<IAppState>()((set, get) => {
           i === accountId ? { ...v, ...{ [assetId]: { ...v[assetId], address } } } : v,
         ),
       }));
+    },
+    collectLogs: async () => {
+      if (!logger) {
+        return;
+      }
+      const limitInput = await prompt("Enter number of logs to collect (empty for all)");
+      const limit = limitInput ? parseInt(limitInput) : null;
+      const logs = await logger.collect(limit);
+      const logsString = logs.map((log) => JSON.stringify(log)).join("\n");
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = URL.createObjectURL(new Blob([logsString], { type: "text/plain" }));
+      downloadLink.download = `${Date.now()}_ncw-sdk-logs.log`;
+      downloadLink.click();
+      logger.log("INFO", `Collected ${logs.length} logs`);
+    },
+    clearLogs: async () => {
+      if (!logger) {
+        return;
+      }
+      const limitInput = await prompt("Enter number of logs to clear (empty for all)");
+      const limit = limitInput ? parseInt(limitInput) : null;
+      const clearedLogsNum = await logger.clear(limit);
+      logger.log("INFO", `Cleared logs: ${clearedLogsNum}`);
+    },
+    countLogs: async () => {
+      if (!logger) {
+        return;
+      }
+      const numberOfLogs = await logger.count();
+      logger.log("INFO", `Number of logs: ${numberOfLogs}`);
     },
   };
 });
