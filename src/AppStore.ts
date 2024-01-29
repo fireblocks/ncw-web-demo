@@ -531,7 +531,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       const ALGORITHMS = new Set<TMPCAlgorithm>([
         //
-        // "MPC_CMP_ECDSA_SECP256K1",
+        "MPC_CMP_ECDSA_SECP256K1",
         "MPC_CMP_EDDSA_ED25519",
       ]);
       await fireblocksNCW.generateMPCKeys(ALGORITHMS);

@@ -135,7 +135,7 @@ export const GenerateMPCKeys: React.FC = () => {
           <tbody>
             <tr>
               <th>
-                <span className="label-text">ECDSA ED25519</span>
+                <span className="label-text">EDDSA ED25519</span>
               </th>
               <td colSpan={5}>
                 <progress
