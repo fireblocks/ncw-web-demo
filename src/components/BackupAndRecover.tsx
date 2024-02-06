@@ -8,6 +8,8 @@ import { TPassphraseLocation } from "../services/ApiService";
 import { gdriveBackup, gdriveRecover } from "../services/GoogleDrive";
 import { cloudkitBackup, cloudkitRecover } from "../services/Cloudkit";
 import { useCloudkit } from "./Cloudkit";
+import { FireblocksError } from "@fireblocks/ncw-js-sdk";
+import { getErrorMessage } from "./utils/error-utils";
 
 export const BackupAndRecover: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
@@ -164,7 +166,9 @@ export const BackupAndRecover: React.FC = () => {
       setBackupCompleted(true);
       setIsBackupInProgress(false);
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      if (err instanceof FireblocksError) {
+        setErr(getErrorMessage(err));
+      } else if (err instanceof Error) {
         setErr(err.message);
       } else {
         setErr("Unknown Error");
