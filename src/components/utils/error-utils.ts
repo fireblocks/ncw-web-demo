@@ -11,5 +11,5 @@ export function handleError(error: unknown, setErr: React.Dispatch<React.SetStat
 }
 
 function getErrorMessage(error: FireblocksError): string {
-  return JSON.stringify({ error: error.message, key: error.key, code: error.code });
+  return JSON.stringify({ message: error.message, key: error.key, code: error.code });
 }

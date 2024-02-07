@@ -23,7 +23,6 @@ export const GenerateMPCKeys: React.FC = () => {
       setGenerateMPCKeysResult("Success");
       setIsGenerateInProgress(false);
     } catch (err: unknown) {
-      console.log("@@@ DEBUGS | doGenerateMPCKeys | err:", err)
       handleError(err, setErr);
     } finally {
       setIsGenerateInProgress(false);
