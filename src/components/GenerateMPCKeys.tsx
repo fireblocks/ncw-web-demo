@@ -1,11 +1,11 @@
 import React from "react";
 
-import { FireblocksError, TKeyStatus } from "@fireblocks/ncw-js-sdk";
+import { TKeyStatus } from "@fireblocks/ncw-js-sdk";
 import { useAppStore } from "../AppStore";
 import { IActionButtonProps } from "./ui/ActionButton";
 import { Card } from "./ui/Card";
 import { ENV_CONFIG } from "../env_config";
-import { getErrorMessage } from "./utils/error-utils";
+import { handleError } from "./utils/error-utils";
 
 export const GenerateMPCKeys: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
@@ -23,17 +23,8 @@ export const GenerateMPCKeys: React.FC = () => {
       setGenerateMPCKeysResult("Success");
       setIsGenerateInProgress(false);
     } catch (err: unknown) {
-      if (err instanceof FireblocksError) {
-        setErr(getErrorMessage(err));
-      } else if (err instanceof Error) {
-        setErr(err.message);
-      } else {
-        if (typeof err === "string") {
-          setErr(err);
-        } else {
-          setErr("Unknown Error");
-        }
-      }
+      console.log("@@@ DEBUGS | doGenerateMPCKeys | err:", err)
+      handleError(err, setErr);
     } finally {
       setIsGenerateInProgress(false);
     }
@@ -46,13 +37,7 @@ export const GenerateMPCKeys: React.FC = () => {
       await stopMpcDeviceSetup();
       setIsStopInProgress(false);
     } catch (err: unknown) {
-      if (err instanceof FireblocksError) {
-        getErrorMessage(err);
-      } else if (err instanceof Error) {
-        setErr(err.message);
-      } else {
-        setErr("Unknown Error");
-      }
+      handleError(err, setErr);
     } finally {
       setIsStopInProgress(false);
     }

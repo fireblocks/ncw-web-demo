@@ -1,5 +1,15 @@
 import { FireblocksError } from "@fireblocks/ncw-js-sdk";
 
-export function getErrorMessage(error: FireblocksError): string {
-  return `Error: ${error.message} ${JSON.stringify({ key: error.key, code: error.code })}`;
+export function handleError(error: unknown, setErr: React.Dispatch<React.SetStateAction<string | null>>): void {
+  if (error instanceof FireblocksError) {
+    setErr(getErrorMessage(error));
+  } else if (error instanceof Error) {
+    setErr(error.message);
+  } else {
+    setErr("Unknown Error");
+  }
+}
+
+function getErrorMessage(error: FireblocksError): string {
+  return JSON.stringify({ error: error.message, key: error.key, code: error.code });
 }
