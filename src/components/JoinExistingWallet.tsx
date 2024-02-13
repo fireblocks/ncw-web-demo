@@ -8,6 +8,7 @@ import { Copyable } from "./ui/Copyable";
 import { ENV_CONFIG } from "../env_config";
 import { QRDialog } from "./ui/QRDialog";
 import { encode } from "js-base64";
+import { handleError } from "./utils/error-utils";
 
 export const JoinExistingWallet: React.FC = () => {
   const [err, setErr] = React.useState<string | null>(null);
@@ -28,15 +29,7 @@ export const JoinExistingWallet: React.FC = () => {
       setJoinExistingWalletResult("Success");
       setIsJoinInProgress(false);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setErr(err.message);
-      } else {
-        if (typeof err === "string") {
-          setErr(err);
-        } else {
-          setErr("Unknown Error");
-        }
-      }
+      handleError(err, setErr);
     } finally {
       setIsJoinInProgress(false);
     }
