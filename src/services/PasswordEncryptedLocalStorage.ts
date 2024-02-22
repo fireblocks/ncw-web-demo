@@ -5,7 +5,7 @@ import {
   decryptAesGCM,
   encryptAesGCM,
 } from "@fireblocks/ncw-js-sdk";
-import { sha256 } from "node-forge";
+import { md } from "node-forge";
 
 export type GetUserPasswordCallback = () => Promise<string>;
 
@@ -65,11 +65,11 @@ export class PasswordEncryptedLocalStorage extends BrowserLocalStorageProvider i
 
   private async _generateEncryptionKey(): Promise<string> {
     let key = await this._getPassword();
-    const sha = sha256.create();
+    const md5 = md.md5.create();
 
     for (let i = 0; i < 1000; ++i) {
-      sha.update(key);
-      key = sha.digest().toHex();
+      md5.update(key);
+      key = md5.digest().toHex();
     }
 
     return key;
