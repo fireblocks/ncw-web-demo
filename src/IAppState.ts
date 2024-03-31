@@ -37,10 +37,10 @@ export interface INewTransactionData {
   note: string;
   accountId: string;
   assetId: string;
-  amount: string;
-  destAddress: string;
-  feeLevel: "LOW" | "MEDIUM" | "HIGH";
-  estimateFee: boolean;
+  amount?: string;
+  destAddress?: string;
+  feeLevel?: "LOW" | "MEDIUM" | "HIGH";
+  estimateFee?: boolean;
 }
 
 export interface IAppState {

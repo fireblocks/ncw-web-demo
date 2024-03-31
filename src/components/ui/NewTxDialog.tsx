@@ -31,13 +31,15 @@ export const NewTxDialog: React.FC<IProps> = ({ isOpen, onClose, assetsToSelectF
   };
 
   const onCreateTransactionClicked = async () => {
-    let dataToSend: INewTransactionData | undefined;
+    let dataToSend: INewTransactionData = {
+      note: `API Transaction by ${deviceId}`,
+      accountId: "0",
+      assetId: assetIdPrompt,
+    }
 
     if (txType === "transfer") {
       dataToSend = {
-        note: `API Transaction by ${deviceId}`,
-        accountId: "0",
-        assetId: assetIdPrompt,
+        ...dataToSend,
         amount: amount,
         destAddress: destinationAddress,
         feeLevel: txFee,
