@@ -586,14 +586,19 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const address = await apiService.addAsset(deviceId, accountId, assetId);
-      const asset = await apiService.getAsset(deviceId, accountId, assetId);
-      set((state) => ({
-        ...state,
-        accounts: state.accounts.map((assets, index) =>
-          index === accountId ? { ...assets, ...{ [assetId]: { asset, address } } } : assets,
-        ),
-      }));
+      try {
+        const address = await apiService.addAsset(deviceId, accountId, assetId);
+        console.log("@@@ DEBUGS | addAsset: | address:", address);
+        const asset = await apiService.getAsset(deviceId, accountId, assetId);
+        set((state) => ({
+          ...state,
+          accounts: state.accounts.map((assets, index) =>
+            index === accountId ? { ...assets, ...{ [assetId]: { asset, address } } } : assets,
+          ),
+        }));
+      } catch (error) {
+        console.log("@@@ DEBUGS | addAsset: | error:", error);
+      }
     },
 
     refreshAccounts: async () => {
@@ -629,6 +634,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
       const assets = await apiService.getAssets(deviceId, accountId);
+      console.log("@@@ DEBUGS | refreshAssets: | assets:", assets);
       const reduced = assets.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => {
         acc[asset.id] = { asset };
         return acc;
