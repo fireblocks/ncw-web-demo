@@ -407,10 +407,12 @@ export class ApiService {
       body: JSON.stringify(body ?? {}),
     });
 
-    if (!response.ok) {
-      throw new Error(`A call to "${path}" failed with status ${response.status}`);
-    }
     const responseJson = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        `A call to "${path}" failed with status ${response.status}, data: ${JSON.stringify(responseJson)}`,
+      );
+    }
     return responseJson;
   }
 
