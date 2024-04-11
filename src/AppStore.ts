@@ -369,7 +369,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "VERBOSE",
+          logLevel: "INFO",
           deviceId,
           messagesHandler,
           eventsHandler,
@@ -534,9 +534,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         "MPC_CMP_ECDSA_SECP256K1",
         "MPC_CMP_EDDSA_ED25519",
       ]);
-      const start = Date.now();
-      const res = await fireblocksNCW.generateMPCKeys(ALGORITHMS);
-      console.log(`@@@ DEBUGS | generateMPCKeys: | took: ${Date.now() - start}`, res);
+      await fireblocksNCW.generateMPCKeys(ALGORITHMS);
     },
     stopMpcDeviceSetup: async () => {
       if (!fireblocksNCW) {
@@ -689,7 +687,6 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
       const address = await apiService.getAddress(deviceId, accountId, assetId);
-      console.log("@@@ DEBUGS | refreshAddress: | address:", address)
 
       set((state) => ({
         ...state,
