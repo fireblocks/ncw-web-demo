@@ -525,6 +525,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
     },
+    /**
+     * By default, tenants are not enabled with EdDSA so you may remove `MPC_CMP_EDDSA_ED25519` when calling generateMPCKeys
+     * Please ask your CSM or in the https://community.fireblocks.com/ to enable your tenant to support EdDSA if you wish to work with EdDSA chains.
+     */
     generateMPCKeys: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
