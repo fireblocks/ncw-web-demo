@@ -548,7 +548,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      return fireblocksNCW.takeover();
+      const res = await fireblocksNCW.takeover();
+      console.log("@@@ DEBUGS | takeover: | res:", res);
+      return res;
     },
     exportFullKeys: (chainCode: string, cloudKeyShares: Map<string, string[]>) => {
       if (!fireblocksNCW) {
@@ -689,7 +691,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
       const address = await apiService.getAddress(deviceId, accountId, assetId);
-      console.log("@@@ DEBUGS | refreshAddress: | address:", address)
+      console.log("@@@ DEBUGS | refreshAddress: | address:", address);
 
       set((state) => ({
         ...state,
