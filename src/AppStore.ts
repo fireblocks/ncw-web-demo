@@ -527,7 +527,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     },
     /**
      * By default, workspaces are not enabled with EdDSA so you may remove `MPC_CMP_EDDSA_ED25519` when calling generateMPCKeys
-     * Please ask your CSM or in the https://community.fireblocks.com/ to enable your workspace to support EdDSA if you wish to work with EdDSA chains.
+     * You may read more about the usage of EdDSA in the following article: https://ncw-developers.fireblocks.com/docs/multiple-algorithms
      */
     generateMPCKeys: async () => {
       if (!fireblocksNCW) {
