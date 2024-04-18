@@ -3,7 +3,7 @@ import { Auth, AuthProvider, GoogleAuthProvider, OAuthProvider, User, getAuth, s
 import { IAuthManager, IUser } from "./IAuthManager";
 import { getUserGoogleDriveProvider } from "./providers";
 
-const firebaseConfig = {
+const defaultFirebaseConfig = {
   apiKey: "AIzaSyA2E5vK3fhxvftpfS02T8eIC3SrXnIUjrs",
   authDomain: "fireblocks-sdk-demo.firebaseapp.com",
   projectId: "fireblocks-sdk-demo",
@@ -11,6 +11,13 @@ const firebaseConfig = {
   messagingSenderId: "127498444203",
   appId: "1:127498444203:web:31ff24e7a4c6bfa92e46ee",
 };
+
+// Just make sure you have the FirebaseConfig strinfigy like that:
+// '{"apiKey":"AIzaSyA2E5vK3fhxvftpfS02T8eIC3SrXnIUjrs","authDomain":"fireblocks-sdk-demo.firebaseapp.com","projectId":"fireblocks-sdk-demo","storageBucket":"fireblocks-sdk-demo.appspot.com","messagingSenderId":"127498444203","appId":"1:127498444203:web:31ff24e7a4c6bfa92e46ee"}'
+const firebaseConfigEnv = import.meta.env.VITE_FIREBASE_COFIG ? JSON.parse(import.meta.env.VITE_FIREBASE_COFIG) : null
+const firebaseConfig = firebaseConfigEnv || defaultFirebaseConfig 
+
+console.log('===config===env', firebaseConfigEnv)
 
 export class FirebaseAuthManager implements IAuthManager {
   private readonly _auth: Auth;
