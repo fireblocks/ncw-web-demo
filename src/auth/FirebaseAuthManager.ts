@@ -11,6 +11,16 @@ const firebaseConfig = {
   messagingSenderId: "127498444203",
   appId: "1:127498444203:web:31ff24e7a4c6bfa92e46ee",
 };
+// PROD_US
+// const firebaseConfig = {
+//   apiKey: "AIzaSyDJbJXv2XhihYdiWNk9VWse9ZeymcJdt1U",
+//   authDomain: "fireblocks-ncw-demo.firebaseapp.com",
+//   projectId: "fireblocks-ncw-demo",
+//   storageBucket: "fireblocks-ncw-demo.appspot.com",
+//   messagingSenderId: "1010855653011",
+//   appId: "1:1010855653011:web:0a366e1d16933f9b092766",
+//   measurementId: "G-C0LGRNQEZQ",
+// };
 
 export class FirebaseAuthManager implements IAuthManager {
   private readonly _auth: Auth;

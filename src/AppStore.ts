@@ -369,6 +369,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
         fireblocksNCW = await FireblocksNCWFactory({
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
+          // env: "rentblocks" as TEnv,
           logLevel: "VERBOSE",
           deviceId,
           messagesHandler,
