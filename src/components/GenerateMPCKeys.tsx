@@ -66,7 +66,7 @@ export const GenerateMPCKeys: React.FC = () => {
   const generateAction: IActionButtonProps = {
     label: "Generate MPC Keys",
     action: doGenerateMPCKeys,
-    isDisabled: isGenerateInProgress || (secP256K1Ready && ed25519Ready),
+    // isDisabled: isGenerateInProgress || (secP256K1Ready && ed25519Ready),
     isInProgress: isGenerateInProgress,
   };
 
@@ -94,6 +94,18 @@ export const GenerateMPCKeys: React.FC = () => {
 
   return (
     <Card title="Generate MPC Keys" actions={actions}>
+      <div>
+        <label>
+          <input type="checkbox" name="algorithm" value="MPC_CMP_ECDSA_SECP256K1" id="algosToGenerate" defaultChecked />
+          ECDSA
+        </label>
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" name="algorithm" value="MPC_CMP_EDDSA_ED25519" id="algosToGenerate" defaultChecked />
+          EdDSA
+        </label>
+      </div>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
