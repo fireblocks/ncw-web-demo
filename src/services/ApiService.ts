@@ -160,7 +160,7 @@ export type TTxHandler = (tx: ITransactionData) => void;
 export type TPassphraseLocation = "GoogleDrive" | "iCloud";
 
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
+let att = 0;
 export class ApiService {
   private readonly _baseUrl: string;
   private _deviceTxsSubscriptions: Map<string, TTxHandler[]> = new Map();
@@ -236,11 +236,13 @@ export class ApiService {
   }
 
   public async sendMessage(deviceId: string, message: string): Promise<any> {
-    if (this.socket.connected) {
-      return await this.socket.emitWithAck("rpc", deviceId, message);
-    } else {
-      return this._postCall(`api/devices/${deviceId}/rpc`, { message });
+    const msg = JSON.parse(message);
+    if ((msg.method === "broadcast_mpc_msg" || msg.method === "send_mpc_public_keys") && att < 2) {
+      att++;
+      return this._postCall(`api/devices/${deviceId}/rpc`, { message }, true);
     }
+    att = 0;
+    return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }
 
   public async getWeb3Connections(deviceId: string): Promise<IWeb3Session[]> {
@@ -393,12 +395,13 @@ export class ApiService {
     }
   }
 
-  private async _postCall(path: string, body?: Object): Promise<any> {
+  private async _postCall(path: string, body?: Object, bad = false): Promise<any> {
     if (path.startsWith("/")) {
       path = path.slice(1);
     }
     const token = await this.authManager.getAccessToken();
-    const response = await fetch(`${this._baseUrl}/${path}`, {
+    const url = bad ? `http://localhost:3000` : `${this._baseUrl}/${path}`;
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

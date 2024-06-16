@@ -537,7 +537,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
         document.querySelectorAll('input[type="checkbox"][id="algosToGenerate"]:checked'),
       ).map((checkbox: any) => checkbox.value);
       const ALGORITHMS = new Set<TMPCAlgorithm>(algosToGenerate);
-      await fireblocksNCW.generateMPCKeys(ALGORITHMS);
+      const r = await fireblocksNCW.generateMPCKeys(ALGORITHMS);
+      console.log("@@@ DEBUGS | generateMPCKeys: | r:", r);
     },
     stopMpcDeviceSetup: async () => {
       if (!fireblocksNCW) {
