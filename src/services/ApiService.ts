@@ -237,7 +237,11 @@ export class ApiService {
 
   public async sendMessage(deviceId: string, message: string): Promise<any> {
     if (this.socket.connected) {
-      return await this.socket.emitWithAck("rpc", deviceId, message);
+      const res = await this.socket.emitWithAck("rpc", deviceId, message);
+      if (res?.error?.code < 0) {
+        throw new Error("Failed to invoke RPC");
+      }
+      return res;
     } else {
       return this._postCall(`api/devices/${deviceId}/rpc`, { message });
     }
