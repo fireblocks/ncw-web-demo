@@ -154,6 +154,17 @@ export interface IAssetBalance {
   blockHash?: string;
 }
 
+type RpcResponse =
+  | {
+      response: unknown;
+    }
+  | {
+      error: {
+        message: string;
+        code?: number;
+      };
+    };
+    
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
@@ -236,15 +247,19 @@ export class ApiService {
   }
 
   public async sendMessage(deviceId: string, message: string): Promise<any> {
+    let response: RpcResponse;
     if (this.socket.connected) {
-      const res = await this.socket.emitWithAck("rpc", deviceId, message);
-      if (res?.error?.code < 0) {
-        throw new Error("Failed to invoke RPC");
-      }
-      return res;
+      response = await this.socket.emitWithAck("rpc", deviceId, message);
     } else {
-      return this._postCall(`api/devices/${deviceId}/rpc`, { message });
+      response = await this._postCall(`api/devices/${deviceId}/rpc`, { message });
     }
+
+    if (!response || "error" in response) {
+      console.error("Failed to invoke RPC", response?.error);
+      throw new Error("Failed to invoke RPC");
+    }
+
+    return response.response;
   }
 
   public async getWeb3Connections(deviceId: string): Promise<IWeb3Session[]> {
