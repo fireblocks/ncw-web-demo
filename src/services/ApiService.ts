@@ -164,7 +164,7 @@ type RpcResponse =
         code?: number;
       };
     };
-    
+
 export type TMessageHandler = (message: any) => Promise<void>;
 export type TTxHandler = (tx: ITransactionData) => void;
 
@@ -247,19 +247,17 @@ export class ApiService {
   }
 
   public async sendMessage(deviceId: string, message: string): Promise<any> {
-    let response: RpcResponse;
     if (this.socket.connected) {
-      response = await this.socket.emitWithAck("rpc", deviceId, message);
-    } else {
-      response = await this._postCall(`api/devices/${deviceId}/rpc`, { message });
+      const response: RpcResponse = await this.socket.emitWithAck("rpc", deviceId, message);
+      if (!("response" in response)) {
+        console.error("Failed to invoke RPC", response?.error);
+        throw new Error("Failed to invoke RPC");
+      }
+      
+      return response.response;
     }
-
-    if (!response || "error" in response) {
-      console.error("Failed to invoke RPC", response?.error);
-      throw new Error("Failed to invoke RPC");
-    }
-
-    return response.response;
+    
+    return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }
 
   public async getWeb3Connections(deviceId: string): Promise<IWeb3Session[]> {
