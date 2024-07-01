@@ -564,7 +564,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       return fireblocksNCW.deriveAssetKey(extendedPrivateKey, coinType, account, change, index);
     },
-    disposeFireblocksNCW: () => {
+    disposeFireblocksNCW: async () => {
       if (!fireblocksNCW) {
         return;
       }
@@ -574,7 +574,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         txsUnsubscriber = null;
       }
 
-      fireblocksNCW.dispose();
+      await fireblocksNCW.dispose();
       fireblocksNCW = null;
       set((state) => ({ ...state, fireblocksNCWStatus: "sdk_not_ready" }));
     },
