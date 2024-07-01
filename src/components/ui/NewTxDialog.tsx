@@ -35,7 +35,7 @@ export const NewTxDialog: React.FC<IProps> = ({ isOpen, onClose, assetsToSelectF
       note: `API Transaction by ${deviceId}`,
       accountId: "0",
       assetId: assetIdPrompt,
-    }
+    };
 
     if (txType === "transfer") {
       dataToSend = {
