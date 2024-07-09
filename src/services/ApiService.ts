@@ -178,8 +178,8 @@ export class ApiService {
   private _disposed: boolean = false;
   private _pollingTxsActive: Map<string, boolean> = new Map();
 
-  private manager: Manager;
-  private socket: Socket;
+  // private manager: Manager;
+  // private socket: Socket;
 
   constructor(
     baseUrl: string,
@@ -190,13 +190,13 @@ export class ApiService {
       this._baseUrl = this._baseUrl.slice(0, -1);
     }
 
-    this.manager = new Manager(this._baseUrl, { autoConnect: true });
-    this.socket = this.manager.socket("/", {
-      auth: async (cb) => cb({ token: await this.authManager.getAccessToken() }),
-    });
+    // this.manager = new Manager(this._baseUrl, { autoConnect: true });
+    // this.socket = this.manager.socket("/", {
+    //   auth: async (cb) => cb({ token: await this.authManager.getAccessToken() }),
+    // });
 
-    this.socket.on("connect", () => console.log("websocket connected"));
-    this.socket.on("disconnect", () => console.log("websocket disconnected"));
+    // this.socket.on("connect", () => console.log("websocket connected"));
+    // this.socket.on("disconnect", () => console.log("websocket disconnected"));
   }
 
   public async login(): Promise<string> {
@@ -247,15 +247,15 @@ export class ApiService {
   }
 
   public async sendMessage(deviceId: string, message: string): Promise<any> {
-    if (this.socket.connected) {
-      const response: RpcResponse = await this.socket.emitWithAck("rpc", deviceId, message);
-      if (!("response" in response)) {
-        console.error("Failed to invoke RPC", response?.error);
-        throw new Error("Failed to invoke RPC");
-      }
+    // if (this.socket.connected) {
+    //   const response: RpcResponse = await this.socket.emitWithAck("rpc", deviceId, message);
+    //   if (!("response" in response)) {
+    //     console.error("Failed to invoke RPC", response?.error);
+    //     throw new Error("Failed to invoke RPC");
+    //   }
       
-      return response.response;
-    }
+    //   return response.response;
+    // }
     
     return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }

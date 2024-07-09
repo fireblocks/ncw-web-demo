@@ -12,6 +12,7 @@ import {
   SigningInProgressError,
   TEnv,
   TEvent,
+  TLogLevel,
   TMPCAlgorithm,
   version as fireblocksNCWSdkVersion,
 } from "@fireblocks/ncw-js-sdk";
@@ -26,6 +27,8 @@ import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
 import { decode } from "js-base64";
 import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
 import { IndexedDBLogger } from "./logger/IndexedDBLogger";
+import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
+import { IEmbeddedWalletOptions, INcwCoreOptions } from "@fireblocks/embedded-wallet-sdk/dist/src/types";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -135,8 +138,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
       try {
-        const walletId = await apiService.assignDevice(deviceId);
-        set((state) => ({ ...state, walletId, assignDeviceStatus: "success" }));
+        // const walletId = await apiService.assignDevice(deviceId);
+        set((state) => ({ ...state, walletId: "bla", assignDeviceStatus: "success" }));
       } catch (e) {
         set((state) => ({ ...state, walletId: null, assignDeviceStatus: "failed" }));
       }
@@ -294,7 +297,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("apiService is not initialized");
       }
       try {
-        const userId = await apiService.login();
+        // const userId = await apiService.login();
+        const userId = "8888";
         set((state) => ({
           ...state,
           userId,
@@ -366,21 +370,32 @@ export const useAppStore = create<IAppState>()((set, get) => {
           return Promise.resolve(password || "");
         });
         logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
-
-        fireblocksNCW = await FireblocksNCWFactory({
+        const ewOpts: IEmbeddedWalletOptions = {
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "VERBOSE",
+          logLevel: "VERBOSE" as TLogLevel,
+          logger,
+          authClientId: "5d551b5a-7647-4491-90db-02a6ce98f4e0",
+          // authClientId: "007b0892-f1c7-416f-8c72-1f6f4ee7a8a5",
+          authTokenRetriever: {
+            getAuthToken: () => authManager.getAccessToken(),
+          },
+          reporting: {
+            enabled: false,
+          },
+        };
+        const coreNCWOptions: INcwCoreOptions = {
           deviceId,
-          messagesHandler,
           eventsHandler,
           secureStorageProvider,
-          logger,
-        });
+        };
+        const ew = await EmbeddedWallet.initialize(ewOpts);
+        const coreNCW = await ew.initializeCore(coreNCWOptions);
+        fireblocksNCW = coreNCW; // ew.getCore()
 
-        txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
-          const txs = updateOrAddTx(get().txs, tx);
-          set((state) => ({ ...state, txs }));
-        });
+        // txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
+        //   const txs = updateOrAddTx(get().txs, tx);
+        //   set((state) => ({ ...state, txs }));
+        // });
         const keysStatus = await fireblocksNCW.getKeysStatus();
         set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available" }));
       } catch (e) {
@@ -537,7 +552,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         document.querySelectorAll('input[type="checkbox"][id="algosToGenerate"]:checked'),
       ).map((checkbox: any) => checkbox.value);
       const ALGORITHMS = new Set<TMPCAlgorithm>(algosToGenerate);
+      const started = Date.now();
       await fireblocksNCW.generateMPCKeys(ALGORITHMS);
+      console.log(`// @@@ DEBUGS: took ${Date.now() - started}ms to generate keys`);
     },
     stopMpcDeviceSetup: async () => {
       if (!fireblocksNCW) {
