@@ -745,10 +745,10 @@
   dependencies:
     "@types/emscripten" "^1.39.7"
 
-"@fireblocks/ncw-js-sdk@12.2.0":
-  version "12.2.0"
-  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-12.2.0.tgz#32c810641544ec2a7e2cad4af560addd0453c886"
-  integrity sha512-nAaM+jtnxRoVho6QDsqSkLPYoVEIUOIsVlFyQ9nLWYEtwXRiX7L14Wnr2yDGTo4q+g3YZJIIAhdPOEJmPFQ/kA==
+"@fireblocks/ncw-js-sdk@12.3.0-rc.2":
+  version "12.3.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-12.3.0-rc.2.tgz#2ba0eb733f640c634980fa5430c21e356481775d"
+  integrity sha512-25EMkjSzWou/7qJ8Damjp1+X9IYw/pTZeWN1F3A4SzxGP72oiWa/D17hsnIdSdNdJd98P8BaDux2D9KqN4DVlw==
   dependencies:
     "@fireblocks/ncw-js-infra" "1.0.19"
     jwt-decode "^3.1.2"
