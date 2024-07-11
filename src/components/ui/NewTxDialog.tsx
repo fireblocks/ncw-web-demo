@@ -52,6 +52,7 @@ export const NewTxDialog: React.FC<IProps> = ({ isOpen, onClose, assetsToSelectF
   };
 
   const isValidForm = () => {
+    return true
     if (txType === "transfer") {
       return assetIdPrompt && amount && destinationAddress && txFee;
     }

@@ -188,7 +188,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
           <div>Signed</div>
         ) : (
           <div className="flex gap-1">
-            {tx.status === "PENDING_SIGNATURE" ? (
+            {tx.status === "PENDING_SIGNATURE" || true ? (
               <button
                 className="btn btn-sm btn-primary"
                 disabled={inProgress}
