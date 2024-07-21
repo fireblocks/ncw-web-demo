@@ -16,6 +16,7 @@ export const AppContent: React.FC = () => {
     initAppStore,
     disposeAppStore,
     appMode,
+    walletId,
   } = useAppStore();
 
   React.useEffect(() => {
@@ -40,13 +41,10 @@ export const AppContent: React.FC = () => {
           <ModeSelector />
           {appMode && (
             <>
-              <AssignDevice />
-              {assignDeviceStatus === "success" && (
-                <>
-                  <FireblocksNCWInitializer />
-                  {fireblocksNCWStatus === "sdk_available" && <FireblocksNCWExampleActions />}
-                </>
-              )}
+              <FireblocksNCWInitializer />
+              {fireblocksNCWStatus === "sdk_available" && <AssignDevice />}
+
+              {walletId && <FireblocksNCWExampleActions />}
             </>
           )}
         </>

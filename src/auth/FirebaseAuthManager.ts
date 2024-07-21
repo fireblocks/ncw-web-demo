@@ -88,6 +88,14 @@ export class FirebaseAuthManager implements IAuthManager {
     return this._loggedUser;
   }
 
+  public getUserId(): string {
+    if (!this._loggedUser) {
+      throw new Error("User is not logged in");
+    }
+
+    return this._loggedUser.uid;
+  }
+
   public onUserChanged(callback: (user: IUser | null) => void): () => void {
     return this._auth.onAuthStateChanged(callback);
   }

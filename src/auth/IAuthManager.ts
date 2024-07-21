@@ -9,5 +9,6 @@ export interface IAuthManager {
   logout(): Promise<void>;
   getAccessToken(): Promise<string>;
   onUserChanged(callback: (user: IUser | null) => void): () => void;
+  getUserId(): string;
   get loggedUser(): IUser | null;
 }

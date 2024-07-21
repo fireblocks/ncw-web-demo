@@ -122,14 +122,14 @@ export const BackupAndRecover: React.FC = () => {
       throw new Error();
     }
 
-    try {
-      const recover = await passphraseRecover(location);
-      if (recover) {
-        return recover;
-      }
-    } catch (e) {
-      console.warn(`failed to load previous passphrase, creating new`, e, location);
-    }
+    // try {
+    //   const recover = await passphraseRecover(location);
+    //   if (recover) {
+    //     return recover;
+    //   }
+    // } catch (e) {
+    //   console.warn(`failed to load previous passphrase, creating new`, e, location);
+    // }
 
     // creating new
     const passphrase = randomPassPhrase();
