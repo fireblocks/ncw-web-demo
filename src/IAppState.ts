@@ -105,7 +105,7 @@ export interface IAppState {
   recoverKeys: (passphraseResolver: (passphraseId: string) => Promise<string>) => Promise<void>;
   backupKeys: (passhrase: string, passphraseId: string) => Promise<void>;
   initFireblocksNCW: () => Promise<void>;
-  disposeFireblocksNCW: () => void;
+  disposeFireblocksNCW: () => Promise<void>;
   getWeb3Connections: () => Promise<void>;
   createWeb3Connection: (uri: string) => Promise<void>;
   approveWeb3Connection: () => Promise<void>;
