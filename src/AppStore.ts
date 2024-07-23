@@ -1,4 +1,5 @@
 import {
+  BrowserLocalStorageProvider,
   ConsoleLoggerFactory,
   FireblocksNCWFactory,
   IEventsHandler,
@@ -35,7 +36,7 @@ export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_a
 export type TRequestDecodedData = { email: string; requestId: string; platform: string };
 
 export const useAppStore = create<IAppState>()((set, get) => {
-  let apiService: ApiService | null = null;
+  // let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
   let fireblocksNCW: IFireblocksNCW | null = null;
   let fireblocksEW: EmbeddedWallet;
@@ -341,6 +342,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         if (!deviceId) {
           throw new Error("deviceId is not set");
         }
+        const storageProvider = new BrowserLocalStorageProvider();
         const secureStorageProvider = new PasswordEncryptedLocalStorage(deviceId, () => {
           const password = prompt("Enter password", "");
           if (password === null) {
@@ -351,9 +353,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
         const ewOpts: IEmbeddedWalletOptions = {
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "VERBOSE" as TLogLevel,
+          logLevel: "VERBOSE",
           logger,
-          authClientId: "5d551b5a-7647-4491-90db-02a6ce98f4e0",
+          authClientId: "ae66ebed-fddb-49c7-b202-92da3bc9d109",
           // authClientId: "007b0892-f1c7-416f-8c72-1f6f4ee7a8a5",
           authTokenRetriever: {
             getAuthToken: () => authManager.getAccessToken(),
@@ -366,8 +368,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
           deviceId,
           eventsHandler,
           secureStorageProvider,
+          storageProvider,
         };
-        const ew = await EmbeddedWallet.initialize(ewOpts);
+        const ew = EmbeddedWallet.initialize(ewOpts);
         await ew.initializeCore(coreNCWOptions);
         fireblocksEW = ew;
         fireblocksNCW = ew.core;
