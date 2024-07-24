@@ -155,15 +155,19 @@ export class IndexedDBLogger implements ILogger {
     const transaction = this._dbInstance.transaction(this._tableName, "readwrite");
     const store = transaction.objectStore(this._tableName);
 
-    const addRequest = store.add(logEntry);
+    try {
+      const addRequest = store.add(logEntry);
 
-    addRequest.onsuccess = () => {
-      this._logger.log("VERBOSE", "Message saved to IndexedDB");
-    };
+      addRequest.onsuccess = () => {
+        this._logger.log("VERBOSE", "Message saved to IndexedDB");
+      };
 
-    addRequest.onerror = () => {
+      addRequest.onerror = () => {
+        this._logger.log("ERROR", "Error saving message to IndexedDB");
+      };
+    } catch (error) {
       this._logger.log("ERROR", "Error saving message to IndexedDB");
-    };
+    }
   }
 
   private _initializeDB(): Promise<void> {
