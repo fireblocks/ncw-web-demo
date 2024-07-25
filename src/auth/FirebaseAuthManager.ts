@@ -81,7 +81,6 @@ export class FirebaseAuthManager implements IAuthManager {
     }
 
     return this._loggedUser.getIdToken();
-    // return this._loggedUser.getIdToken()
   }
 
   public get loggedUser(): IUser | null {

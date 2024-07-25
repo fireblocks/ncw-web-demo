@@ -373,7 +373,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         const ew = EmbeddedWallet.initialize(ewOpts);
         await ew.initializeCore(coreNCWOptions);
         fireblocksEW = ew;
-        fireblocksNCW = ew.core;
+        fireblocksNCW = ew.getCore(deviceId);
 
         // txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
         //   const txs = updateOrAddTx(get().txs, tx);
