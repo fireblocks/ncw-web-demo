@@ -27,7 +27,7 @@ export class FirebaseAuthManager implements IAuthManager {
   private _loggedUser: User | null = null;
 
   constructor() {
-    const firebaseApp: FirebaseApp = initializeApp(firebaseConfig_prodUS);
+    const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
     // const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
     this._auth = getAuth(firebaseApp);
     this._loggedUser = this._auth.currentUser;
