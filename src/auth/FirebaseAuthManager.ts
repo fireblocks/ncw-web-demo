@@ -12,22 +12,23 @@ const firebaseConfig = {
   appId: "1:127498444203:web:31ff24e7a4c6bfa92e46ee",
 };
 // PROD_US
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDJbJXv2XhihYdiWNk9VWse9ZeymcJdt1U",
-//   authDomain: "fireblocks-ncw-demo.firebaseapp.com",
-//   projectId: "fireblocks-ncw-demo",
-//   storageBucket: "fireblocks-ncw-demo.appspot.com",
-//   messagingSenderId: "1010855653011",
-//   appId: "1:1010855653011:web:0a366e1d16933f9b092766",
-//   measurementId: "G-C0LGRNQEZQ",
-// };
+const firebaseConfig_prodUS = {
+  apiKey: "AIzaSyDJbJXv2XhihYdiWNk9VWse9ZeymcJdt1U",
+  authDomain: "fireblocks-ncw-demo.firebaseapp.com",
+  projectId: "fireblocks-ncw-demo",
+  storageBucket: "fireblocks-ncw-demo.appspot.com",
+  messagingSenderId: "1010855653011",
+  appId: "1:1010855653011:web:0a366e1d16933f9b092766",
+  measurementId: "G-C0LGRNQEZQ",
+};
 
 export class FirebaseAuthManager implements IAuthManager {
   private readonly _auth: Auth;
   private _loggedUser: User | null = null;
 
   constructor() {
-    const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
+    const firebaseApp: FirebaseApp = initializeApp(firebaseConfig_prodUS);
+    // const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
     this._auth = getAuth(firebaseApp);
     this._loggedUser = this._auth.currentUser;
     this._auth.onAuthStateChanged((user) => {
