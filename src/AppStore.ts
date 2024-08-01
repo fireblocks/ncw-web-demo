@@ -525,10 +525,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
     },
-    /**
-     * By default, workspaces are not enabled with EdDSA so you may remove `MPC_CMP_EDDSA_ED25519` when calling generateMPCKeys
-     * You may read more about the usage of EdDSA in the following article: https://ncw-developers.fireblocks.com/docs/multiple-algorithms
-     */
+
     generateMPCKeys: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
