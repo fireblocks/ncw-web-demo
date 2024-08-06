@@ -368,9 +368,11 @@ export const useAppStore = create<IAppState>()((set, get) => {
         });
         logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
 
-        fireblocksNCW =
-          getFireblocksNCWInstance(deviceId) ??
-          (await FireblocksNCWFactory({
+        const ncwInstance = getFireblocksNCWInstance(deviceId);
+        if (ncwInstance) {
+          fireblocksNCW = ncwInstance;
+        } else {
+          fireblocksNCW = await FireblocksNCWFactory({
             env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
             logLevel: "INFO",
             deviceId,
@@ -378,7 +380,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
             eventsHandler,
             secureStorageProvider,
             logger,
-          }));
+          });
+        }
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
           const txs = updateOrAddTx(get().txs, tx);
