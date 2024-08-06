@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@fireblocks/embedded-wallet-sdk": "1.0.0",
-    "@fireblocks/ncw-js-sdk": "12.2.0",
+    "@fireblocks/ncw-js-sdk": "12.4.3-rc.3.e862e05",
     "base58-js": "^2.0.0",
     "classnames": "^2.3.2",
     "js-base64": "^3.7.5",
