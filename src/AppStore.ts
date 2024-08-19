@@ -14,6 +14,7 @@ import {
   TEvent,
   TMPCAlgorithm,
   version as fireblocksNCWSdkVersion,
+  getFireblocksNCWInstance,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
@@ -367,15 +368,20 @@ export const useAppStore = create<IAppState>()((set, get) => {
         });
         logger = await IndexedDBLoggerFactory({ deviceId, logger: ConsoleLoggerFactory() });
 
-        fireblocksNCW = await FireblocksNCWFactory({
-          env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
-          logLevel: "VERBOSE",
-          deviceId,
-          messagesHandler,
-          eventsHandler,
-          secureStorageProvider,
-          logger,
-        });
+        const ncwInstance = getFireblocksNCWInstance(deviceId);
+        if (ncwInstance) {
+          fireblocksNCW = ncwInstance;
+        } else {
+          fireblocksNCW = await FireblocksNCWFactory({
+            env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
+            logLevel: "INFO",
+            deviceId,
+            messagesHandler,
+            eventsHandler,
+            secureStorageProvider,
+            logger,
+          });
+        }
 
         txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
           const txs = updateOrAddTx(get().txs, tx);
@@ -525,10 +531,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({ ...state, web3Connections: state.web3Connections.filter((s) => s.id !== sessionId) }));
     },
-    /**
-     * By default, workspaces are not enabled with EdDSA so you may remove `MPC_CMP_EDDSA_ED25519` when calling generateMPCKeys
-     * You may read more about the usage of EdDSA in the following article: https://ncw-developers.fireblocks.com/docs/multiple-algorithms
-     */
+
     generateMPCKeys: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
@@ -565,7 +568,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       return fireblocksNCW.deriveAssetKey(extendedPrivateKey, coinType, account, change, index);
     },
-    disposeFireblocksNCW: () => {
+    disposeFireblocksNCW: async () => {
       if (!fireblocksNCW) {
         return;
       }
@@ -575,7 +578,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         txsUnsubscriber = null;
       }
 
-      fireblocksNCW.dispose();
+      await fireblocksNCW.dispose();
       fireblocksNCW = null;
       set((state) => ({ ...state, fireblocksNCWStatus: "sdk_not_ready" }));
     },
