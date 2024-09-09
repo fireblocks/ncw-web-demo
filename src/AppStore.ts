@@ -134,7 +134,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       try {
         const walletId = await fireblocksEW.assignWallet();
-        const accounts = await fireblocksEW.getAllAccounts();
+        const accounts = await fireblocksEW.getAccounts();
         console.log("@@@ DEBUGS | initFireblocksNCW: | accounts:", accounts);
         if (accounts.length === 0) {
           const account = await fireblocksEW.createAccount();
@@ -371,10 +371,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
           secureStorageProvider,
           storageProvider,
         };
-        const ew = EmbeddedWallet.initialize(ewOpts);
-        await ew.initializeCore(coreNCWOptions);
-        fireblocksEW = ew;
-        fireblocksNCW = ew.getCore(deviceId);
+        fireblocksEW = EmbeddedWallet.getInstance(ewOpts.authClientId) ?? EmbeddedWallet.initialize(ewOpts);
+        fireblocksNCW =
+          fireblocksEW.getCore(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
         // txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
         //   const txs = updateOrAddTx(get().txs, tx);
@@ -581,7 +580,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const allAccounts = await fireblocksEW.getAllAccounts();
+      const allAccounts = await fireblocksEW.getAccounts();
 
       set((state) => ({
         ...state,
