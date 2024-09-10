@@ -136,7 +136,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         const walletId = await fireblocksEW.assignWallet();
         const accounts = await fireblocksEW.getAccounts();
         console.log("@@@ DEBUGS | initFireblocksNCW: | accounts:", accounts);
-        if (accounts.length === 0) {
+        if (accounts.data.length === 0) {
           const account = await fireblocksEW.createAccount();
           console.log("@@@ DEBUGS | initFireblocksNCW: | account:", account);
         }
@@ -584,7 +584,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
       set((state) => ({
         ...state,
-        accounts: Array.from({ length: allAccounts.length }, (_v, i) => ({ ...state.accounts[i] })),
+        accounts: Array.from({ length: allAccounts.data.length }, (_v, i) => ({ ...state.accounts[i] })),
       }));
 
       // refresh all
@@ -601,8 +601,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const assets = await fireblocksEW.getAllAssets(accountId);
-      const reduced = assets.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => {
+      const assets = await fireblocksEW.getAssets(accountId);
+      const reduced = assets.data.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => {
         acc[asset.id] = { asset };
         return acc;
       }, {});
