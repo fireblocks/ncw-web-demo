@@ -2,6 +2,7 @@ import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, AuthProvider, GoogleAuthProvider, OAuthProvider, User, getAuth, signInWithPopup } from "firebase/auth";
 import { IAuthManager, IUser } from "./IAuthManager";
 import { getUserGoogleDriveProvider } from "./providers";
+import { ENV_CONFIG } from "../env_config";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA2E5vK3fhxvftpfS02T8eIC3SrXnIUjrs",
@@ -27,8 +28,8 @@ export class FirebaseAuthManager implements IAuthManager {
   private _loggedUser: User | null = null;
 
   constructor() {
-    const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
-    // const firebaseApp: FirebaseApp = initializeApp(firebaseConfig_prodUS);
+    const config = ENV_CONFIG.NCW_SDK_ENV === "production" ? firebaseConfig_prodUS : firebaseConfig;
+    const firebaseApp: FirebaseApp = initializeApp(config);
     this._auth = getAuth(firebaseApp);
     this._loggedUser = this._auth.currentUser;
     this._auth.onAuthStateChanged((user) => {
