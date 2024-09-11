@@ -133,7 +133,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("fireblocksEW is not initialized");
       }
       try {
-        const walletId = await fireblocksEW.assignWallet();
+        const assignResponse = await fireblocksEW.assignWallet();
+        const walletId = assignResponse.walletId;
         const accounts = await fireblocksEW.getAccounts();
         console.log("@@@ DEBUGS | initFireblocksNCW: | accounts:", accounts);
         if (accounts.data.length === 0) {
@@ -618,10 +619,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      //@ts-ignore
-      const assets = await apiService.getSupportedAssets(deviceId, accountId);
-      //@ts-ignore
-      const reduced = assets.reduce<Record<string, IWalletAsset>>((acc, asset) => {
+      const assets = await fireblocksEW.getSupportedAssets();
+      const reduced = assets.data.reduce<Record<string, IWalletAsset>>((acc, asset) => {
         acc[asset.id] = asset;
         return acc;
       }, {});
