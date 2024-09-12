@@ -1,19 +1,15 @@
 import {
   BrowserLocalStorageProvider,
   ConsoleLoggerFactory,
-  FireblocksNCWFactory,
   IEventsHandler,
   IFireblocksNCW,
   IJoinWalletEvent,
   IKeyBackupEvent,
   IKeyDescriptor,
   IKeyRecoveryEvent,
-  ILogger,
-  IMessagesHandler,
   SigningInProgressError,
   TEnv,
   TEvent,
-  TLogLevel,
   TMPCAlgorithm,
   version as fireblocksNCWSdkVersion,
   getFireblocksNCWInstance,
@@ -143,6 +139,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         }
         set((state) => ({ ...state, walletId, assignDeviceStatus: "success" }));
       } catch (e) {
+        console.error(e);
         set((state) => ({ ...state, walletId: null, assignDeviceStatus: "failed" }));
       }
     },
@@ -374,7 +371,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         };
         fireblocksEW = EmbeddedWallet.getInstance(ewOpts.authClientId) ?? EmbeddedWallet.initialize(ewOpts);
         fireblocksNCW =
-          fireblocksEW.getCore(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
+          getFireblocksNCWInstance(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
         // txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
         //   const txs = updateOrAddTx(get().txs, tx);
@@ -620,6 +617,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
       const assets = await fireblocksEW.getSupportedAssets();
+      console.log("@@@ DEBUGS | refreshSupportedAssets: | assets:", assets.data.length);
       const reduced = assets.data.reduce<Record<string, IWalletAsset>>((acc, asset) => {
         acc[asset.id] = asset;
         return acc;
