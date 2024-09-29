@@ -26,7 +26,11 @@ import { decode } from "js-base64";
 import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
 import { IndexedDBLogger } from "./logger/IndexedDBLogger";
 import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
-import { IEmbeddedWalletOptions, INcwCoreOptions } from "@fireblocks/embedded-wallet-sdk/dist/src/types";
+import {
+  ICreateTransactionParams,
+  IEmbeddedWalletOptions,
+  INcwCoreOptions,
+} from "@fireblocks/embedded-wallet-sdk/dist/src/types";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -43,13 +47,22 @@ export const useAppStore = create<IAppState>()((set, get) => {
     set({ loggedUser: user });
   });
 
-  const updateOrAddTx = (existingTxs: ITransactionData[], newTx: ITransactionData): ITransactionData[] => {
-    const index = existingTxs.findIndex((tx) => tx.id === newTx.id);
-    if (index === -1) {
-      return [...existingTxs, newTx];
-    }
+  const updateOrAddTx = (
+    existingTxs: ITransactionData[],
+    newTxs: ITransactionData | ITransactionData[],
+  ): ITransactionData[] => {
     const result = [...existingTxs];
-    result[index] = newTx;
+    const txsToAdd = Array.isArray(newTxs) ? newTxs : [newTxs];
+
+    txsToAdd.forEach((newTx) => {
+      const index = result.findIndex((tx) => tx.id === newTx.id);
+      if (index === -1) {
+        result.push(newTx);
+      } else {
+        result[index] = newTx;
+      }
+    });
+
     return result.sort((t1, t2) => (t2.lastUpdated ?? 0) - (t1.lastUpdated ?? 0));
   };
 
@@ -704,6 +717,83 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (txId) {
         return signTransaction(txId);
       }
+    },
+    saasTxToOTA: async () => {
+      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
+      const destAddress = await prompt("Insert destination address")!;
+      const amount = await prompt("Insert amount", "0.001")!;
+      const params: ICreateTransactionParams = {
+        assetId,
+        source: {
+          id: "0",
+        },
+        destination: {
+          type: "ONE_TIME_ADDRESS" as any,
+          oneTimeAddress: {
+            address: destAddress,
+          },
+        },
+        amount,
+      };
+      const res = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToOTA: | res:", res);
+    },
+    saasTxToNCW: async () => {
+      const { walletId } = get();
+      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
+      const destWalletId = await prompt("Insert destination walletId", walletId ?? undefined)!;
+      const amount = await prompt("Insert amount", "0.001")!;
+      const params: ICreateTransactionParams = {
+        assetId,
+        source: {
+          id: "0",
+        },
+        destination: {
+          type: "END_USER_WALLET" as any,
+          walletId: destWalletId,
+          id: "0",
+        },
+        amount,
+      };
+      const res = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToNCW: | res:", res);
+    },
+    saasTxToVault: async () => {
+      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
+      const vaultAccountId = await prompt("Insert destination vaultAccountId", "0")!;
+      const amount = await prompt("Insert amount", "0.001")!;
+      const params: ICreateTransactionParams = {
+        assetId,
+        source: {
+          id: "0",
+        },
+        destination: {
+          type: "VAULT_ACCOUNT" as any,
+          id: vaultAccountId,
+        },
+        amount,
+      };
+      const res = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToVault: | res:", res);
+    },
+    saasGetTxs: async () => {
+      const { txs: currTxs } = get();
+      const after = Math.max(...currTxs.map((tx) => tx.createdAt ?? 0));
+      const response = await fireblocksEW.getTransactions({
+        after,
+      });
+      console.log("@@@ DEBUGS | saasGetTxs: | response:", response);
+
+      const txs = updateOrAddTx(
+        get().txs,
+        response.map((tx) => ({
+          id: tx.id,
+          status: tx.status as any,
+          createdAt: tx.createdAt,
+          lastUpdated: tx.lastUpdated,
+        })),
+      );
+      set((state) => ({ ...state, txs }));
     },
   };
 });

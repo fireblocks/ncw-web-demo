@@ -121,4 +121,8 @@ export interface IAppState {
   clearLogs: () => Promise<void>;
   collectLogs: () => Promise<void>;
   signSomething: () => Promise<void>;
+  saasTxToOTA: () => Promise<void>;
+  saasTxToNCW: () => Promise<void>;
+  saasTxToVault: () => Promise<void>;
+  saasGetTxs: () => Promise<void>;
 }

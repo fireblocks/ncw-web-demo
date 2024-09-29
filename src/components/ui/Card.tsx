@@ -45,3 +45,19 @@ export const Card: React.FC<IProps> = ({ title, children, actions = [] }) => {
     </div>
   );
 };
+
+export const TxsCard: React.FC<IProps> = ({ title, children, actions = [] }) => {
+  return (
+    <div className="card bg-base-100 shadow-xl">
+      <div className="card-body">
+        <h2 className="card-title">{title}</h2>
+        <div className="card-actions">
+          {actions.map((action) => (
+            <CardActionButton key={action.label} {...action} />
+          ))}
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};

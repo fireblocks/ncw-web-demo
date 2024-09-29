@@ -2,11 +2,11 @@ import React from "react";
 import { useAppStore } from "../AppStore";
 import { TransactionRow } from "./TransactionRow";
 import { IActionButtonProps } from "./ui/ActionButton";
-import { Card } from "./ui/Card";
+import { TxsCard } from "./ui/Card";
 import { NewTxDialog } from "./ui/NewTxDialog";
 
 export const Transactions: React.FC = () => {
-  const { txs, accounts, signSomething } = useAppStore();
+  const { txs, accounts, signSomething, saasTxToOTA, saasTxToNCW, saasTxToVault, saasGetTxs } = useAppStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const onOpenModal = () => setIsModalOpen(true);
@@ -33,8 +33,26 @@ export const Transactions: React.FC = () => {
     label: "Sign Something",
   };
 
+  // SAAS
+  const saasTxToOTAAction: IActionButtonProps = {
+    action: saasTxToOTA,
+    label: "Create Tx to OTA",
+  };
+  const saasTxToNCWAction: IActionButtonProps = {
+    action: saasTxToNCW,
+    label: "Create Tx to NCW",
+  };
+  const saasTxToVaultAction: IActionButtonProps = {
+    action: saasTxToVault,
+    label: "Create Tx to Vault",
+  };
+  const saasGetTransactionsAction: IActionButtonProps = {
+    action: saasGetTxs,
+    label: "Get Transactions",
+  };
+
   return (
-    <Card title="Transactions" actions={[createTxAction, signSomethingAction]}>
+    <TxsCard title="Transactions" actions={[createTxAction, saasTxToOTAAction, saasTxToNCWAction, saasTxToVaultAction, saasGetTransactionsAction, signSomethingAction]}>
       <div className="overflow-x-auto">
         <table className="table table-fixed">
           <thead>
@@ -57,6 +75,6 @@ export const Transactions: React.FC = () => {
       {assetsToSelectFrom && (
         <NewTxDialog isOpen={isModalOpen} onClose={onCloseModal} assetsToSelectFrom={assetsToSelectFrom} />
       )}
-    </Card>
+    </TxsCard>
   );
 };
