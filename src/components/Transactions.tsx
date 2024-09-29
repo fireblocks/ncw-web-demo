@@ -6,7 +6,7 @@ import { Card } from "./ui/Card";
 import { NewTxDialog } from "./ui/NewTxDialog";
 
 export const Transactions: React.FC = () => {
-  const { txs, accounts } = useAppStore();
+  const { txs, accounts, signSomething } = useAppStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const onOpenModal = () => setIsModalOpen(true);
@@ -28,9 +28,13 @@ export const Transactions: React.FC = () => {
     label: "Create Tx",
     isDisabled: !assetsToSelectFrom?.length,
   };
+  const signSomethingAction: IActionButtonProps = {
+    action: signSomething,
+    label: "Sign Something",
+  };
 
   return (
-    <Card title="Transactions" actions={[createTxAction]}>
+    <Card title="Transactions" actions={[createTxAction, signSomethingAction]}>
       <div className="overflow-x-auto">
         <table className="table table-fixed">
           <thead>
@@ -50,7 +54,6 @@ export const Transactions: React.FC = () => {
           </tbody>
         </table>
       </div>
-
       {assetsToSelectFrom && (
         <NewTxDialog isOpen={isModalOpen} onClose={onCloseModal} assetsToSelectFrom={assetsToSelectFrom} />
       )}

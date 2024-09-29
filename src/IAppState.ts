@@ -120,4 +120,5 @@ export interface IAppState {
   countLogs: () => Promise<void>;
   clearLogs: () => Promise<void>;
   collectLogs: () => Promise<void>;
+  signSomething: () => Promise<void>;
 }

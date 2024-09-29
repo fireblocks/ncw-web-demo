@@ -354,8 +354,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
           logLevel: "VERBOSE",
           logger,
-          authClientId: "ae66ebed-fddb-49c7-b202-92da3bc9d109",
-          // authClientId: "007b0892-f1c7-416f-8c72-1f6f4ee7a8a5",
+          // authClientId: "ae66ebed-fddb-49c7-b202-92da3bc9d109", // old rentblocks
+          authClientId: "6303105e-38ac-4a21-8909-2b1f7f205fd1", // new rentblocks
           authTokenRetriever: {
             getAuthToken: () => authManager.getAccessToken(),
           },
@@ -653,7 +653,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const address: any = await fireblocksEW.getAddresses(accountId, assetId);
+      const address = (await fireblocksEW.getAddresses(accountId, assetId)).data;
+      console.log("@@@ DEBUGS | refreshAddress: | address:", address);
 
       set((state) => ({
         ...state,
@@ -692,6 +693,17 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       const numberOfLogs = await logger.count();
       logger.log("INFO", `Number of logs: ${numberOfLogs}`);
+    },
+    signSomething: async () => {
+      const { signTransaction } = get();
+
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not initialized");
+      }
+      const txId = await prompt("Insert transaction ID to sign");
+      if (txId) {
+        return signTransaction(txId);
+      }
     },
   };
 });
