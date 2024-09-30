@@ -197,7 +197,7 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
                 {label}
               </button>
             ) : null}
-            {tx.details && !isFinal(tx.status) && (
+            {tx.status && !isFinal(tx.status) && (
               <button
                 className="btn btn-sm btn-secondary"
                 disabled={inProgress || tx.status === "CANCELLING"}

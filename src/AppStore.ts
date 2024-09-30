@@ -367,8 +367,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           env: ENV_CONFIG.NCW_SDK_ENV as TEnv,
           logLevel: "VERBOSE",
           logger,
-          // authClientId: "ae66ebed-fddb-49c7-b202-92da3bc9d109", // old rentblocks
-          authClientId: "6303105e-38ac-4a21-8909-2b1f7f205fd1", // new rentblocks
+          authClientId: ENV_CONFIG.AUTH_CLIENT_ID,
           authTokenRetriever: {
             getAuthToken: () => authManager.getAccessToken(),
           },
@@ -383,8 +382,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           storageProvider,
         };
         fireblocksEW = EmbeddedWallet.getInstance(ewOpts.authClientId) ?? EmbeddedWallet.initialize(ewOpts);
-        fireblocksNCW =
-          getFireblocksNCWInstance(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
+        fireblocksNCW = EmbeddedWallet.getCore(deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
         // txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
         //   const txs = updateOrAddTx(get().txs, tx);
@@ -425,8 +423,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      //@ts-ignore
-      await apiService.cancelTransaction(deviceId, txId);
+      await fireblocksEW.cancelTransaction(txId);
       set((state) => {
         const index = state.txs.findIndex((t) => t.id === txId);
         if (index === -1) {
@@ -778,7 +775,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
     },
     saasGetTxs: async () => {
       const { txs: currTxs } = get();
-      const after = Math.max(...currTxs.map((tx) => tx.createdAt ?? 0));
+      const mostRecentTx = Math.max(...currTxs.map((tx) => tx.createdAt ?? 0));
+      const after = Number.isFinite(mostRecentTx) ? mostRecentTx : 0;
       const response = await fireblocksEW.getTransactions({
         after,
       });
