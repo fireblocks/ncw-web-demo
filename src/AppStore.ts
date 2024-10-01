@@ -731,7 +731,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     saasTxToOTA: async () => {
       const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
       const destAddress = await prompt("Insert destination address")!;
-      const amount = await prompt("Insert amount", "0.001")!;
+      const amount = await prompt("Insert amount", "0.0001")!;
       const params: ICreateTransactionParams = {
         assetId,
         source: {
@@ -745,14 +745,14 @@ export const useAppStore = create<IAppState>()((set, get) => {
         },
         amount,
       };
-      const res = await fireblocksEW.createTransaction(params);
-      console.log("@@@ DEBUGS | saasTxToOTA: | res:", res);
+      const { id } = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToOTA: | id:", id);
     },
     saasTxToNCW: async () => {
       const { walletId } = get();
       const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
       const destWalletId = await prompt("Insert destination walletId", walletId ?? undefined)!;
-      const amount = await prompt("Insert amount", "0.001")!;
+      const amount = await prompt("Insert amount", "0.0001")!;
       const params: ICreateTransactionParams = {
         assetId,
         source: {
@@ -765,13 +765,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
         },
         amount,
       };
-      const res = await fireblocksEW.createTransaction(params);
-      console.log("@@@ DEBUGS | saasTxToNCW: | res:", res);
+      const { id } = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToNCW: | id:", id);
     },
     saasTxToVault: async () => {
       const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
       const vaultAccountId = await prompt("Insert destination vaultAccountId", "0")!;
-      const amount = await prompt("Insert amount", "0.001")!;
+      const amount = await prompt("Insert amount", "0.0001")!;
       const params: ICreateTransactionParams = {
         assetId,
         source: {
@@ -783,8 +783,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
         },
         amount,
       };
-      const res = await fireblocksEW.createTransaction(params);
-      console.log("@@@ DEBUGS | saasTxToVault: | res:", res);
+      const { id } = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToVault: | id:", id);
     },
     saasStartListenToTxs: async () => {
       const { txSubscriber } = get();
