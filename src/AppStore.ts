@@ -31,6 +31,7 @@ import {
   IEmbeddedWalletOptions,
   INcwCoreOptions,
 } from "@fireblocks/embedded-wallet-sdk/dist/src/types";
+import { TransactionSubscriberService } from "./TransactionSubscriberService";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -80,6 +81,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     txs: [],
     appStoreInitialized: false,
     deviceId: null,
+    txSubscriber: null,
     loginToDemoAppServerStatus: "not_started",
     assignDeviceStatus: "not_started",
     joinWalletStatus: "not_started",
@@ -165,10 +167,13 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
+      if (!fireblocksNCW) {
+        throw new Error("fireblocksNCW is not set");
+      }
 
       try {
-        //@ts-ignore
-        await fireblocksEW.askToJoinWalletExisting(deviceId, walletId);
+        throw new Error("Not implemented");
+        // await fireblocksNCW.askToJoinWalletExisting(deviceId, walletId);
         set((state) => ({
           ...state,
           deviceId,
@@ -384,12 +389,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
         fireblocksEW = EmbeddedWallet.getInstance(ewOpts.authClientId) ?? EmbeddedWallet.initialize(ewOpts);
         fireblocksNCW = EmbeddedWallet.getCore(deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
-        // txsUnsubscriber = apiService.listenToTxs(deviceId, (tx: ITransactionData) => {
-        //   const txs = updateOrAddTx(get().txs, tx);
-        //   set((state) => ({ ...state, txs }));
-        // });
+        const txSubscriber = new TransactionSubscriberService(fireblocksEW);
+
         const keysStatus = await fireblocksNCW.getKeysStatus();
-        set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available" }));
+        set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available", txSubscriber }));
       } catch (e) {
         console.error(e);
         fireblocksNCW = null;
@@ -773,25 +776,22 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const res = await fireblocksEW.createTransaction(params);
       console.log("@@@ DEBUGS | saasTxToVault: | res:", res);
     },
-    saasGetTxs: async () => {
-      const { txs: currTxs } = get();
-      const mostRecentTx = Math.max(...currTxs.map((tx) => tx.createdAt ?? 0));
-      const after = Number.isFinite(mostRecentTx) ? mostRecentTx : 0;
-      const response = await fireblocksEW.getTransactions({
-        after,
+    saasStartListenToTxs: async () => {
+      const { txSubscriber } = get();
+      if (!txSubscriber) {
+        throw new Error("txSubscriber is not initialized");
+      }
+      txSubscriber.listenToTransactions((result) => {
+        const txs = updateOrAddTx(get().txs, result);
+        set((state) => ({ ...state, txs }));
       });
-      console.log("@@@ DEBUGS | saasGetTxs: | response:", response);
-
-      const txs = updateOrAddTx(
-        get().txs,
-        response.map((tx) => ({
-          id: tx.id,
-          status: tx.status as any,
-          createdAt: tx.createdAt,
-          lastUpdated: tx.lastUpdated,
-        })),
-      );
-      set((state) => ({ ...state, txs }));
+    },
+    saasStopListenToTxs: async () => {
+      const { txSubscriber } = get();
+      if (!txSubscriber) {
+        throw new Error("txSubscriber is not initialized");
+      }
+      txSubscriber?.stopListening();
     },
   };
 });

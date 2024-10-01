@@ -83,7 +83,7 @@ function formatTimeAgo(date: Date) {
   }
 }
 
-function isFinal(status: TTransactionStatus) {
+export function isFinal(status: TTransactionStatus) {
   switch (status) {
     case "COMPLETED":
     case "FAILED":

@@ -10,6 +10,7 @@ import {
   TPassphraseLocation,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
+import { TransactionSubscriberService } from "./TransactionSubscriberService";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
@@ -67,6 +68,7 @@ export interface IAppState {
   accounts: TAccount[];
   passphrases: TPassphrases | null;
   supportedAssets: Record<number, TSupportedAssets>;
+  txSubscriber: TransactionSubscriberService | null;
   initAppStore: () => void;
   disposeAppStore: () => void;
   getGoogleDriveCredentials: () => Promise<string>;
@@ -124,5 +126,6 @@ export interface IAppState {
   saasTxToOTA: () => Promise<void>;
   saasTxToNCW: () => Promise<void>;
   saasTxToVault: () => Promise<void>;
-  saasGetTxs: () => Promise<void>;
+  saasStartListenToTxs: () => Promise<void>;
+  saasStopListenToTxs: () => Promise<void>;
 }
