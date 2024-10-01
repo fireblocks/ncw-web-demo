@@ -4,15 +4,25 @@ import { isFinal } from "./components/TransactionRow";
 
 const DEFAULT_SLEEP_TIME_MS = 10_000; // 10 seconds
 
+export type TTxCallback = (txs: ITransactionData[]) => void;
 export class TransactionSubscriberService {
+  private static _instance: TransactionSubscriberService | null = null;
   private _active = false;
   private _outgoingAfter = 0;
   private _incomingAfter = 0;
-  constructor(private _fireblocksEW: EmbeddedWallet) {
-    console.log("TransactionSubscriberService created");
+
+  private constructor(private _fireblocksEW: EmbeddedWallet) {}
+
+  static async initialize(fireblocksEW: EmbeddedWallet) {
+    if (this._instance) {
+      return this._instance;
+    }
+    const txSubscriber = new TransactionSubscriberService(fireblocksEW);
+    this._instance = txSubscriber;
+    return txSubscriber;
   }
 
-  public async listenToTransactions(callback: (txs: ITransactionData[]) => void) {
+  public async listenToTransactions(callback: TTxCallback) {
     if (this._active) {
       console.log("already listening to transactions");
       return;
@@ -21,24 +31,31 @@ export class TransactionSubscriberService {
     this._active = true;
     while (this._active) {
       try {
-        const [outgoingTxs, incomingTxs] = await Promise.all([
-          this._fireblocksEW.getTransactions({ source: true, after: this._outgoingAfter }),
-          this._fireblocksEW.getTransactions({ destination: true, after: this._incomingAfter }),
-        ]);
-
-        this._outgoingAfter = this._updateAfterTimestamp(outgoingTxs, this._outgoingAfter);
-        this._incomingAfter = this._updateAfterTimestamp(incomingTxs, this._incomingAfter);
-
-        const response = [...outgoingTxs, ...incomingTxs].map(this._transactionResponseToTransactionData);
-        callback(response);
-
+        const txs = await this.fetchTransactions();
+        callback(txs);
         await this._sleep();
       } catch (error) {
         console.error("Error while fetching transactions", error);
         await this._sleep();
-        continue;
       }
     }
+  }
+
+  public async fetchTransactions(): Promise<ITransactionData[]> {
+    const [outgoingTxs, incomingTxs] = await Promise.all([
+      this._fireblocksEW.getTransactions({ source: true, after: this._outgoingAfter }),
+      this._fireblocksEW.getTransactions({ destination: true, after: this._incomingAfter }),
+    ]);
+
+    this._outgoingAfter = this._updateAfterTimestamp(outgoingTxs, this._outgoingAfter);
+    this._incomingAfter = this._updateAfterTimestamp(incomingTxs, this._incomingAfter);
+
+    const txMap = new Map<string, any>();
+    [...outgoingTxs, ...incomingTxs].forEach((tx) => {
+      txMap.set(tx.id, tx);
+    });
+    const response = Array.from(txMap.values()).map(this._transactionResponseToTransactionData);
+    return response;
   }
 
   private _updateAfterTimestamp(txs: any[], currentAfter: number): number {

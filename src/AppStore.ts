@@ -355,7 +355,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
           },
         };
 
-        const { deviceId } = get();
+        const { deviceId, txs } = get();
         if (!deviceId) {
           throw new Error("deviceId is not set");
         }
@@ -389,7 +389,17 @@ export const useAppStore = create<IAppState>()((set, get) => {
         fireblocksEW = EmbeddedWallet.getInstance(ewOpts.authClientId) ?? EmbeddedWallet.initialize(ewOpts);
         fireblocksNCW = EmbeddedWallet.getCore(deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
-        const txSubscriber = new TransactionSubscriberService(fireblocksEW);
+        const txSubscriber = await TransactionSubscriberService.initialize(fireblocksEW);
+        if (txs.length === 0) {
+          txSubscriber
+            .fetchTransactions()
+            .then((txs) => {
+              set((state) => ({ ...state, txs }));
+            })
+            .catch((e) => {
+              console.error("Error while fetching transactions", e);
+            });
+        }
 
         const keysStatus = await fireblocksNCW.getKeysStatus();
         set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available", txSubscriber }));
