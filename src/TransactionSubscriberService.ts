@@ -70,7 +70,7 @@ export class TransactionSubscriberService {
   }
 
   public stopListening() {
-    console.log("stopping to listen to transactions...");
+    console.log("stopping transaction listener...");
     this._active = false;
   }
 
