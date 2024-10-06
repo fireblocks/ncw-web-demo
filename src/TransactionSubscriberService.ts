@@ -5,6 +5,7 @@ import { isFinal } from "./components/TransactionRow";
 const DEFAULT_SLEEP_TIME_MS = 10_000; // 10 seconds
 
 export type TTxCallback = (txs: ITransactionData[]) => void;
+
 export class TransactionSubscriberService {
   private static _instance: TransactionSubscriberService | null = null;
   private _active = false;
@@ -59,14 +60,26 @@ export class TransactionSubscriberService {
   }
 
   private _updateAfterTimestamp(txs: any[], currentAfter: number): number {
-    const nonFinalTxs = txs.filter((tx) => !isFinal(tx.status as any));
-    if (nonFinalTxs.length > 0) {
-      const result = Math.min(...nonFinalTxs.map((tx) => tx.createdAt));
-      return isFinite(result) ? result : currentAfter;
-    } else {
-      const result = Math.max(...txs.map((tx) => tx.createdAt));
-      return isFinite(result) ? result : currentAfter;
+    let minNonFinal = Infinity;
+    let maxCreatedAt = -Infinity;
+
+    for (const tx of txs) {
+      if (!isFinal(tx.status as any)) {
+        if (tx.createdAt < minNonFinal) {
+          minNonFinal = tx.createdAt;
+        }
+      }
+      if (tx.createdAt > maxCreatedAt) {
+        maxCreatedAt = tx.createdAt;
+      }
     }
+
+    if (minNonFinal !== Infinity) {
+      return minNonFinal;
+    } else if (maxCreatedAt !== -Infinity) {
+      return maxCreatedAt;
+    }
+    return currentAfter;
   }
 
   public stopListening() {

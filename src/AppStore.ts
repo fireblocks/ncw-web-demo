@@ -12,7 +12,6 @@ import {
   TEvent,
   TMPCAlgorithm,
   version as fireblocksNCWSdkVersion,
-  getFireblocksNCWInstance,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData, IBackupInfo } from "./IAppState";
@@ -38,7 +37,6 @@ export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_a
 export type TRequestDecodedData = { email: string; requestId: string; platform: string };
 
 export const useAppStore = create<IAppState>()((set, get) => {
-  // let apiService: ApiService | null = null;
   let txsUnsubscriber: (() => void) | null = null;
   let fireblocksNCW: IFireblocksNCW | null = null;
   let fireblocksEW: EmbeddedWallet;
