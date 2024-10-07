@@ -806,7 +806,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         },
       };
       const { id } = await fireblocksEW.createTransaction(params);
-      console.log("@@@ DEBUGS | saasTxToVault: | id:", id);
+      console.log("@@@ DEBUGS | saasTypedMsgTx: | id:", id);
     },
     saasStartListenToTxs: async () => {
       const { txSubscriber } = get();
