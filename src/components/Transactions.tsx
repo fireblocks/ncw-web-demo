@@ -15,6 +15,7 @@ export const Transactions: React.FC = () => {
     saasTxToVault,
     saasStartListenToTxs,
     saasStopListenToTxs,
+    saasTypedMsgTx,
   } = useAppStore();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
@@ -55,6 +56,10 @@ export const Transactions: React.FC = () => {
     action: saasTxToVault,
     label: "Create Tx to Vault",
   };
+  const saasTypedMsgTxAction: IActionButtonProps = {
+    action: saasTypedMsgTx,
+    label: "Create a typed msg Tx",
+  };
   const saasStartListenToTxsAction: IActionButtonProps = {
     action: saasStartListenToTxs,
     label: "Start listening to txs",
@@ -72,6 +77,7 @@ export const Transactions: React.FC = () => {
         saasTxToOTAAction,
         saasTxToNCWAction,
         saasTxToVaultAction,
+        saasTypedMsgTxAction,
         saasStartListenToTxsAction,
         saasStopListenToTxsAction,
         signSomethingAction,

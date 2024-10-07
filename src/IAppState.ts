@@ -10,7 +10,7 @@ import {
   TPassphraseLocation,
 } from "./services/ApiService";
 import { IUser } from "./auth/IAuthManager";
-import { TransactionSubscriberService } from "./TransactionSubscriberService";
+import { TransactionSubscriberService } from "./services/TransactionSubscriberService";
 
 export interface IAssetInfo {
   asset: IWalletAsset;
@@ -128,4 +128,5 @@ export interface IAppState {
   saasTxToVault: () => Promise<void>;
   saasStartListenToTxs: () => Promise<void>;
   saasStopListenToTxs: () => Promise<void>;
+  saasTypedMsgTx: () => Promise<void>;
 }

@@ -30,7 +30,8 @@ import {
   IEmbeddedWalletOptions,
   INcwCoreOptions,
 } from "@fireblocks/embedded-wallet-sdk/dist/src/types";
-import { TransactionSubscriberService } from "./TransactionSubscriberService";
+import { TransactionSubscriberService } from "./services/TransactionSubscriberService";
+import { buildTypedData } from "./utils/typedData";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -699,6 +700,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       downloadLink.click();
       logger.log("INFO", `Collected ${logs.length} logs`);
     },
+
     clearLogs: async () => {
       if (!logger) {
         return;
@@ -780,6 +782,28 @@ export const useAppStore = create<IAppState>()((set, get) => {
           id: vaultAccountId,
         },
         amount,
+      };
+      const { id } = await fireblocksEW.createTransaction(params);
+      console.log("@@@ DEBUGS | saasTxToVault: | id:", id);
+    },
+    saasTypedMsgTx: async () => {
+      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
+      const params: ICreateTransactionParams = {
+        operation: "TYPED_MESSAGE" as any,
+        assetId,
+        source: {
+          id: "0",
+        },
+        extraParameters: {
+          rawMessageData: {
+            messages: [
+              {
+                type: "EIP712",
+                content: buildTypedData(),
+              },
+            ],
+          },
+        },
       };
       const { id } = await fireblocksEW.createTransaction(params);
       console.log("@@@ DEBUGS | saasTxToVault: | id:", id);
