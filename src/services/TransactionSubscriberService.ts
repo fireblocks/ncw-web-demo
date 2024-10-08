@@ -44,8 +44,14 @@ export class TransactionSubscriberService {
 
   public async fetchTransactions(): Promise<ITransactionData[]> {
     const [outgoingTxs, incomingTxs] = await Promise.all([
-      this._fireblocksEW.getTransactions({ source: true, after: this._outgoingAfter }),
-      this._fireblocksEW.getTransactions({ destination: true, after: this._incomingAfter }),
+      this._fireblocksEW.getTransactions({
+        outgoing: true,
+        after: this._outgoingAfter,
+      }),
+      this._fireblocksEW.getTransactions({
+        incoming: true,
+        after: this._incomingAfter,
+      }),
     ]);
 
     this._outgoingAfter = this._updateAfterTimestamp(outgoingTxs, this._outgoingAfter);
