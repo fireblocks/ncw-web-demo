@@ -8,7 +8,7 @@ export default defineConfig(({ command, mode }) => {
     base: "/ncw-web-demo/",
     plugins: [react(), splitVendorChunkPlugin()],
     server: {
-      open: true,
+      open: false,
       host: 'localhost',
       port: (env.VITE_PORT && Number(env.VITE_PORT)) || 5173,
       hmr: true,
