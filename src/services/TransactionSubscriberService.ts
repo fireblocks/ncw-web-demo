@@ -1,6 +1,7 @@
 import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
 import { ITransactionData } from "../services/ApiService";
 import { isFinal } from "../components/TransactionRow";
+import { TransactionResponse } from "@fireblocks/ts-sdk";
 
 const DEFAULT_SLEEP_TIME_MS = 10_000; // 10 seconds
 
@@ -25,18 +26,18 @@ export class TransactionSubscriberService {
 
   public async listenToTransactions(callback: TTxCallback) {
     if (this._active) {
-      console.log("already listening to transactions");
+      console.warn("transaction listener is already active...");
       return;
     }
-    console.log("started listening to transactions...");
+    console.log("starting transaction listener...");
     this._active = true;
     while (this._active) {
       try {
         const txs = await this.fetchTransactions();
         callback(txs);
-        await this._sleep();
       } catch (error) {
         console.error("Error while fetching transactions", error);
+      } finally {
         await this._sleep();
       }
     }
@@ -46,11 +47,11 @@ export class TransactionSubscriberService {
     const [outgoingTxs, incomingTxs] = await Promise.all([
       this._fireblocksEW.getTransactions({
         outgoing: true,
-        after: this._outgoingAfter,
+        after: this._outgoingAfter.toString(),
       }),
       this._fireblocksEW.getTransactions({
         incoming: true,
-        after: this._incomingAfter,
+        after: this._incomingAfter.toString(),
       }),
     ]);
 
@@ -59,31 +60,33 @@ export class TransactionSubscriberService {
 
     const txMap = new Map<string, any>();
     [...outgoingTxs, ...incomingTxs].forEach((tx) => {
-      txMap.set(tx.id, tx);
+      txMap.set(tx.id!, tx);
     });
+    console.log("fetched transactions", txMap.size);
     const response = Array.from(txMap.values()).map(this._transactionResponseToTransactionData);
     return response;
   }
 
-  private _updateAfterTimestamp(txs: any[], currentAfter: number): number {
+  private _updateAfterTimestamp(txs: TransactionResponse[], currentAfter: number): number {
     let minNonFinal = Infinity;
     let maxCreatedAt = -Infinity;
 
     for (const tx of txs) {
       if (!isFinal(tx.status as any)) {
-        if (tx.createdAt < minNonFinal) {
-          minNonFinal = tx.createdAt;
+        if (tx.createdAt! < minNonFinal) {
+          minNonFinal = tx.createdAt!;
         }
       }
-      if (tx.createdAt > maxCreatedAt) {
-        maxCreatedAt = tx.createdAt;
+      if (tx.createdAt! > maxCreatedAt) {
+        maxCreatedAt = tx.createdAt!;
       }
     }
 
     if (minNonFinal !== Infinity) {
       return minNonFinal;
     } else if (maxCreatedAt !== -Infinity) {
-      return maxCreatedAt;
+      // add one to prevent fetching the same tx again
+      return maxCreatedAt + 1;
     }
     return currentAfter;
   }
@@ -136,6 +139,7 @@ export class TransactionSubscriberService {
       },
     };
   }
+
   private _sleep(ms: number = DEFAULT_SLEEP_TIME_MS) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

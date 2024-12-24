@@ -5,6 +5,7 @@ import { IActionButtonProps } from "./ui/ActionButton";
 import { AreYouSureDialog } from "./ui/AreYouSureDialog";
 import { Card } from "./ui/Card";
 import { ENV_CONFIG } from "../env_config";
+import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
 
 export const FireblocksNCWInitializer: React.FC = () => {
   const {
@@ -93,9 +94,11 @@ export const FireblocksNCWInitializer: React.FC = () => {
   return (
     <>
       <Card
-        title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV}) - Version ${fireblocksNCWSdkVersion}`}
+        title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV})`}
         actions={sdkActions}
       >
+        <div>EW Version: {EmbeddedWallet.version}</div>
+        <div>CORE NCW Version: {fireblocksNCWSdkVersion}</div>
         <div>{fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}</div>
       </Card>
       <AreYouSureDialog

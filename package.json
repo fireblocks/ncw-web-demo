@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@fireblocks/embedded-wallet-sdk": "1.0.0",
-    "@fireblocks/ncw-js-sdk": "12.5.0",
+    "@fireblocks/ncw-js-sdk": "12.5.3",
     "base58-js": "^2.0.0",
     "classnames": "^2.3.2",
     "js-base64": "^3.7.5",
@@ -28,6 +28,7 @@
     "socket.io-client": "^4.7.3"
   },
   "devDependencies": {
+    "@fireblocks/ts-sdk": "^5.0.0-perf-load",
     "@types/gapi": "^0.0.46",
     "@types/gapi.auth2": "^0.0.59",
     "@types/gapi.client.drive-v3": "^0.0.3",

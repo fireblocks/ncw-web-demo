@@ -11,7 +11,6 @@ import {
   TEnv,
   TEvent,
   TMPCAlgorithm,
-  version as fireblocksNCWSdkVersion,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData, IBackupInfo } from "./IAppState";
@@ -26,6 +25,7 @@ import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
 import { IndexedDBLogger } from "./logger/IndexedDBLogger";
 import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
 import {
+  CORE_VERSION,
   ICreateTransactionParams,
   IEmbeddedWalletOptions,
   INcwCoreOptions,
@@ -67,7 +67,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion,
+    fireblocksNCWSdkVersion: CORE_VERSION,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
@@ -151,6 +151,21 @@ export const useAppStore = create<IAppState>()((set, get) => {
           const account = await fireblocksEW.createAccount();
           console.log("@@@ DEBUGS | initFireblocksNCW: | account:", account);
         }
+        const { txs, txSubscriber } = get();
+        if (!txSubscriber) {
+          return;
+        }
+        console.log("// @@@ DEBUGS: fetching transactions");
+        if (txs.length === 0) {
+          txSubscriber
+            .fetchTransactions()
+            .then((txs) => {
+              set((state) => ({ ...state, txs }));
+            })
+            .catch((e) => {
+              console.error("Error while fetching transactions", e);
+            });
+        }
         set((state) => ({ ...state, walletId, assignDeviceStatus: "success" }));
       } catch (e) {
         console.error(e);
@@ -232,7 +247,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const requestData = await prompt("Insert encoded request data");
+      const requestData = prompt("Insert encoded request data");
       if (requestData) {
         try {
           const decodedData: TRequestDecodedData = JSON.parse(decode(requestData));
@@ -385,20 +400,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
           secureStorageProvider,
           storageProvider,
         };
-        fireblocksEW = EmbeddedWallet.getInstance(ewOpts.authClientId) ?? EmbeddedWallet.initialize(ewOpts);
+        fireblocksEW = new EmbeddedWallet(ewOpts);
         fireblocksNCW = EmbeddedWallet.getCore(deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
         const txSubscriber = await TransactionSubscriberService.initialize(fireblocksEW);
-        if (txs.length === 0) {
-          txSubscriber
-            .fetchTransactions()
-            .then((txs) => {
-              set((state) => ({ ...state, txs }));
-            })
-            .catch((e) => {
-              console.error("Error while fetching transactions", e);
-            });
-        }
 
         const keysStatus = await fireblocksNCW.getKeysStatus();
         set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available", txSubscriber }));
@@ -689,7 +694,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!logger) {
         return;
       }
-      const limitInput = await prompt("Enter number of logs to collect (empty for all)");
+      const limitInput = prompt("Enter number of logs to collect (empty for all)");
       const limit = limitInput ? parseInt(limitInput) : null;
       const logs = await logger.collect(limit);
       const logsString = logs.map((log) => JSON.stringify(log)).join("\n");
@@ -705,7 +710,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!logger) {
         return;
       }
-      const limitInput = await prompt("Enter number of logs to clear (empty for all)");
+      const limitInput = prompt("Enter number of logs to clear (empty for all)");
       const limit = limitInput ? parseInt(limitInput) : null;
       const clearedLogsNum = await logger.clear(limit);
       logger.log("INFO", `Cleared logs: ${clearedLogsNum}`);
@@ -723,15 +728,16 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const txId = await prompt("Insert transaction ID to sign");
+      const txId = prompt("Insert transaction ID to sign");
       if (txId) {
         return signTransaction(txId);
       }
     },
     saasTxToOTA: async () => {
-      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
-      const destAddress = await prompt("Insert destination address")!;
-      const amount = await prompt("Insert amount", "0.0001")!;
+      const { accounts } = get();
+      const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
+      const destAddress = prompt("Insert destination address")!;
+      const amount = prompt("Insert amount", "0.0001")!;
       const params: ICreateTransactionParams = {
         assetId,
         source: {
@@ -749,10 +755,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
       console.log("@@@ DEBUGS | saasTxToOTA: | id:", id);
     },
     saasTxToNCW: async () => {
-      const { walletId } = get();
-      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
-      const destWalletId = await prompt("Insert destination walletId", walletId ?? undefined)!;
-      const amount = await prompt("Insert amount", "0.0001")!;
+      const { walletId, accounts } = get();
+      const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
+      const destWalletId = prompt("Insert destination walletId", walletId ?? undefined)!;
+      const amount = prompt("Insert amount", "0.0001")!;
       const params: ICreateTransactionParams = {
         assetId,
         source: {
@@ -769,9 +775,10 @@ export const useAppStore = create<IAppState>()((set, get) => {
       console.log("@@@ DEBUGS | saasTxToNCW: | id:", id);
     },
     saasTxToVault: async () => {
-      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
-      const vaultAccountId = await prompt("Insert destination vaultAccountId", "0")!;
-      const amount = await prompt("Insert amount", "0.0001")!;
+      const { accounts } = get();
+      const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
+      const vaultAccountId = prompt("Insert destination vaultAccountId", "0")!;
+      const amount = prompt("Insert amount", "0.0001")!;
       const params: ICreateTransactionParams = {
         assetId,
         source: {
@@ -787,7 +794,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       console.log("@@@ DEBUGS | saasTxToVault: | id:", id);
     },
     saasTypedMsgTx: async () => {
-      const assetId = await prompt("Insert asset ID", "ETH_TEST6")!.toUpperCase();
+      const { accounts } = get();
+      const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
       const params: ICreateTransactionParams = {
         operation: "TYPED_MESSAGE" as any,
         assetId,
@@ -827,3 +835,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
     },
   };
 });
+
+function getDefaultAsset(accounts: any[]) {
+  // @ts-ignore
+  return Object.values(accounts[0] ?? {})[0]?.asset?.id ?? "XRP_TEST";
+}

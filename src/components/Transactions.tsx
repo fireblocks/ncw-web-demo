@@ -92,6 +92,7 @@ export const Transactions: React.FC = () => {
               <th>Asset</th>
               <th>Operation</th>
               <th>Status</th>
+              <th>Sub Status</th>
               <th>Actions</th>
             </tr>
           </thead>

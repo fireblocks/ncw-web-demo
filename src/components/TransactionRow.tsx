@@ -183,6 +183,9 @@ export const TransactionRow: React.FC<IProps> = ({ tx }) => {
       <td className="px-1">
         <div className={statusColor(tx.status)}>{tx.status}</div>
       </td>
+      <td className="px-1 text-ellipsis overflow-scroll whitespace-nowrap">
+        <div className={statusColor(tx.status)}>{tx.details?.subStatus}</div>
+      </td>
       <td className="px-1">
         {isSdkCompletedSigning ? (
           <div>Signed</div>
