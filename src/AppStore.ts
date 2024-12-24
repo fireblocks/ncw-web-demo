@@ -405,7 +405,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
 
         const txSubscriber = await TransactionSubscriberService.initialize(fireblocksEW);
 
-        const keysStatus = await fireblocksNCW.getKeysStatus();
+        const keysStatus = await fireblocksNCW?.getKeysStatus();
         set((state) => ({ ...state, keysStatus, fireblocksNCWStatus: "sdk_available", txSubscriber }));
       } catch (e) {
         console.error(e);
@@ -627,7 +627,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
       const assets = await fireblocksEW.getAssets(accountId);
-      const reduced = assets.data.reduce<Record<string, { asset: IWalletAsset }>>((acc, asset) => {
+      const reduced = assets.data.reduce<Record<string, { asset: IWalletAsset }>>((acc: any, asset: any) => {
         acc[asset.id] = { asset };
         return acc;
       }, {});
@@ -645,7 +645,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       }
       const assets = await fireblocksEW.getSupportedAssets();
       console.log("@@@ DEBUGS | refreshSupportedAssets: | assets:", assets.data.length);
-      const reduced = assets.data.reduce<Record<string, IWalletAsset>>((acc, asset) => {
+      const reduced = assets.data.reduce<Record<string, IWalletAsset>>((acc: any, asset: any) => {
         acc[asset.id] = asset;
         return acc;
       }, {});
