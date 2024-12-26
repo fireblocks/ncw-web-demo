@@ -9,7 +9,7 @@ export const Transactions: React.FC = () => {
   const {
     txs,
     accounts,
-    signSomething,
+    testingStuff,
     saasTxToOTA,
     saasTxToNCW,
     saasTxToVault,
@@ -38,9 +38,9 @@ export const Transactions: React.FC = () => {
     label: "Create Tx",
     isDisabled: !assetsToSelectFrom?.length,
   };
-  const signSomethingAction: IActionButtonProps = {
-    action: signSomething,
-    label: "Sign Something",
+  const testingButtonAction: IActionButtonProps = {
+    action: testingStuff,
+    label: "Yuval's testing button",
   };
 
   // SAAS
@@ -80,7 +80,7 @@ export const Transactions: React.FC = () => {
         saasTypedMsgTxAction,
         saasStartListenToTxsAction,
         saasStopListenToTxsAction,
-        signSomethingAction,
+        testingButtonAction,
       ]}
     >
       <div className="overflow-x-auto">

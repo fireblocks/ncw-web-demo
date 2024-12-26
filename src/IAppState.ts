@@ -122,7 +122,7 @@ export interface IAppState {
   countLogs: () => Promise<void>;
   clearLogs: () => Promise<void>;
   collectLogs: () => Promise<void>;
-  signSomething: () => Promise<void>;
+  testingStuff: () => Promise<void>;
   saasTxToOTA: () => Promise<void>;
   saasTxToNCW: () => Promise<void>;
   saasTxToVault: () => Promise<void>;

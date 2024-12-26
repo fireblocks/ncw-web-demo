@@ -722,15 +722,16 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const numberOfLogs = await logger.count();
       logger.log("INFO", `Number of logs: ${numberOfLogs}`);
     },
-    signSomething: async () => {
-      const { signTransaction } = get();
-
+    testingStuff: async () => {
       if (!fireblocksNCW) {
         throw new Error("fireblocksNCW is not initialized");
       }
-      const txId = prompt("Insert transaction ID to sign");
+      const txId = prompt("Insert transaction ID to CANCEL!");
       if (txId) {
-        return signTransaction(txId);
+        console.log("get tx by id " + txId);
+        const res = await fireblocksEW.cancelTransaction(txId);
+        console.log("@@@ DEBUGS | testingStuff: | res:", res);
+        // return signTransaction(txId);
       }
     },
     saasTxToOTA: async () => {
