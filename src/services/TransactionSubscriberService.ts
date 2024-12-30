@@ -2,6 +2,7 @@ import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
 import { ITransactionData } from "../services/ApiService";
 import { isFinal } from "../components/TransactionRow";
 import { TransactionResponse } from "@fireblocks/ts-sdk";
+import { IGetTransactionsParams } from "@fireblocks/embedded-wallet-sdk/dist/src/types";
 
 const DEFAULT_SLEEP_TIME_MS = 10_000; // 10 seconds
 
@@ -45,11 +46,11 @@ export class TransactionSubscriberService {
 
   public async fetchTransactions(): Promise<ITransactionData[]> {
     const [outgoingTxs, incomingTxs] = await Promise.all([
-      this._fireblocksEW.getTransactions({
+      this.fetchTransactionsAllPages({
         outgoing: true,
         after: this._outgoingAfter.toString(),
       }),
-      this._fireblocksEW.getTransactions({
+      this.fetchTransactionsAllPages({
         incoming: true,
         after: this._incomingAfter.toString(),
       }),
@@ -65,6 +66,24 @@ export class TransactionSubscriberService {
     console.log("fetched transactions", txMap.size);
     const response = Array.from(txMap.values()).map(this._transactionResponseToTransactionData);
     return response;
+  }
+
+  private async fetchTransactionsAllPages(filter: IGetTransactionsParams): Promise<TransactionResponse[]> {
+    const transactions: TransactionResponse[] = [];
+    let pageCursor: string | null = null;
+
+    do {
+      if (pageCursor) {
+        filter.pageCursor = pageCursor;
+      }
+      const response = await this._fireblocksEW.getTransactions(filter);
+      pageCursor = response.paging?.next ?? null;
+      if (response.data) {
+        transactions.push(...response.data);
+      }
+    } while (pageCursor);
+
+    return transactions;
   }
 
   private _updateAfterTimestamp(txs: TransactionResponse[], currentAfter: number): number {
