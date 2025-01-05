@@ -35,7 +35,7 @@ export const DeriveAssetsList: React.FC<IProps> = ({ privateKey }) => {
           const accountId = Number(assetInfo.address?.accountId ?? 0);
           const addressIndex = Number(assetInfo.address?.addressIndex ?? 0);
           const change: number = 0;
-          const derivationPathStr = `m/44'/${asset.coinType}'/${account}'/${change}/${addressIndex}`;
+          const derivationPathStr = `m/44'/${asset.coinType}'/${accountId}'/${change}/${addressIndex}`;
           const derivedAssetKey = deriveAssetKey(privateKey, asset.coinType, accountId, change, addressIndex);
 
           const assetListItem: IAssetListItem = {
