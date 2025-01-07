@@ -15,7 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fireblocks/embedded-wallet-sdk": "1.0.0",
+    "@fireblocks/embedded-wallet-sdk": "file:../embedded-wallet-js-sdk",
     "@fireblocks/ncw-js-sdk": "12.5.3",
     "base58-js": "^2.0.0",
     "classnames": "^2.3.2",
