@@ -738,11 +738,13 @@
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.10.5.tgz#cd9897680d0a2f1bce8d8c23a590e5874f4617c5"
   integrity sha512-eSkJsnhBWv5kCTSU1tSUVl9mpFu+5NXXunZc83le8GMjMlsWwQArSc7cJJ4yl+aDFY0NGLi0AjZWMn1axOrkRg==
 
-"@fireblocks/embedded-wallet-sdk@file:../embedded-wallet-js-sdk":
-  version "1.0.0"
+"@fireblocks/embedded-wallet-sdk@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.6.tgz#6927e6c54274414338b8fc72819d82cab7c2a506"
+  integrity sha512-pkD1rXzU9TeCl61iB+tRgmg9lbA6zdavnrXRR2OJ2C8IQJAzC3ulnwvrqxGuGxmPkJ2hpca2ECLVFohafI0Siw==
   dependencies:
     "@fireblocks/ncw-js-sdk" "12.5.3"
-    "@fireblocks/ts-sdk" "^4.0.0"
+    "@fireblocks/ts-sdk" "^7.0.0"
     axios "^1.7.2"
 
 "@fireblocks/ncw-js-infra@1.0.21":
@@ -761,16 +763,6 @@
     jwt-decode "^3.1.2"
     node-forge "^1.3.1"
 
-"@fireblocks/ts-sdk@^4.0.0":
-  version "4.0.0"
-  resolved "https://gitlab.com/api/v4/projects/20565764/packages/npm/@fireblocks/ts-sdk/-/@fireblocks/ts-sdk-4.0.0.tgz#7b61e7e42a7d5f02bc86ab6cd99a8386c12435b0"
-  integrity sha1-e2Hn5Cp9XwK8hqts2ZqDhsEkNbA=
-  dependencies:
-    axios "^1.6.7"
-    jsonwebtoken "8.5.1"
-    platform "1.3.6"
-    uuid "8.3.2"
-
 "@fireblocks/ts-sdk@^5.0.0-perf-load":
   version "5.0.0-perf-load"
   resolved "https://gitlab.com/api/v4/projects/20565764/packages/npm/@fireblocks/ts-sdk/-/@fireblocks/ts-sdk-5.0.0-perf-load.tgz#5c70922db8db8a8fb23f608c09358a46875ceef2"
@@ -778,6 +770,16 @@
   dependencies:
     axios "^1.6.7"
     jsonwebtoken "8.5.1"
+    platform "1.3.6"
+    uuid "8.3.2"
+
+"@fireblocks/ts-sdk@^7.0.0":
+  version "7.0.0"
+  resolved "https://gitlab.com/api/v4/projects/20565764/packages/npm/@fireblocks/ts-sdk/-/@fireblocks/ts-sdk-7.0.0.tgz#2c54b5986254909d050200a4d0b8a85ce4012fc4"
+  integrity sha1-LFS1mGJUkJ0FAgCk0LioXOQBL8Q=
+  dependencies:
+    axios "^1.6.7"
+    jsonwebtoken "^9.0.2"
     platform "1.3.6"
     uuid "8.3.2"
 
@@ -2156,6 +2158,22 @@ jsonwebtoken@8.5.1:
     ms "^2.1.1"
     semver "^5.6.0"
 
+jsonwebtoken@^9.0.2:
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-9.0.2.tgz#65ff91f4abef1784697d40952bb1998c504caaf3"
+  integrity sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==
+  dependencies:
+    jws "^3.2.2"
+    lodash.includes "^4.3.0"
+    lodash.isboolean "^3.0.3"
+    lodash.isinteger "^4.0.4"
+    lodash.isnumber "^3.0.3"
+    lodash.isplainobject "^4.0.6"
+    lodash.isstring "^4.0.1"
+    lodash.once "^4.0.0"
+    ms "^2.1.1"
+    semver "^7.5.4"
+
 jwa@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/jwa/-/jwa-1.4.1.tgz#743c32985cb9e98655530d53641b66c8645b039a"
@@ -2735,6 +2753,11 @@ semver@^7.3.7:
   integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
   dependencies:
     lru-cache "^6.0.0"
+
+semver@^7.5.4:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 shebang-command@^2.0.0:
   version "2.0.0"

@@ -13,25 +13,25 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData, IBackupInfo } from "./IAppState";
+import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
-import { ApiService, IAssetAddress, ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
+import { ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
 import { PasswordEncryptedLocalStorage } from "./services/PasswordEncryptedLocalStorage";
 import { IAuthManager } from "./auth/IAuthManager";
 import { FirebaseAuthManager } from "./auth/FirebaseAuthManager";
 import { decode } from "js-base64";
 import { IndexedDBLoggerFactory } from "./logger/IndexedDBLogger.factory";
 import { IndexedDBLogger } from "./logger/IndexedDBLogger";
-import { EmbeddedWallet } from "@fireblocks/embedded-wallet-sdk";
+import { TransactionSubscriberService } from "./services/TransactionSubscriberService";
+import { buildTypedData } from "./utils/typedData";
 import {
   CORE_VERSION,
+  EmbeddedWallet,
   ICreateTransactionParams,
   IEmbeddedWalletOptions,
   INcwCoreOptions,
-} from "@fireblocks/embedded-wallet-sdk/dist/src/types";
-import { TransactionSubscriberService } from "./services/TransactionSubscriberService";
-import { buildTypedData } from "./utils/typedData";
+} from "@fireblocks/embedded-wallet-sdk";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -285,7 +285,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       };
 
       try {
-        const res = (await fireblocksEW.getLatestBackup()) as IBackupInfo;
+        const res = await fireblocksEW.getLatestBackup();
         passphrases.passphrases.push({ passphraseId: res.passphraseId, location: "GoogleDrive" });
       } catch (e) {}
 
