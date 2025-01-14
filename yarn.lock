@@ -738,10 +738,10 @@
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.10.5.tgz#cd9897680d0a2f1bce8d8c23a590e5874f4617c5"
   integrity sha512-eSkJsnhBWv5kCTSU1tSUVl9mpFu+5NXXunZc83le8GMjMlsWwQArSc7cJJ4yl+aDFY0NGLi0AjZWMn1axOrkRg==
 
-"@fireblocks/embedded-wallet-sdk@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.6.tgz#6927e6c54274414338b8fc72819d82cab7c2a506"
-  integrity sha512-pkD1rXzU9TeCl61iB+tRgmg9lbA6zdavnrXRR2OJ2C8IQJAzC3ulnwvrqxGuGxmPkJ2hpca2ECLVFohafI0Siw==
+"@fireblocks/embedded-wallet-sdk@0.0.8-alpha.567d626":
+  version "0.0.8-alpha.567d626"
+  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.8-alpha.567d626.tgz#5bee8b49aa9e31af56ac50fccec00610fbf6f206"
+  integrity sha512-kjdV6qpNb+fvpvGQzzkiYIsMtrH8VnKu7nEf6JpAmzG89G38TN3UFInvnTJKkBj3OC56VyBl8fW5CItX4XwO+g==
   dependencies:
     "@fireblocks/ncw-js-sdk" "12.5.3"
     "@fireblocks/ts-sdk" "^7.0.0"
