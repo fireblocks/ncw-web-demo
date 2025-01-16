@@ -28,9 +28,9 @@ import { buildTypedData } from "./utils/typedData";
 import {
   CORE_VERSION,
   EmbeddedWallet,
-  ICreateTransactionParams,
+  ICoreOptions,
   IEmbeddedWalletOptions,
-  INcwCoreOptions,
+  ITransactionRequest,
 } from "@fireblocks/embedded-wallet-sdk";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
@@ -394,7 +394,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
             enabled: false,
           },
         };
-        const coreNCWOptions: INcwCoreOptions = {
+        const coreNCWOptions: ICoreOptions = {
           deviceId,
           eventsHandler,
           secureStorageProvider,
@@ -665,7 +665,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("deviceId is not set");
       }
 
-      const balance = await fireblocksEW.getAssetBalance(accountId, assetId);
+      const balance = await fireblocksEW.getBalance(accountId, assetId);
 
       set((state) => ({
         ...state,
@@ -741,7 +741,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
       const destAddress = prompt("Insert destination address")!;
       const amount = prompt("Insert amount", "0.0001")!;
-      const params: ICreateTransactionParams = {
+      const params: ITransactionRequest = {
         assetId,
         source: {
           id: "0",
@@ -762,7 +762,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
       const destWalletId = prompt("Insert destination walletId", walletId ?? undefined)!;
       const amount = prompt("Insert amount", "0.0001")!;
-      const params: ICreateTransactionParams = {
+      const params: ITransactionRequest = {
         assetId,
         source: {
           id: "0",
@@ -782,7 +782,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
       const vaultAccountId = prompt("Insert destination vaultAccountId", "0")!;
       const amount = prompt("Insert amount", "0.0001")!;
-      const params: ICreateTransactionParams = {
+      const params: ITransactionRequest = {
         assetId,
         source: {
           id: "0",
@@ -799,7 +799,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
     saasTypedMsgTx: async () => {
       const { accounts } = get();
       const assetId = prompt("Insert asset ID", getDefaultAsset(accounts))!.toUpperCase();
-      const params: ICreateTransactionParams = {
+      const params: ITransactionRequest = {
         operation: "TYPED_MESSAGE" as any,
         assetId,
         source: {
