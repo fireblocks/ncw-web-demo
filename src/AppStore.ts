@@ -370,10 +370,12 @@ export const useAppStore = create<IAppState>()((set, get) => {
           },
         };
 
-        const { deviceId, txs } = get();
+        const { deviceId: rawDeviceId, setDeviceId } = get();
+        const deviceId = prompt("Enter device ID", rawDeviceId!) ?? rawDeviceId;
         if (!deviceId) {
           throw new Error("deviceId is not set");
         }
+        setDeviceId(deviceId);
         const storageProvider = new BrowserLocalStorageProvider();
         const secureStorageProvider = new PasswordEncryptedLocalStorage(deviceId, () => {
           const password = prompt("Enter password", "");

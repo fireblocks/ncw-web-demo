@@ -74,7 +74,8 @@ export const AssignDevice: React.FC = () => {
         </label>
         <input
           type="text"
-          disabled={blockActions}
+          // disabled={blockActions}
+          disabled={true}
           value={deviceId ?? ""}
           className="input input-bordered"
           onChange={(e) => setDeviceId(e.target.value)}
