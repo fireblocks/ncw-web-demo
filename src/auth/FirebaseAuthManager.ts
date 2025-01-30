@@ -77,12 +77,12 @@ export class FirebaseAuthManager implements IAuthManager {
     return this._auth.signOut();
   }
 
-  public getAccessToken(): Promise<string> {
+  public getAccessToken(forceRefresh = false): Promise<string> {
     if (!this._loggedUser) {
       throw new Error("User is not logged in");
     }
 
-    return this._loggedUser.getIdToken();
+    return this._loggedUser.getIdToken(forceRefresh);
   }
 
   public get loggedUser(): IUser | null {

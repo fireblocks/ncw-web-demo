@@ -327,6 +327,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
       set((state) => ({ ...state, userId: null, loginToDemoAppServerStatus: "started" }));
       try {
         const userId = authManager.getUserId();
+        const token = await authManager.getAccessToken(true);
+        console.log("@@@ DEBUGS | loginToDemoAppServer: | token:", token)
         set((state) => ({
           ...state,
           userId,
