@@ -19,7 +19,9 @@ export const FireblocksNCWExampleActions: React.FC = () => {
 
   return (
     <>
-      {joinExistingWalletMode ? <JoinExistingWallet /> : <GenerateMPCKeys />}
+      {/* {joinExistingWalletMode ? <JoinExistingWallet /> : <GenerateMPCKeys />} */}
+      <GenerateMPCKeys />
+      <JoinExistingWallet />
       <BackupAndRecover />
       {hasAKey && (
         <>
