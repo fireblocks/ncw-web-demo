@@ -705,14 +705,14 @@
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-1.0.1.tgz#0b62c9f47f557a5b4adc073bb0a47542ce6af4c4"
   integrity sha512-jmEnr/pk0yVkA7mIlHNnxCi+wWzOFUg0WyIotgkKAb2u1J7fAeDBcVNSTjTihbAYNusCLQdW5s9IJ5qwnEufcQ==
 
-"@fireblocks/embedded-wallet-sdk@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.14.tgz#fa3f637822d6047d72145d47d6317b7e1983080d"
-  integrity sha512-NP1OxHQY+gXfO/GMw7pYYWhKF2lHBm8BzQY6+eaJxX4iERvl3BSKQC7I0hQ1h2bOcftuVJeG/RxULvLd2VBe9Q==
+"@fireblocks/embedded-wallet-sdk@^0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.15.tgz#69f90921b83889487d675055cdc8cb7debd0cb8c"
+  integrity sha512-bjeM6ZzG0CorBQSyZuZUNDManar5EnXtGLxRITFXcaPzR/lWJPwWto7vxeFDFgmOYdv9U1lBio5PA695OwFJ6w==
   dependencies:
     "@fireblocks/ncw-js-sdk" "12.5.3"
-    "@fireblocks/ts-sdk" "^7.0.0"
-    axios "^1.7.2"
+    "@fireblocks/ts-sdk" "^8.0.0"
+    axios "^1.7.9"
 
 "@fireblocks/ncw-js-infra@1.0.21":
   version "1.0.21"
@@ -740,10 +740,10 @@
     platform "1.3.6"
     uuid "8.3.2"
 
-"@fireblocks/ts-sdk@^7.0.0":
-  version "7.0.0"
-  resolved "https://gitlab.com/api/v4/projects/20565764/packages/npm/@fireblocks/ts-sdk/-/@fireblocks/ts-sdk-7.0.0.tgz#2c54b5986254909d050200a4d0b8a85ce4012fc4"
-  integrity sha1-LFS1mGJUkJ0FAgCk0LioXOQBL8Q=
+"@fireblocks/ts-sdk@^8.0.0":
+  version "8.0.0"
+  resolved "https://gitlab.com/api/v4/projects/20565764/packages/npm/@fireblocks/ts-sdk/-/@fireblocks/ts-sdk-8.0.0.tgz#e913053f5299238fe899742e4b177f9ae0a0a32d"
+  integrity sha1-6RMFP1KZI4/omXQuSxd/muCgoy0=
   dependencies:
     axios "^1.6.7"
     jsonwebtoken "^9.0.2"
@@ -1254,7 +1254,7 @@ autoprefixer@^10.4.14:
     picocolors "^1.0.1"
     postcss-value-parser "^4.2.0"
 
-axios@^1.6.7, axios@^1.7.2:
+axios@^1.6.7, axios@^1.7.9:
   version "1.7.9"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.9.tgz#d7d071380c132a24accda1b2cfc1535b79ec650a"
   integrity sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==
