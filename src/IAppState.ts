@@ -128,5 +128,6 @@ export interface IAppState {
   saasTxToVault: () => Promise<void>;
   saasStartListenToTxs: () => Promise<void>;
   saasStopListenToTxs: () => Promise<void>;
+  saasGetTransactions: () => Promise<void>;
   saasTypedMsgTx: () => Promise<void>;
 }

@@ -328,7 +328,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
       try {
         const userId = authManager.getUserId();
         const token = await authManager.getAccessToken(true);
-        console.log("@@@ DEBUGS | loginToDemoAppServer: | token:", token)
+        console.log("@@@ DEBUGS | loginToDemoAppServer: | token:", token);
         set((state) => ({
           ...state,
           userId,
@@ -845,6 +845,15 @@ export const useAppStore = create<IAppState>()((set, get) => {
         throw new Error("txSubscriber is not initialized");
       }
       txSubscriber?.stopListening();
+    },
+    saasGetTransactions: async () => {
+      const { txSubscriber } = get();
+      if (!txSubscriber) {
+        throw new Error("txSubscriber is not initialized");
+      }
+      const result = await txSubscriber.fetchTransactions();
+      const txs = updateOrAddTx(get().txs, result);
+      set((state) => ({ ...state, txs }));
     },
   };
 });
