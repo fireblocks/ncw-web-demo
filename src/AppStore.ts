@@ -2,7 +2,6 @@ import {
   BrowserLocalStorageProvider,
   ConsoleLoggerFactory,
   getFireblocksNCWInstance,
-  // getFireblocksNCWInstance,
   IEventsHandler,
   IFireblocksNCW,
   IJoinWalletEvent,
@@ -408,13 +407,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
           storageProvider,
         };
         fireblocksEW = new EmbeddedWallet(ewOpts);
-        fireblocksNCW = EmbeddedWallet.getCore(deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
+        fireblocksNCW = getFireblocksNCWInstance(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
-        // const d = getFireblocksNCWInstance(coreNCWOptions.deviceId);
-        // console.log("@@@ DEBUGS | initFireblocksNCW: | d:", d);
-        // const d2 = EmbeddedWallet.getCore(coreNCWOptions.deviceId);
-        // console.log("@@@ DEBUGS | initFireblocksNCW: | d2:", d2);
-        // console.log("// @@@ DEBUGS: ", d === d2);
         const txSubscriber = await TransactionSubscriberService.initialize(fireblocksEW);
 
         const keysStatus = await fireblocksNCW?.getKeysStatus();
