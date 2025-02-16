@@ -253,10 +253,10 @@ export class ApiService {
     //     console.error("Failed to invoke RPC", response?.error);
     //     throw new Error("Failed to invoke RPC");
     //   }
-      
+
     //   return response.response;
     // }
-    
+
     return this._postCall(`api/devices/${deviceId}/rpc`, { message });
   }
 

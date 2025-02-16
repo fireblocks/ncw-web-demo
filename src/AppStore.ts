@@ -1,7 +1,7 @@
 import {
   BrowserLocalStorageProvider,
   ConsoleLoggerFactory,
-  // getFireblocksNCWInstance,
+  getFireblocksNCWInstance,
   IEventsHandler,
   IFireblocksNCW,
   IJoinWalletEvent,
@@ -14,7 +14,7 @@ import {
   TMPCAlgorithm,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
-import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData } from "./IAppState";
+import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData, IAssetInfo } from "./IAppState";
 import { generateDeviceId, getOrCreateDeviceId, storeDeviceId } from "./deviceId";
 import { ENV_CONFIG } from "./env_config";
 import { ITransactionData, IWalletAsset, TPassphraseLocation } from "./services/ApiService";
@@ -33,6 +33,7 @@ import {
   IEmbeddedWalletOptions,
   ITransactionRequest,
 } from "@fireblocks/embedded-wallet-sdk";
+import { NCW } from "fireblocks-sdk";
 
 export type TAsyncActionStatus = "not_started" | "started" | "success" | "failed";
 export type TFireblocksNCWStatus = "sdk_not_ready" | "initializing_sdk" | "sdk_available" | "sdk_initialization_failed";
@@ -406,13 +407,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
           storageProvider,
         };
         fireblocksEW = new EmbeddedWallet(ewOpts);
-        fireblocksNCW = EmbeddedWallet.getCore(deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
+        fireblocksNCW = getFireblocksNCWInstance(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
-        // const d = getFireblocksNCWInstance(coreNCWOptions.deviceId);
-        // console.log("@@@ DEBUGS | initFireblocksNCW: | d:", d);
-        // const d2 = EmbeddedWallet.getCore(coreNCWOptions.deviceId);
-        // console.log("@@@ DEBUGS | initFireblocksNCW: | d2:", d2);
-        // console.log("// @@@ DEBUGS: ", d === d2);
         const txSubscriber = await TransactionSubscriberService.initialize(fireblocksEW);
 
         const keysStatus = await fireblocksNCW?.getKeysStatus();
@@ -598,14 +594,21 @@ export const useAppStore = create<IAppState>()((set, get) => {
       if (!deviceId) {
         throw new Error("deviceId is not set");
       }
-      const address: any = await fireblocksEW.addAsset(accountId, assetId);
+      const address: NCW.WalletAssetAddress = await fireblocksEW.addAsset(accountId, assetId);
       console.log("@@@ DEBUGS | addAsset: | address:", address);
-      const asset: any = await fireblocksEW.getAsset(accountId, assetId);
+      const asset: NCW.WalletAssetResponse = await fireblocksEW.getAsset(accountId, assetId);
       console.log("@@@ DEBUGS | addAsset: | asset:", asset);
+      const assetInfo: IAssetInfo = {
+        asset: {
+          ...asset,
+          ethNetwork: Number(asset.ethNetwork),
+        },
+        address,
+      };
       set((state) => ({
         ...state,
         accounts: state.accounts.map((assets, index) =>
-          index === accountId ? { ...assets, ...{ [assetId]: { asset, address } } } : assets,
+          index === accountId ? { ...assets, ...{ [assetId]: assetInfo } } : assets,
         ),
       }));
     },
