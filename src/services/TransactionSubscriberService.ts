@@ -1,6 +1,6 @@
-import { EmbeddedWallet, IGetTransactionsParams } from "@fireblocks/embedded-wallet-sdk";
 import { ITransactionData } from "../services/ApiService";
 import { isFinal } from "../components/TransactionRow";
+import { EmbeddedWallet, IGetTransactionsParams } from "@fireblocks/embedded-wallet-sdk";
 import { TransactionResponse } from "@fireblocks/ts-sdk";
 
 const DEFAULT_SLEEP_TIME_MS = 10_000; // 10 seconds

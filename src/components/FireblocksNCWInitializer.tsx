@@ -93,10 +93,7 @@ export const FireblocksNCWInitializer: React.FC = () => {
 
   return (
     <>
-      <Card
-        title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV})`}
-        actions={sdkActions}
-      >
+      <Card title={`Fireblocks SDK (${ENV_CONFIG.NCW_SDK_ENV})`} actions={sdkActions}>
         <div>EW Version: {EmbeddedWallet.version}</div>
         <div>CORE NCW Version: {fireblocksNCWSdkVersion}</div>
         <div>{fireblocksNCWStatus === "sdk_initialization_failed" && "Initialization Failed"}</div>
