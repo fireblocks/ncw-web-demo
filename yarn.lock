@@ -717,10 +717,10 @@
   resolved "https://registry.npmjs.org/@firebase/webchannel-wrapper/-/webchannel-wrapper-1.0.1.tgz"
   integrity sha512-jmEnr/pk0yVkA7mIlHNnxCi+wWzOFUg0WyIotgkKAb2u1J7fAeDBcVNSTjTihbAYNusCLQdW5s9IJ5qwnEufcQ==
 
-"@fireblocks/embedded-wallet-sdk@^0.0.17":
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.17.tgz#53c0deeebfc0ba9c355b873342540fd7d20769a3"
-  integrity sha512-kchuj8MIPK9vr36bvG8PGq/8vzP+W3IjPmpNgb/k3qhqxyr6RH3aQYQJ5SD3ZBQjaiEyUv0ydOhw7kMRpvjNeg==
+"@fireblocks/embedded-wallet-sdk@^0.0.18":
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.18.tgz#200ab19ffcc39bec8100fa17258c3824cfd0324d"
+  integrity sha512-breoSExDYZ0qRLrdTqSO6vP2e3fHJn6lLlU4J5CdE/KOfmZ7+L12y57Zs36lOwQXMl5jk8fGA7lxXk6EbYEV5w==
   dependencies:
     axios "^1.7.9"
 

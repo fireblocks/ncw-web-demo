@@ -12,6 +12,7 @@ import {
   TEnv,
   TEvent,
   TMPCAlgorithm,
+  version as NCW_CORE_VERSION,
 } from "@fireblocks/ncw-js-sdk";
 import { create } from "zustand";
 import { IAppState, IPassphraseInfo, TPassphrases, TAppMode, INewTransactionData, IAssetInfo } from "./IAppState";
@@ -27,7 +28,6 @@ import { IndexedDBLogger } from "./logger/IndexedDBLogger";
 import { TransactionSubscriberService } from "./services/TransactionSubscriberService";
 import { buildTypedData } from "./utils/typedData";
 import {
-  CORE_VERSION,
   EmbeddedWallet,
   ICoreOptions,
   IEmbeddedWalletOptions,
@@ -69,7 +69,7 @@ export const useAppStore = create<IAppState>()((set, get) => {
   };
 
   return {
-    fireblocksNCWSdkVersion: CORE_VERSION,
+    fireblocksNCWSdkVersion: NCW_CORE_VERSION,
     automateInitialization: ENV_CONFIG.AUTOMATE_INITIALIZATION,
     joinExistingWalletMode: false,
     loggedUser: authManager.loggedUser,
