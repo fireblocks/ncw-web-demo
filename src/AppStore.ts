@@ -374,9 +374,9 @@ export const useAppStore = create<IAppState>()((set, get) => {
         };
 
         const { deviceId: rawDeviceId, setDeviceId } = get();
-        const deviceId = prompt("Enter device ID", rawDeviceId!) ?? rawDeviceId;
+        let deviceId = prompt("Enter device ID (leave empty for a random uuid)", rawDeviceId ?? "");
         if (!deviceId) {
-          throw new Error("deviceId is not set");
+          deviceId = generateDeviceId();
         }
         setDeviceId(deviceId);
         const storageProvider = new BrowserLocalStorageProvider();
@@ -407,7 +407,8 @@ export const useAppStore = create<IAppState>()((set, get) => {
           storageProvider,
         };
         fireblocksEW = new EmbeddedWallet(ewOpts);
-        fireblocksNCW = getFireblocksNCWInstance(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
+        fireblocksNCW =
+          getFireblocksNCWInstance(coreNCWOptions.deviceId) ?? (await fireblocksEW.initializeCore(coreNCWOptions));
 
         const txSubscriber = await TransactionSubscriberService.initialize(fireblocksEW);
 
