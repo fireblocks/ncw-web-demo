@@ -717,10 +717,10 @@
   resolved "https://registry.npmjs.org/@firebase/webchannel-wrapper/-/webchannel-wrapper-1.0.1.tgz"
   integrity sha512-jmEnr/pk0yVkA7mIlHNnxCi+wWzOFUg0WyIotgkKAb2u1J7fAeDBcVNSTjTihbAYNusCLQdW5s9IJ5qwnEufcQ==
 
-"@fireblocks/embedded-wallet-sdk@^0.0.19":
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.19.tgz#35c086847348a3b2f7f57b8e8db4b0114822c76f"
-  integrity sha512-4V5iR1r+3Mbsgpt9k+yeCGXssvO0e9+14UP2v//llQlhd7U+0GmQCwxEPcEKBv+uOyu3VsMNhWql6tXIZyuUaA==
+"@fireblocks/embedded-wallet-sdk@^0.0.22":
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/@fireblocks/embedded-wallet-sdk/-/embedded-wallet-sdk-0.0.22.tgz#11faf9ea38a7b11655140ff97b8d2882fe7057a7"
+  integrity sha512-bEAXEKTuBeD1n/Dt6p0OlAvPu9M7hCrDJY9Lu9jF7Ud9yIhnAlJ9R7YFbNmP6tAiVP02sSgOCb5j41DHDxC14g==
   dependencies:
     axios "^1.7.9"
 
@@ -731,10 +731,10 @@
   dependencies:
     "@types/emscripten" "^1.39.7"
 
-"@fireblocks/ncw-js-sdk@12.5.4-beta.1.eb81d39":
-  version "12.5.4-beta.1.eb81d39"
-  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-12.5.4-beta.1.eb81d39.tgz#152737bb2d52f4c8eedc98b1fd4ea7e12101fe97"
-  integrity sha512-3VTfk7v2XL9Njv/Qn6gta7Sws3Mb7KOrnaJD00Q/9/oa2kglWtYfMS2bWIcDz514qUkj0RqcPzlrVyzGVOa0yg==
+"@fireblocks/ncw-js-sdk@^12.5.5":
+  version "12.5.5"
+  resolved "https://registry.yarnpkg.com/@fireblocks/ncw-js-sdk/-/ncw-js-sdk-12.5.5.tgz#9b7b7408e8a727c3e557ee8f17e6f8bfd6f2541e"
+  integrity sha512-UqVdxUYDkdl8gC+PlfZJZY/SZfIBxcvvBYuJpPXt7M1lSG8BYJxYg/28mtf5bk4XuK/3yVO1TXSW3Bto2hXzwQ==
   dependencies:
     "@fireblocks/ncw-js-infra" "1.0.21"
     jwt-decode "^3.1.2"
