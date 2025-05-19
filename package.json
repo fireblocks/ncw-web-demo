@@ -24,7 +24,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "socket.io-client": "^4.7.3",
-    "react-qr-code": "^2.0.12"
+    "react-qr-code": "^2.0.15"
   },
   "devDependencies": {
     "@types/gapi": "^0.0.46",
