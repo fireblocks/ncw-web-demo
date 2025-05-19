@@ -33,7 +33,7 @@ export const NavBar: React.FC = () => {
   return (
     <div className="navbar max-w-4xl self-center bg-base-100 shadow-xl rounded-box pl-4 pr-4">
       <div className="flex-1">
-        <span className="text-xl">Fireblocks NCW Example</span>
+        <span className="text-xl">Fireblocks Embedded Wallet Web Demo</span>
       </div>
       {userElement}
     </div>
