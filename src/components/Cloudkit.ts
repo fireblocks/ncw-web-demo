@@ -35,19 +35,83 @@ export function useCloudkit() {
     };
   }, []);
 
+  // Fixed authentication effect with cleanup and abort handling
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     const setupAuth = async (ck: CloudKit) => {
-      const appleId = await ck.getDefaultContainer().setUpAuth();
-      if (appleId) {
-        setAppleSignedIn(true);
-      } else {
-        setAppleSignedIn(false);
+      const MAX_RETRIES = 3;
+      const MAX_DELAY = 8000; // Cap at 8 seconds
+      let attempt = 0;
+      let delay = 1000; // Start with 1 second
+
+      while (isMounted && attempt < MAX_RETRIES) {
+        attempt++;
+        try {
+          const appleId = await ck.getDefaultContainer().setUpAuth();
+
+          // Check if component is still mounted before state update
+          if (!isMounted) return;
+
+          if (appleId) {
+            setAppleSignedIn(true);
+            return; // Success
+          }
+
+          // If appleId is null but no error, it's a valid state (user not signed in)
+          setAppleSignedIn(false);
+          return;
+        } catch (error: any) {
+          // Check if component is still mounted before continuing
+          if (!isMounted) return;
+
+          const isRetryableError = error?.status === 421 || error?.ckErrorCode === "UNKNOWN_ERROR";
+          const isLastAttempt = attempt >= MAX_RETRIES;
+
+          console.warn(`CloudKit auth attempt ${attempt}/${MAX_RETRIES} failed:`, error);
+
+          if (isRetryableError && !isLastAttempt) {
+            console.log(`Retrying CloudKit auth in ${delay}ms due to transient error...`);
+
+            // Use a cancellable timeout
+            await new Promise<void>((resolve) => {
+              timeoutId = setTimeout(() => {
+                timeoutId = null;
+                resolve();
+              }, delay);
+            });
+
+            // Check again after timeout completes
+            if (!isMounted) return;
+
+            delay = Math.min(delay * 2, MAX_DELAY); // Exponential backoff with cap
+          } else {
+            // Either non-retryable error or last attempt failed
+            setAppleSignedIn(false);
+            throw error;
+          }
+        }
       }
     };
 
     if (cloudkit) {
-      setupAuth(cloudkit);
+      setupAuth(cloudkit).catch((err) => {
+        // Only log if component is still mounted
+        if (isMounted) {
+          console.error("CloudKit authentication setup failed:", err);
+        }
+      });
     }
+
+    // Cleanup function - prevents memory leaks and race conditions
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    };
   }, [cloudkit]);
 
   useEffect(() => {
@@ -66,5 +130,5 @@ export function useCloudkit() {
     }
   }, [appleSignedIn]);
 
-  return { cloudkit, appleSignedIn };
+  return { cloudkit, appleSignedIn, setAppleSignedIn };
 }
